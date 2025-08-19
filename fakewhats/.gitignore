@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.dist/
+.env
+.env.*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+public/*.mp4
+public/*.mov
+

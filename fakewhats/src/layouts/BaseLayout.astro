@@ -1,0 +1,20 @@
+---
+import { COPY } from '../content/copy';
+import '../styles/global.css';
+---
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{COPY.app.title}</title>
+    <meta name="description" content={COPY.app.description} />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  </head>
+  <body>
+    <slot />
+  </body>
+  
+</html>
+
+

@@ -1,0 +1,148 @@
+---
+import { COPY } from '../content/copy';
+const { messages, form } = COPY;
+const autoPostbackMs = form.autoPostbackSeconds * 1000;
+---
+<div class="container">
+  <slot name="header" />
+  <div class="chat" id="chat">
+    <div class="bubble">
+      <strong>{messages.vslTitle}</strong><br/>
+      {messages.intro}
+      <div class="vsl-card" style="margin-top:8px">
+        <div class="vsl-thumb">VSL</div>
+        <div style="padding:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <a id="openVsl" class="cta" href="#">{messages.vslCta}</a>
+          <span style="font-size:12px;color:var(--muted)">{messages.vslCloseHint}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="floating-form" id="floatingForm" data-minimized="false" aria-live="polite" style="display:none">
+      <div class="form-card" id="formCard">
+        <div class="form-title">
+          <span>{COPY.form.title}</span>
+          <button id="minimizeBtn" aria-label="Свернуть форму" style="background:none;border:none;cursor:pointer">—</button>
+        </div>
+        <div class="timer"><span>{COPY.form.timerPrefix}</span><span id="timer">04:26</span></div>
+        <form id="leadForm" style="margin-top:8px">
+          <div class="form-row">
+            <label class="label" for="name">{COPY.form.nameLabel}</label>
+            <input class="input" id="name" name="name" placeholder="Иван" required>
+          </div>
+          <div class="form-row">
+            <label class="label" for="phone">{COPY.form.phoneLabel}</label>
+            <input class="input" id="phone" name="phone" placeholder="+52 700-000-00-00" required>
+          </div>
+          <div class="form-row">
+            <label class="label" for="calltime">{COPY.form.callTimeLabel}</label>
+            <select class="select" id="calltime" name="calltime">
+              <option value="">— не выбрано —</option>
+              {COPY.form.callTimeOptions.map(o => (
+                <option value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <button class="submit" type="submit">{COPY.form.submit}</button>
+          <div class="legal">{COPY.form.legal}</div>
+        </form>
+      </div>
+    </div>
+
+    <button id="minimizedBadge" class="minimized"><span class="dot"></span><span>{COPY.form.minimized}</span></button>
+  </div>
+</div>
+
+<div id="popup" class="popup-backdrop" role="dialog" aria-modal="true" aria-label="Видео">
+  <div class="popup">
+    <button id="closePopup" class="close" aria-label="Закрыть">✕</button>
+    <video id="vslVideo" src="/vsl.mp4" controls playsinline></video>
+  </div>
+</div>
+
+<script>
+  const openVsl = document.getElementById('openVsl');
+  const popup = document.getElementById('popup');
+  const closePopup = document.getElementById('closePopup');
+  const video = document.getElementById('vslVideo');
+  const floatingForm = document.getElementById('floatingForm');
+  const minimizeBtn = document.getElementById('minimizeBtn');
+  const minimizedBadge = document.getElementById('minimizedBadge');
+  const leadForm = document.getElementById('leadForm');
+  const calltime = document.getElementById('calltime');
+
+  let postbackTimeoutId;
+
+  function openPopup() {
+    popup.style.display = 'flex';
+    video.currentTime = 0;
+    video.play().catch(() => {});
+  }
+  function closePopupAndShowForm() {
+    popup.style.display = 'none';
+    video.pause();
+    // After popup, ensure form visible (not fully minimized)
+    expandForm();
+  }
+
+  function minimizeForm() {
+    floatingForm.dataset.minimized = 'true';
+    floatingForm.style.display = 'none';
+    minimizedBadge.style.display = 'inline-flex';
+  }
+  function expandForm() {
+    floatingForm.dataset.minimized = 'false';
+    floatingForm.style.display = 'block';
+    minimizedBadge.style.display = 'none';
+  }
+
+  function scheduleAutoPostback() {
+    clearTimeout(postbackTimeoutId);
+    if (!calltime.value) {
+      postbackTimeoutId = setTimeout(() => {
+        sendPostback({ reason: 'auto-no-time' });
+      }, autoPostbackMs);
+    }
+  }
+
+  async function sendPostback(extra={}) {
+    const formData = new FormData(leadForm);
+    const payload = {
+      name: formData.get('name') || '',
+      phone: formData.get('phone') || '',
+      calltime: formData.get('calltime') || '',
+      ...extra,
+      ts: Date.now(),
+      ua: navigator.userAgent
+    };
+    try {
+      await fetch('/api/postback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.error('postback error', e);
+    }
+  }
+
+  openVsl?.addEventListener('click', (e) => { e.preventDefault(); openPopup(); });
+  closePopup?.addEventListener('click', () => { closePopupAndShowForm(); scheduleAutoPostback(); });
+  popup?.addEventListener('click', (e) => { if (e.target === popup) { closePopupAndShowForm(); scheduleAutoPostback(); } });
+  minimizeBtn?.addEventListener('click', () => { minimizeForm(); });
+  minimizedBadge?.addEventListener('click', () => { expandForm(); });
+  calltime?.addEventListener('change', () => { if (!calltime.value) scheduleAutoPostback(); else clearTimeout(postbackTimeoutId); });
+
+  leadForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearTimeout(postbackTimeoutId);
+    await sendPostback({ reason: 'submit' });
+    minimizeForm();
+    alert('Спасибо! Мы свяжемся с вами.');
+  });
+
+  // auto-open VSL on first load
+  openPopup();
+</script>
+
+

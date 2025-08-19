@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WhatsAppHeader from '../components/WhatsAppHeader.astro';
+import Chat from '../components/Chat.astro';
+---
+<BaseLayout>
+  <Chat>
+    <Fragment slot="header">
+      <WhatsAppHeader />
+    </Fragment>
+  </Chat>
+</BaseLayout>
+
+

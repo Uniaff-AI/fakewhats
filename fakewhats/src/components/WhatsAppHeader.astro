@@ -1,0 +1,23 @@
+---
+import { COPY } from '../content/copy';
+import { Icons } from '../content/icons';
+const { contactName, phone, status, verified } = COPY.header;
+---
+<div class="wa-header">
+  <div class="back" set:html={Icons.back()} />
+  <div class="avatar" style="width:34px;height:34px;border-radius:50%;background:#eee;display:grid;place-items:center;overflow:hidden;">
+    <span style="display:inline-block" set:html={Icons.mexicoFlag()} />
+  </div>
+  <div>
+    <div class="title">{phone}</div>
+    <div class="sub">{status}</div>
+  </div>
+  <div class="wa-toolbar">
+    {verified && <span set:html={Icons.verified()} />}
+    <span set:html={Icons.call()} />
+    <span set:html={Icons.camera()} />
+    <span set:html={Icons.menu()} />
+  </div>
+</div>
+
+
