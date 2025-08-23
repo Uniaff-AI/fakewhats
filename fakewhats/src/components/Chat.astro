@@ -1,64 +1,506 @@
 ---
 import { COPY } from '../content/copy';
+import OrderForm from './OrderForm.astro';
+import ReturnPopup from './ReturnPopup.astro';
+import FormReturnPopup from './FormReturnPopup.astro';
+import TimeSelectionPopup from './TimeSelectionPopup.astro';
+import DomonetkaForm from './DomonetkaForm.astro';
+import VSLExitPopup from './VSLExitPopup.astro';
+import DiscountButton from './DiscountButton.astro';
 const { messages, form } = COPY;
-const autoPostbackMs = form.autoPostbackSeconds * 1000;
+  const autoPostbackMs = form.autoPostbackSeconds ? form.autoPostbackSeconds * 1000 : 180000;
 ---
+
 <div class="container">
   <slot name="header" />
   <div class="chat" id="chat">
-    <div class="bubble">
-      <strong>{messages.vslTitle}</strong><br/>
-      {messages.intro}
-      <div class="vsl-card" style="margin-top:8px">
-        <div class="vsl-thumb">VSL</div>
-        <div style="padding:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-          <a id="openVsl" class="cta" href="#">{messages.vslCta}</a>
-          <span style="font-size:12px;color:var(--muted)">{messages.vslCloseHint}</span>
+    <!-- Encryption Message -->
+    <div class="bubble encryption">
+      {messages.encryption}
+    </div>
+
+    <!-- Urgent Message -->
+    <div class="bubble urgent">
+      <strong>{messages.urgent}</strong><br><br>
+      {messages.problem}
+    </div>
+
+    <!-- VSL Card -->
+    <div class="bubble vsl-bubble">
+      <div class="vsl-card">
+        <div class="vsl-thumb">
+          <video id="vslVideoInline" src="/gogo.mp4" muted loop playsinline class="vsl-video" onloadstart="console.log('Video loading started')" onloadeddata="console.log('Video data loaded')" oncanplay="console.log('Video can play')" onerror="console.log('Video error:', this.error)"></video>
+          <div class="vsl-overlay">
+            <!-- Основная кнопка play -->
+            <div class="vsl-play-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="40" fill="rgba(0, 0, 0, 0.7)"/>
+                <path d="M32 24L52 40L32 56V24Z" fill="white"/>
+              </svg>
+              <div class="vsl-save-text">Спасение вашей эрекции</div>
+            </div>
+            
+            <!-- Простая кнопка поверх основной (скрыта изначально) -->
+            <button id="vslPlayBtnSimple" onclick="toggleVslSound();" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: transparent; border: none; width: 200px; height: 80px; cursor: pointer; z-index: 7; display: none;"></button>
+            
+            <!-- Маленькая кнопка выключения звука (скрыта изначально) -->
+            <button id="vslMuteBtn" style="position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 6; font-size: 16px; display: none; pointer-events: auto;">🔇</button>
+            
+
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="floating-form" id="floatingForm" data-minimized="false" aria-live="polite" style="display:none">
-      <div class="form-card" id="formCard">
-        <div class="form-title">
-          <span>{COPY.form.title}</span>
-          <button id="minimizeBtn" aria-label="Свернуть форму" style="background:none;border:none;cursor:pointer">—</button>
+    <!-- Discount Button Message (скрыт изначально) -->
+    <div class="discount-message" style="display: none;">
+      <div class="product-image">
+        <img src="/Uroxel_ex.png" alt="UROXEL Triple Action" loading="lazy" />
+      </div>
+      <div class="discount-content">
+        <div class="discount-text">
+          <p><strong>ЭКСКЛЮЗИВНО!</strong> Именно для вас доступна</p>
+          <p>акционная цена на продукцию Uroxel!</p>
+          <p>Оставьте заявку по кнопке ниже!</p>
         </div>
-        <div class="timer"><span>{COPY.form.timerPrefix}</span><span id="timer">04:26</span></div>
-        <form id="leadForm" style="margin-top:8px">
-          <div class="form-row">
-            <label class="label" for="name">{COPY.form.nameLabel}</label>
-            <input class="input" id="name" name="name" placeholder="Иван" required>
+        <button id="getDiscountBtn" class="discount-btn">
+          Получить скидку
+        </button>
+      </div>
+    </div>
+
+
+
+    <!-- Auto Message with Product (shown after 3 minutes or on minimize) -->
+    <div class="auto-message" id="autoMessage" style="display: none;">
+      <div class="auto-message-content">
+        <div class="product-image">
+          <img src="/Uroxel_ex.png" alt="UROXEL Triple Action" loading="lazy" />
+        </div>
+        <div class="message-text">
+          <p><strong>ЭКСКЛЮЗИВНО!</strong> Именно для вас доступна</p>
+          <p>акционная цена на продукцию Uroxel!</p>
+          <p>Оставьте заявку по кнопке ниже!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto Discount Button (separate from message) -->
+    <div class="bubble auto-discount-container" id="autoDiscountContainer" style="display: none;">
+      <button class="auto-discount-btn" id="autoDiscountBtn">
+        Получить скидку
+      </button>
+    </div>
+
+
+
+  </div>
+
+  <!-- PWA Modals (positioned relative to chat container) -->
+  <div class="pwa-modal" id="orderFormModal" style="display: none;">
+    <div class="pwa-modal-backdrop" id="orderFormBackdrop"></div>
+    <div class="pwa-modal-content">
+      <div class="pwa-modal-header">
+        <div class="pwa-modal-handle"></div>
+        <button class="pwa-modal-close" id="closeOrderFormModal">✕</button>
+      </div>
+      
+      <div class="pwa-modal-body">
+        <!-- Form Header -->
+        <div class="form-header">
+          <h2 class="form-title">Официальная форма заказа UROXEL</h2>
+        </div>
+
+        <!-- Product Image -->
+        <div class="product-image-section">
+          <img src="/Uroxel_form.png" alt="UROXEL Triple Action" class="product-image" loading="lazy" />
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-section">
+          <div class="timer-badge">
+            <span id="orderTimer">04:19</span>
           </div>
-          <div class="form-row">
-            <label class="label" for="phone">{COPY.form.phoneLabel}</label>
-            <input class="input" id="phone" name="phone" placeholder="+52 700-000-00-00" required>
+        </div>
+
+        <!-- Form Fields -->
+        <form id="orderLeadForm" class="order-form-fields">
+          <div class="form-group">
+            <label for="orderName" class="field-label">Имя</label>
+            <input type="text" id="orderName" name="name" class="form-input" placeholder="Иван" required>
           </div>
-          <div class="form-row">
-            <label class="label" for="calltime">{COPY.form.callTimeLabel}</label>
-            <select class="select" id="calltime" name="calltime">
-              <option value="">— не выбрано —</option>
-              {COPY.form.callTimeOptions.map(o => (
-                <option value={o.value}>{o.label}</option>
-              ))}
-            </select>
+
+          <div class="form-group">
+            <label for="orderPhone" class="field-label">Телефон</label>
+            <input type="tel" id="orderPhone" name="phone" class="form-input" placeholder="+7 900 000-00-00" required>
           </div>
-          <button class="submit" type="submit">{COPY.form.submit}</button>
-          <div class="legal">{COPY.form.legal}</div>
+
+          <button type="submit" class="submit-btn">Заказать звонок</button>
+
+          <div class="form-disclaimer">
+            Специальная цена действует ограниченное количество времени. Таймер указывает оставшееся время до конца акции. Акция применима только для жителей Мексики. Полная консультация происходит во обратного звонка нашего специалиста.
+          </div>
+
+          <!-- Плашка с отзывами мужчин -->
+          <div class="reviews-banner">
+            <div class="reviews-text">
+              Отзывы мужчин,<br>
+              которые уже вернули крепкую эрекцию и<br>
+              спасли свою простату
+            </div>
+          </div>
+
+          <!-- Отзывы -->
+          <div class="reviews-section">
+            <!-- Первый отзыв (Антонио) -->
+            <div class="review-item">
+              <div class="review-images single">
+                <div class="review-image">
+                  <img src="/feedback_1.png" alt="Uroxel отзыв Антонио" loading="lazy">
+                </div>
+              </div>
+              <div class="review-content">
+                <div class="review-text">Антонио, 58 - Счастливое утро - утро с UROXEL</div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Второй отзыв (Карлос) -->
+            <div class="review-item">
+              <div class="review-images single">
+                <div class="review-image">
+                  <img src="/feedback_2.png" alt="Uroxel отзыв Карлоса" loading="lazy">
+                </div>
+              </div>
+              <div class="review-content">
+                <div class="review-text">Карлос, 45 - Всегда теперь ношу с собой и никто не догадывается, что у меня проблемы с потенцией были</div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Третий отзыв (Амалия) -->
+            <div class="review-item">
+              <div class="review-images single">
+                <div class="review-image">
+                  <img src="/feedback_3.png" alt="Uroxel отзыв Амалии" loading="lazy">
+                </div>
+              </div>
+              <div class="review-content">
+                <div class="review-text">Амалия, 53 - Всегда ношу для мужа 1 баночку в сумке</div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Четвертый отзыв (Алонсо) -->
+            <div class="review-item">
+              <div class="review-images single">
+                <div class="review-image">
+                  <img src="/feedback_4.png" alt="Uroxel отзыв Алонсо" loading="lazy">
+                </div>
+              </div>
+              <div class="review-content">
+                <div class="review-text">Алонсо, 51 - Всё пришло быстро и хорошая анонимная упавка! Очень нравится и удобно</div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Пятый отзыв (Густаво) -->
+            <div class="review-item">
+              <div class="review-images single">
+                <div class="review-image">
+                  <img src="/feedback_5.png" alt="Uroxel отзыв Густаво" loading="lazy">
+                </div>
+              </div>
+              <div class="review-content">
+                <div class="review-text">Густаво, 51 - Всё идёт по плану, даже в дороге UROXEL со мной!</div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Шестой отзыв (Игнасио) -->
+            <div class="review-item">
+              <div class="review-images single">
+                <div class="review-image">
+                  <img src="/feedback_6.png" alt="Uroxel отзыв Игнасио" loading="lazy">
+                </div>
+              </div>
+              <div class="review-content">
+                <div class="review-text">Игнасио, 68 - 3 день приёма - член стоит каждое утро - приятные эффект</div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Текстовые отзывы без картинок -->
+          <div class="text-reviews-section">
+            <!-- Отзыв 1 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Fernando C</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+              <div class="review-title">Calidad y precio</div>
+              <div class="review-date">Comentado en México el 7 de agosto de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Buena calidad y excelente precio</div>
+            </div>
+
+            <!-- Отзыв 2 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Carlos</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+              <div class="review-title">Buen producto</div>
+              <div class="review-date">Comentado en México el 21 de abril de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Estoy muy conforme con el producto</div>
+            </div>
+
+            <!-- Отзыв 3 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Elmer HRmo</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★☆</span>
+                  <span class="rating-score">4.0</span>
+                </div>
+              </div>
+              <div class="review-title">Buen producto</div>
+              <div class="review-date">Comentado en México el 11 de agosto de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Buen producto</div>
+            </div>
+
+            <!-- Отзыв 4 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Roberto Soriano Dávila</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+              <div class="review-title">Seriedad del proveedor.</div>
+              <div class="review-date">Comentado en México el 9 de noviembre de 2024</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Muy buen producto, empezó a actuar desde la primera toma, contiene elementos muy valiosos como el zinc, ya que la próstata es el órgano que contiene 10 veces más Zinc que cualquier otro órgano, también el licopeno que se usa para combatir el cáncer, así como otros productos valiosos como el ciruelo africano y la ortiga que han sido probados para desinflamar la próstata. Lo recomiendo ampliamente.</div>
+              <div class="review-helpful">A 4 personas les resultó útil</div>
+            </div>
+
+            <!-- Отзыв 5 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Gerardo ponce lopez</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+              <div class="review-title">MUY BIEN</div>
+              <div class="review-date">Comentado en México el 20 de junio de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">LLEGÓ BIEN GRACIAS</div>
+              <div class="review-helpful">A 2 personas les resultó útil</div>
+            </div>
+
+            <!-- Отзыв 6 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Cliente de Kindle</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★☆</span>
+                  <span class="rating-score">4.0</span>
+                </div>
+              </div>
+              <div class="review-title">Excelente</div>
+              <div class="review-date">Comentado en México el 4 de mayo de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Ya voy por la quinta lata. ¡El efecto es mejor de lo prometido!</div>
+            </div>
+
+            <!-- Отзыв 7 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">GABRIEL MUÑOZ NUÑEZ</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+              <div class="review-title">Gracias</div>
+              <div class="review-date">Comentado en México el 7 de junio de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Gracias</div>
+            </div>
+
+            <!-- Отзыв 8 -->
+            <div class="text-review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">👤</div>
+                  <div class="reviewer-name">Ramón Núñez-Doval</div>
+                </div>
+                <div class="review-rating">
+                  <span class="rating-stars">★★★★★</span>
+                  <span class="rating-score">5.0</span>
+                </div>
+              </div>
+              <div class="review-title">Uroxel es un buen producto</div>
+              <div class="review-date">Comentado en México el 16 de abril de 2025</div>
+              <div class="review-verified">Compra verificada</div>
+              <div class="review-text">Es un buen producto como se nos había anunciado.</div>
+            </div>
+          </div>
         </form>
       </div>
     </div>
+  </div>
 
-    <button id="minimizedBadge" class="minimized"><span class="dot"></span><span>{COPY.form.minimized}</span></button>
+  <div class="pwa-modal" id="callBookingModal" style="display: none;">
+    <div class="pwa-modal-backdrop" id="callBookingBackdrop"></div>
+    <div class="pwa-modal-content">
+      <div class="pwa-modal-header">
+        <div class="pwa-modal-handle"></div>
+        <button class="pwa-modal-close" id="closeCallBookingModal">✕</button>
+      </div>
+      
+      <div class="pwa-modal-body">
+        <!-- Product Image -->
+        <div class="product-image-section">
+          <img src="/Uroxel_form.png" alt="UROXEL Triple Action" class="product-image" loading="lazy" />
+        </div>
+
+        <div class="call-to-action">
+          <h3 class="call-title">ЗАБРОНИРУЙТЕ ЗВОНОК</h3>
+          <p class="call-subtitle">Выберите время для обратного звонка</p>
+        </div>
+
+        <div class="time-selection">
+          <select id="callTime" class="time-dropdown">
+            <option value="Прямо сейчас">Прямо сейчас</option>
+            <option value="5 минут">5 минут</option>
+            <option value="15 минут">15 минут</option>
+            <option value="30 минут">30 минут</option>
+          </select>
+        </div>
+
+        <button id="callSubmitBtn" class="call-submit-btn">Заказать звонок</button>
+        <button id="backToOrderBtn" class="back-btn-chat">Назад</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+    <!-- Chat Input (outside of chat container) -->
+    <div class="chat-input">
+    <button class="input-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+    </button>
+    <div class="input-field-container">
+      <input type="text" class="chat-input-field" placeholder="Сообщение" />
+      <button class="emoji-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.5 11c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0C9.33 11 10 10.33 10 9.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-actions">
+      <button class="action-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
+        </svg>
+      </button>
+      <button class="action-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12m-3.2 0a3.2 3.2 0 1 1 6.4 0a3.2 3.2 0 1 1 -6.4 0"/>
+          <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+        </svg>
+      </button>
+      <button class="action-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 
+<!-- Main VSL Popup -->
 <div id="popup" class="popup-backdrop" role="dialog" aria-modal="true" aria-label="Видео">
   <div class="popup">
     <button id="closePopup" class="close" aria-label="Закрыть">✕</button>
-    <video id="vslVideo" src="/vsl.mp4" controls playsinline></video>
+    <video id="vslVideo" src="/gogo.mp4" controls playsinline></video>
   </div>
 </div>
+
+<!-- Return Popup Component -->
+<ReturnPopup />
+
+<!-- Form Return Popup Component -->
+<FormReturnPopup />
+
+<!-- Time Selection Popup Component -->
+<TimeSelectionPopup />
+
+<!-- Order Form Component (скрыт, теперь используется форма в чате) -->
+<!-- <OrderForm /> -->
+
+  <!-- Domonetka Form Component -->
+  <DomonetkaForm />
+  
+  <!-- VSL Exit Popup Component -->
+  <VSLExitPopup />
 
 <script>
   const openVsl = document.getElementById('openVsl');
@@ -72,17 +514,73 @@ const autoPostbackMs = form.autoPostbackSeconds * 1000;
   const calltime = document.getElementById('calltime');
 
   let postbackTimeoutId;
+  let videoStartTime = 0;
+  let hasShownForm = false;
+
+  function toggleVslSound() {
+    const video = document.getElementById('vslVideoInline');
+    const playBtn = document.getElementById('vslPlayBtn');
+    const playBtnSimple = document.getElementById('vslPlayBtnSimple');
+    const muteBtn = document.getElementById('vslMuteBtn');
+    
+    if (video) {
+      if (video.muted) {
+        // Включаем звук
+        video.muted = false;
+        
+        // Скрываем основную кнопку и показываем кнопку выключения
+        if (playBtn) playBtn.style.display = 'none';
+        if (playBtnSimple) playBtnSimple.style.display = 'none';
+        if (muteBtn) {
+          muteBtn.style.display = 'block';
+          muteBtn.textContent = '🔇';
+        }
+      } else {
+        // Выключаем звук
+        video.muted = true;
+        
+        // Показываем основную кнопку и скрываем кнопку выключения
+        if (playBtn) playBtn.style.display = 'flex';
+        if (playBtnSimple) playBtnSimple.style.display = 'block';
+        if (muteBtn) muteBtn.style.display = 'none';
+      }
+    }
+  }
 
   function openPopup() {
-    popup.style.display = 'flex';
-    video.currentTime = 0;
-    video.play().catch(() => {});
+    // Останавливаем VSL в чате перед показом попапа
+    if (window.stopChatVsl) {
+      window.stopChatVsl();
+    }
+    
+    // Показываем попап с выбором вместо прямого открытия видео
+    if (window.showReturnPopup) {
+      window.showReturnPopup();
+    }
   }
+
   function closePopupAndShowForm() {
     popup.style.display = 'none';
     video.pause();
-    // After popup, ensure form visible (not fully minimized)
-    expandForm();
+    
+    // Уведомляем другие компоненты, что VSL закрыт
+    window.dispatchEvent(new CustomEvent('vsl-closed'));
+    
+    // НЕ запускаем VSL в чате после закрытия основного попапа
+    // VSL в чате должен запускаться только при клике на кнопку play
+    
+    // Показываем форму заказа как PWA модал (третья стадия)
+    const orderFormModal = document.getElementById('orderFormModal');
+    if (orderFormModal) {
+      orderFormModal.style.display = 'flex';
+      // Добавляем класс для анимации
+      setTimeout(() => {
+        orderFormModal.classList.add('show');
+      }, 10);
+    }
+    hasShownForm = true;
+    
+    scheduleAutoPostback();
   }
 
   function minimizeForm() {
@@ -90,6 +588,7 @@ const autoPostbackMs = form.autoPostbackSeconds * 1000;
     floatingForm.style.display = 'none';
     minimizedBadge.style.display = 'inline-flex';
   }
+
   function expandForm() {
     floatingForm.dataset.minimized = 'false';
     floatingForm.style.display = 'block';
@@ -97,12 +596,8 @@ const autoPostbackMs = form.autoPostbackSeconds * 1000;
   }
 
   function scheduleAutoPostback() {
+    // Убираем автоотправку заявок
     clearTimeout(postbackTimeoutId);
-    if (!calltime.value) {
-      postbackTimeoutId = setTimeout(() => {
-        sendPostback({ reason: 'auto-no-time' });
-      }, autoPostbackMs);
-    }
   }
 
   async function sendPostback(extra={}) {
@@ -111,6 +606,7 @@ const autoPostbackMs = form.autoPostbackSeconds * 1000;
       name: formData.get('name') || '',
       phone: formData.get('phone') || '',
       calltime: formData.get('calltime') || '',
+      videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0,
       ...extra,
       ts: Date.now(),
       ua: navigator.userAgent
@@ -126,12 +622,33 @@ const autoPostbackMs = form.autoPostbackSeconds * 1000;
     }
   }
 
-  openVsl?.addEventListener('click', (e) => { e.preventDefault(); openPopup(); });
-  closePopup?.addEventListener('click', () => { closePopupAndShowForm(); scheduleAutoPostback(); });
-  popup?.addEventListener('click', (e) => { if (e.target === popup) { closePopupAndShowForm(); scheduleAutoPostback(); } });
-  minimizeBtn?.addEventListener('click', () => { minimizeForm(); });
-  minimizedBadge?.addEventListener('click', () => { expandForm(); });
-  calltime?.addEventListener('change', () => { if (!calltime.value) scheduleAutoPostback(); else clearTimeout(postbackTimeoutId); });
+  // Event Listeners
+  // openVsl?.addEventListener('click', (e) => { 
+  //   e.preventDefault(); 
+  //   openPopup(); 
+  // });
+
+  closePopup?.addEventListener('click', () => { 
+    closePopupAndShowForm(); 
+  });
+
+  popup?.addEventListener('click', (e) => { 
+    if (e.target === popup) { 
+      closePopupAndShowForm(); 
+    } 
+  });
+
+  minimizeBtn?.addEventListener('click', () => { 
+    minimizeForm(); 
+  });
+
+  minimizedBadge?.addEventListener('click', () => { 
+    expandForm(); 
+  });
+
+  calltime?.addEventListener('change', () => { 
+    // Убираем автоотправку
+  });
 
   leadForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -141,8 +658,1811 @@ const autoPostbackMs = form.autoPostbackSeconds * 1000;
     alert('Спасибо! Мы свяжемся с вами.');
   });
 
-  // auto-open VSL on first load
-  openPopup();
+  // Сохраняем время видео при попытке ухода
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && video && !video.paused) {
+      if (window.saveVideoTime) {
+        window.saveVideoTime();
+      }
+    }
+  });
+
+  // Показываем попап возврата при попытке ухода (первая стадия воронки)
+  document.addEventListener('mouseleave', (e) => {
+    if (e.clientY <= 0 && !hasShownForm && !hasVisitedBefore) {
+      if (window.showReturnPopup) {
+        window.showReturnPopup();
+      }
+    }
+  });
+
+  // VSL не открывается автоматически - только по клику
+  let hasOpenedVsl = false;
+  
+  // Проверяем, был ли пользователь на странице ранее
+  let hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+  
+  // Первый визит - запоминаем (VSL в чате не запускается автоматически)
+  if (!hasVisitedBefore) {
+    localStorage.setItem('hasVisitedBefore', 'true');
+  }
+
+  // Глобальный таймер и счетчик банок
+  let globalTimeLeft = 4 * 60 + 19; // 4 минуты 19 секунд
+  let globalBottlesLeft = 39;
+  let globalTotalBottles = 1500;
+  
+  function updateGlobalTimer() {
+    const minutes = Math.floor(globalTimeLeft / 60);
+    const seconds = globalTimeLeft % 60;
+    const timerElements = document.querySelectorAll('#timer, #domonetkaTimer, #orderTimer');
+    timerElements.forEach(element => {
+      element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    });
+    
+    if (globalTimeLeft > 0) {
+      globalTimeLeft--;
+    }
+  }
+  
+  function updateGlobalBottles() {
+    const bottlesElements = document.querySelectorAll('#bottles, #domonetkaBottles');
+    bottlesElements.forEach(element => {
+      if (globalBottlesLeft > 0) {
+        globalBottlesLeft--;
+        element.textContent = `${globalBottlesLeft}/${globalTotalBottles}`;
+      }
+    });
+  }
+  
+  // Глобальные таймеры (запускаются только один раз)
+  let globalTimerInterval;
+  let globalBottlesInterval;
+  let globalTimersStarted = false;
+  
+  function startGlobalTimers() {
+    if (!globalTimersStarted) {
+      if (!globalTimerInterval) {
+        globalTimerInterval = setInterval(updateGlobalTimer, 1000);
+      }
+      if (!globalBottlesInterval) {
+        globalBottlesInterval = setInterval(updateGlobalBottles, 4000 + Math.random() * 1000);
+      }
+      globalTimersStarted = true;
+    }
+  }
+  
+  // Запускаем таймеры только один раз при загрузке страницы
+  startGlobalTimers();
+
+  // Обработчик кнопки "Получить скидку"
+  const getDiscountBtn = document.getElementById('getDiscountBtn');
+  getDiscountBtn?.addEventListener('click', () => {
+    console.log('getDiscountBtn clicked');
+    // Показываем форму заказа как PWA модал
+    const orderFormModal = document.getElementById('orderFormModal');
+    if (orderFormModal) {
+      orderFormModal.style.display = 'flex';
+      setTimeout(() => {
+        orderFormModal.classList.add('show');
+      }, 10);
+    }
+  });
+
+  // Обработчики для форм в чате
+  const orderLeadForm = document.getElementById('orderLeadForm');
+  const callSubmitBtn = document.getElementById('callSubmitBtn');
+  const backToOrderBtn = document.getElementById('backToOrderBtn');
+
+  // Глобальные переменные для хранения данных формы
+  let savedFormData = {};
+
+  // Обработчик отправки формы заказа
+  orderLeadForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    console.log('Order form submitted');
+    
+    const formData = new FormData(orderLeadForm);
+    const leadData = {
+      name: formData.get('name'),
+      phone: formData.get('phone'),
+      timestamp: new Date().toISOString(),
+      reason: 'order_form',
+      videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0,
+      userAgent: navigator.userAgent
+    };
+    
+    // Сохраняем данные для второй формы
+    savedFormData = {
+      name: formData.get('name'),
+      phone: formData.get('phone'),
+      videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0
+    };
+    
+    try {
+      const response = await fetch('/api/postback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData)
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        console.log('Order form success, showing call booking form');
+        // Скрываем форму заказа
+        const orderFormModal = document.getElementById('orderFormModal');
+        if (orderFormModal) {
+          orderFormModal.classList.remove('show');
+          setTimeout(() => {
+            orderFormModal.style.display = 'none';
+          }, 300);
+        }
+        
+        // Показываем форму бронирования звонка
+        const callBookingModal = document.getElementById('callBookingModal');
+        if (callBookingModal) {
+          callBookingModal.style.display = 'flex';
+          setTimeout(() => {
+            callBookingModal.classList.add('show');
+          }, 10);
+        }
+      } else {
+        console.error('Response not ok:', response.status);
+      }
+    } catch (error) {
+      console.error('Error submitting order form:', error);
+    }
+  });
+
+  // Обработчик отправки формы бронирования звонка
+  callSubmitBtn?.addEventListener('click', async () => {
+    const callTimeElement = document.getElementById('callTime');
+    const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
+    
+    console.log('Selected call time:', callTime);
+    console.log('Call time element:', callTimeElement);
+    
+    const leadData = {
+      name: savedFormData.name || '',
+      phone: savedFormData.phone || '',
+      callTime: callTime,
+      timestamp: new Date().toISOString(),
+      reason: 'call_booking',
+      videoWatchTime: savedFormData.videoWatchTime || 0,
+      userAgent: navigator.userAgent
+    };
+    
+    console.log('Call booking form submitted with data:', leadData);
+    
+    try {
+      const response = await fetch('/api/postback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData)
+      });
+      
+      if (response.ok) {
+        // Скрываем форму бронирования
+        const callBookingModal = document.getElementById('callBookingModal');
+        if (callBookingModal) {
+          callBookingModal.classList.remove('show');
+          setTimeout(() => {
+            callBookingModal.style.display = 'none';
+          }, 300);
+        }
+        // Очищаем сохраненные данные
+        savedFormData = {};
+      } else {
+        console.error('Response not ok:', response.status);
+      }
+    } catch (error) {
+      console.error('Error submitting call booking:', error);
+    }
+  });
+
+  // Обработчик кнопки "Назад" в форме бронирования
+  backToOrderBtn?.addEventListener('click', async () => {
+    // Отправляем данные при нажатии "Назад"
+    if (savedFormData.name && savedFormData.phone) {
+      const callTimeElement = document.getElementById('callTime');
+      const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
+      
+      const leadData = {
+        name: savedFormData.name,
+        phone: savedFormData.phone,
+        callTime: callTime,
+        timestamp: new Date().toISOString(),
+        reason: 'call_booking_back_button',
+        videoWatchTime: savedFormData.videoWatchTime || 0,
+        userAgent: navigator.userAgent
+      };
+      
+      try {
+        await fetch('/api/postback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        });
+        console.log('Call booking back button clicked - data sent');
+      } catch (error) {
+        console.error('Error sending call booking back button data:', error);
+      }
+    }
+    
+    // Показываем попап выбора времени (четвертая стадия)
+    if (window.showTimeSelectionPopup) {
+      window.showTimeSelectionPopup();
+    }
+  });
+
+  // Обработчики закрытия модальных окон
+  const closeOrderFormModal = document.getElementById('closeOrderFormModal');
+  const closeCallBookingModal = document.getElementById('closeCallBookingModal');
+  const orderFormBackdrop = document.getElementById('orderFormBackdrop');
+  const callBookingBackdrop = document.getElementById('callBookingBackdrop');
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  // Функция для автоматической отправки заявки без выбора времени
+  async function sendAutoCallRequest() {
+    const leadData = {
+      name: savedFormData.name || '',
+      phone: savedFormData.phone || '',
+      callTime: 'Не выбрано',
+      timestamp: new Date().toISOString(),
+      reason: 'auto_call_booking',
+      videoWatchTime: savedFormData.videoWatchTime || 0,
+      userAgent: navigator.userAgent
+    };
+    
+    try {
+      const response = await fetch('/api/postback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData)
+      });
+      
+      if (response.ok) {
+        console.log('Auto call request sent successfully');
+      } else {
+        console.error('Failed to send auto call request');
+      }
+    } catch (error) {
+      console.error('Error sending auto call request:', error);
+    }
+  }
+
+  closeOrderFormModal?.addEventListener('click', async () => {
+    // Отправляем данные при закрытии формы заказа
+    if (savedFormData.name && savedFormData.phone) {
+      const leadData = {
+        name: savedFormData.name,
+        phone: savedFormData.phone,
+        callTime: 'Форма закрыта пользователем',
+        timestamp: new Date().toISOString(),
+        reason: 'order_form_closed',
+        videoWatchTime: savedFormData.videoWatchTime || 0,
+        userAgent: navigator.userAgent
+      };
+      
+      try {
+        await fetch('/api/postback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        });
+        console.log('Order form closed - data sent');
+      } catch (error) {
+        console.error('Error sending order form close data:', error);
+      }
+    }
+    
+    // Показываем попап возврата с формы (третья стадия)
+    if (window.showFormReturnPopup) {
+      window.showFormReturnPopup();
+    }
+  });
+
+  closeCallBookingModal?.addEventListener('click', async () => {
+    // Отправляем данные при закрытии формы выбора времени
+    if (savedFormData.name && savedFormData.phone) {
+      const callTimeElement = document.getElementById('callTime');
+      const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
+      
+      const leadData = {
+        name: savedFormData.name,
+        phone: savedFormData.phone,
+        callTime: callTime,
+        timestamp: new Date().toISOString(),
+        reason: 'call_booking_closed',
+        videoWatchTime: savedFormData.videoWatchTime || 0,
+        userAgent: navigator.userAgent
+      };
+      
+      try {
+        await fetch('/api/postback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        });
+        console.log('Call booking form closed - data sent');
+      } catch (error) {
+        console.error('Error sending call booking close data:', error);
+      }
+    }
+    
+    // Показываем попап выбора времени (четвертая стадия)
+    if (window.showTimeSelectionPopup) {
+      window.showTimeSelectionPopup();
+    }
+  });
+
+  orderFormBackdrop?.addEventListener('click', async () => {
+    // Отправляем данные при клике на фон формы заказа
+    if (savedFormData.name && savedFormData.phone) {
+      const leadData = {
+        name: savedFormData.name,
+        phone: savedFormData.phone,
+        callTime: 'Форма закрыта пользователем',
+        timestamp: new Date().toISOString(),
+        reason: 'order_form_backdrop_closed',
+        videoWatchTime: savedFormData.videoWatchTime || 0,
+        userAgent: navigator.userAgent
+      };
+      
+      try {
+        await fetch('/api/postback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        });
+        console.log('Order form backdrop clicked - data sent');
+      } catch (error) {
+        console.error('Error sending order form backdrop data:', error);
+      }
+    }
+    
+    // Показываем попап возврата с формы (третья стадия)
+    if (window.showFormReturnPopup) {
+      window.showFormReturnPopup();
+    }
+  });
+
+  callBookingBackdrop?.addEventListener('click', async () => {
+    // Отправляем данные при клике на фон формы выбора времени
+    if (savedFormData.name && savedFormData.phone) {
+      const callTimeElement = document.getElementById('callTime');
+      const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
+      
+      const leadData = {
+        name: savedFormData.name,
+        phone: savedFormData.phone,
+        callTime: callTime,
+        timestamp: new Date().toISOString(),
+        reason: 'call_booking_backdrop_closed',
+        videoWatchTime: savedFormData.videoWatchTime || 0,
+        userAgent: navigator.userAgent
+      };
+      
+      try {
+        await fetch('/api/postback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        });
+        console.log('Call booking backdrop clicked - data sent');
+      } catch (error) {
+        console.error('Error sending call booking backdrop data:', error);
+      }
+    }
+    
+    // Показываем попап выбора времени (четвертая стадия)
+    if (window.showTimeSelectionPopup) {
+      window.showTimeSelectionPopup();
+    }
+  });
+
+
+
+
+
+  // Автоматическое сообщение через 3 минуты
+  const autoMessage = document.getElementById('autoMessage');
+  const autoDiscountContainer = document.getElementById('autoDiscountContainer');
+  const autoDiscountBtn = document.getElementById('autoDiscountBtn');
+  let hasShownAutoMessage = false;
+
+  function showAutoMessage() {
+    console.log('showAutoMessage called');
+    if (!hasShownAutoMessage && autoMessage && autoDiscountContainer) {
+      console.log('Showing auto message and button');
+      autoMessage.style.display = 'block';
+      autoDiscountContainer.style.display = 'block';
+      hasShownAutoMessage = true;
+      
+      // Прокручиваем к сообщению
+      setTimeout(() => {
+        const chatContainer = document.querySelector('.chat');
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          console.log('Scrolled chat to bottom');
+        }
+      }, 200);
+    } else {
+      console.log('Auto message already shown or element not found');
+    }
+  }
+
+  // Показываем сообщение через 3 минуты (180000 мс)
+  setTimeout(showAutoMessage, 180000);
+
+  // Показываем сообщение при сворачивании окна
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !hasShownAutoMessage) {
+      showAutoMessage();
+    }
+  });
+
+  // Обработчик кнопки "Получить скидку" в автосообщении
+  autoDiscountBtn?.addEventListener('click', () => {
+    console.log('autoDiscountBtn clicked');
+    // Показываем форму заказа как PWA модал
+    const orderFormModal = document.getElementById('orderFormModal');
+    if (orderFormModal) {
+      orderFormModal.style.display = 'flex';
+      setTimeout(() => {
+        orderFormModal.classList.add('show');
+      }, 10);
+    }
+  });
+
+  // Для тестирования - показываем сообщение через 5 секунд
+  setTimeout(showAutoMessage, 5000);
+
+  // Обработчик mousedown для VSL кнопок (основной)
+  document.addEventListener('mousedown', function(e) {
+    if (e.target && (e.target.closest('.vsl-play-btn') || e.target.id === 'vslPlayBtnSimple')) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Открываем ReturnPopup вместо включения звука
+      if (window.showReturnPopup) {
+        window.showReturnPopup();
+      }
+    }
+    
+    // Кнопка выключения звука работает как раньше
+    if (e.target && e.target.id === 'vslMuteBtn') {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleVslSound();
+    }
+  });
+
+  // Обработчик клика на VSL в чате для открытия полноэкранного просмотра
+  document.addEventListener('click', function(e) {
+    // Проверяем, что клик был на VSL видео или его контейнере, но не на кнопках звука
+    if (e.target && e.target.closest('.vsl-bubble') && 
+        !e.target.closest('.vsl-play-btn') && 
+        e.target.id !== 'vslMuteBtn' && 
+        e.target.id !== 'vslPlayBtnSimple') {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Открываем ReturnPopup с VSL
+      if (window.showReturnPopup) {
+        window.showReturnPopup();
+      }
+    }
+  });
+
+  // Обработчик touchstart для мобильных устройств
+  document.addEventListener('touchstart', function(e) {
+    if (e.target && (e.target.closest('.vsl-play-btn') || e.target.id === 'vslPlayBtnSimple')) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Открываем ReturnPopup вместо включения звука
+      if (window.showReturnPopup) {
+        window.showReturnPopup();
+      }
+    }
+    
+    // Кнопка выключения звука работает как раньше
+    if (e.target && e.target.id === 'vslMuteBtn') {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleVslSound();
+    }
+  });
+
+  // Обработчик touchstart для VSL в чате для открытия полноэкранного просмотра
+  document.addEventListener('touchstart', function(e) {
+    // Проверяем, что клик был на VSL видео или его контейнере, но не на кнопках звука
+    if (e.target && e.target.closest('.vsl-bubble') && 
+        !e.target.closest('.vsl-play-btn') && 
+        e.target.id !== 'vslMuteBtn' && 
+        e.target.id !== 'vslPlayBtnSimple') {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Открываем ReturnPopup с VSL
+      if (window.showReturnPopup) {
+        window.showReturnPopup();
+      }
+    }
+  });
+
+  // Добавляем обработчик для кнопки звука VSL
+  document.addEventListener('DOMContentLoaded', function() {
+    const vslPlayBtn = document.querySelector('.vsl-play-btn');
+    const muteBtn = document.getElementById('vslMuteBtn');
+    const video = document.getElementById('vslVideoInline');
+    
+    if (vslPlayBtn) {
+      vslPlayBtn.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Открываем ReturnPopup вместо включения звука
+        if (window.showReturnPopup) {
+          window.showReturnPopup();
+        }
+      });
+      
+      vslPlayBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Открываем ReturnPopup вместо включения звука
+        if (window.showReturnPopup) {
+          window.showReturnPopup();
+        }
+      });
+    }
+    
+    if (muteBtn) {
+      muteBtn.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVslSound();
+      });
+      
+      muteBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVslSound();
+      });
+    }
+  });
+
+  // Функции для управления VSL в чате
+  function startChatVsl() {
+    const video = document.getElementById('vslVideoInline');
+    if (video) {
+      video.play().catch(function(error) {
+        console.log('Chat VSL play failed:', error);
+      });
+      
+      // Настраиваем обработчики кнопки после запуска видео
+      setTimeout(() => {
+        if (window.setupVslButtonHandlers) {
+          window.setupVslButtonHandlers();
+        }
+      }, 100);
+      
+      // Также настраиваем обработчики сразу
+      if (window.setupVslButtonHandlers) {
+        window.setupVslButtonHandlers();
+      }
+    }
+  }
+
+  function stopChatVsl() {
+    const video = document.getElementById('vslVideoInline');
+    if (video) {
+      video.pause();
+    }
+  }
+
+  // Функция для настройки обработчиков VSL кнопки
+  function setupVslButtonHandlers() {
+    const vslPlayBtn = document.querySelector('.vsl-play-btn');
+    const muteBtn = document.getElementById('vslMuteBtn');
+    
+    if (vslPlayBtn) {
+      // Удаляем старые обработчики
+      vslPlayBtn.replaceWith(vslPlayBtn.cloneNode(true));
+      
+      // Получаем новую ссылку на кнопку
+      const newVslPlayBtn = document.querySelector('.vsl-play-btn');
+      
+      if (newVslPlayBtn) {
+        newVslPlayBtn.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleVslSound();
+        });
+        
+        newVslPlayBtn.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleVslSound();
+        });
+      }
+    }
+    
+    if (muteBtn) {
+      muteBtn.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVslSound();
+      });
+      
+      muteBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVslSound();
+      });
+    }
+  }
+
+
+
+  // Обработчик клавиши Escape
+  document.addEventListener('keydown', async (e) => {
+    if (e.key === 'Escape') {
+      // Проверяем, какая форма открыта
+      const orderFormModal = document.getElementById('orderFormModal');
+      const callBookingModal = document.getElementById('callBookingModal');
+      
+      if (orderFormModal && orderFormModal.style.display === 'flex') {
+        // Отправляем данные при закрытии формы заказа через Escape
+        if (savedFormData.name && savedFormData.phone) {
+          const leadData = {
+            name: savedFormData.name,
+            phone: savedFormData.phone,
+            callTime: 'Форма закрыта через Escape',
+            timestamp: new Date().toISOString(),
+            reason: 'order_form_escape_closed',
+            videoWatchTime: savedFormData.videoWatchTime || 0,
+            userAgent: navigator.userAgent
+          };
+          
+          try {
+            await fetch('/api/postback', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(leadData)
+            });
+            console.log('Order form closed via Escape - data sent');
+          } catch (error) {
+            console.error('Error sending order form escape data:', error);
+          }
+        }
+        
+        // Показываем попап возврата с формы
+        if (window.showFormReturnPopup) {
+          window.showFormReturnPopup();
+        }
+      } else if (callBookingModal && callBookingModal.style.display === 'flex') {
+        // Отправляем данные при закрытии формы выбора времени через Escape
+        if (savedFormData.name && savedFormData.phone) {
+          const callTimeElement = document.getElementById('callTime');
+          const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
+          
+          const leadData = {
+            name: savedFormData.name,
+            phone: savedFormData.phone,
+            callTime: callTime,
+            timestamp: new Date().toISOString(),
+            reason: 'call_booking_escape_closed',
+            videoWatchTime: savedFormData.videoWatchTime || 0,
+            userAgent: navigator.userAgent
+          };
+          
+          try {
+            await fetch('/api/postback', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(leadData)
+            });
+            console.log('Call booking form closed via Escape - data sent');
+          } catch (error) {
+            console.error('Error sending call booking escape data:', error);
+          }
+        }
+        
+        // Показываем попап выбора времени
+        if (window.showTimeSelectionPopup) {
+          window.showTimeSelectionPopup();
+        }
+      }
+    }
+  });
+
+
+
+  // Export functions to window
+  window.openPopup = openPopup;
+  window.toggleVslSound = toggleVslSound;
+  window.startChatVsl = startChatVsl;
+  window.stopChatVsl = stopChatVsl;
+  window.setupVslButtonHandlers = setupVslButtonHandlers;
+  window.savedFormData = savedFormData;
 </script>
+
+<style>
+  .container {
+    /* Стили перенесены в global.css */
+  }
+
+  .chat {
+    background: #e5ddd5;
+    background-image: url('/whatsapp_background.png');
+    background-repeat: repeat;
+    background-size: auto;
+    background-position: center;
+    flex: 1;
+    padding: 10px 8px 100px;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0; /* Важно для flex-контейнера */
+    height: 100%; /* Гарантируем полную высоту */
+    scroll-behavior: smooth;
+  }
+
+  .bubble {
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin: 8px 0;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.35;
+    box-shadow: 0 1px 0 rgba(0,0,0,.06);
+    position: relative;
+  }
+
+  .vsl-bubble {
+    max-width: 70%;
+    margin: 8px auto;
+    padding: 0;
+  }
+
+  .bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border: 8px solid transparent;
+    border-right-color: #fff;
+    border-left: 0;
+    border-bottom: 0;
+    margin-bottom: 8px;
+  }
+
+  .bubble.encryption {
+    background: #f8f8f8;
+    color: #8e8e8e;
+    font-size: 12px;
+    max-width: 90%;
+    margin: 4px auto;
+    text-align: center;
+    border-radius: 12px;
+    padding: 8px 12px;
+    box-shadow: none;
+  }
+
+  .bubble.encryption::after {
+    display: none;
+  }
+
+  .bubble.urgent {
+    background: #fff;
+    color: #000;
+    font-weight: 400;
+    text-align: left;
+  }
+
+  /* .bubble.problem {
+    background: #fff;
+    color: #d32f2f;
+    font-weight: 600;
+  } */
+
+  .vsl-bubble {
+    max-width: 100%;
+    cursor: pointer;
+  }
+
+  .vsl-bubble::after {
+    display: none;
+  }
+
+  .vsl-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    max-width: 100%;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .vsl-thumb {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 500px !important;
+    min-height: 500px !important;
+    background: #333;
+    color: #fff;
+    font-weight: 700;
+    font-size: 24px;
+    overflow: hidden;
+  }
+
+  .vsl-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .vsl-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    gap: 15px;
+  }
+
+  .vsl-save-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 5px;
+  }
+
+  .vsl-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  .vsl-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 2;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .vsl-play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  .vsl-play-btn svg {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  }
+
+  .speaker-icon {
+    font-size: 20px;
+  }
+
+  .play-text {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .vsl-info {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .vsl-title {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .vsl-hint {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .chat-input {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f0f0f0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 20px 20px;
+    z-index: 100;
+    height: 60px; /* Фиксированная высота */
+  }
+
+  .input-btn {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #54656f;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+  }
+
+  .input-btn:hover {
+    background: #e9edef;
+  }
+
+  .input-field-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 20px;
+    padding: 8px 12px;
+    min-height: 40px;
+  }
+
+  .chat-input-field {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+    color: #111b21;
+    padding: 0;
+    margin: 0;
+  }
+
+  .chat-input-field::placeholder {
+    color: #667781;
+  }
+
+  .emoji-btn {
+    background: none;
+    border: none;
+    color: #54656f;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+
+  .emoji-btn:hover {
+    background: #e9edef;
+  }
+
+  .input-actions {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    color: #54656f;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    width: 40px;
+    height: 40px;
+  }
+
+  .action-btn:hover {
+    background: #e9edef;
+  }
+
+  .popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .popup {
+    background: #000;
+    border-radius: 12px;
+    width: min(900px, 92vw);
+    aspect-ratio: 16/9;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .popup video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .popup .close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,.9);
+    border-radius: 999px;
+    padding: 6px;
+    cursor: pointer;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  @media (min-width: 500px) {
+    .pwa-modal {
+      max-width: 420px;
+    }
+  }
+
+
+
+  /* Стили для кнопки скидки */
+  .discount-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    max-width: 90%;
+    position: relative;
+  }
+
+  .discount-message::after {
+    display: none;
+  }
+
+  .discount-message .product-image {
+    width: 70px;
+    height: 90px;
+    flex-shrink: 0;
+  }
+
+  .discount-message .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .discount-content {
+    flex: 1;
+  }
+
+  .discount-text {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .discount-text p {
+    margin: 0 0 4px 0;
+  }
+
+  .discount-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .discount-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    width: 100%;
+  }
+
+  .discount-btn:hover {
+    background: #0056b3;
+  }
+
+
+
+  .auto-message {
+    max-width: 90%;
+    margin: 8px 0;
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.06);
+    position: relative;
+  }
+
+  .auto-message::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border: 8px solid transparent;
+    border-right-color: #fff;
+    border-left: 0;
+    border-bottom: 0;
+  }
+
+  /* PWA Modal Styles */
+  .pwa-modal {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .pwa-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .pwa-modal-content {
+    position: relative;
+    width: 100%;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    max-height: 80vh;
+    overflow: hidden;
+  }
+
+  .pwa-modal.show .pwa-modal-content {
+    transform: translateY(0);
+  }
+
+  .pwa-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .pwa-modal-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 0 auto;
+  }
+
+  .pwa-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .pwa-modal-close:hover {
+    background: #f0f0f0;
+  }
+
+  .pwa-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(80vh - 80px);
+  }
+
+  /* Form Styles */
+  .form-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .form-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+
+  .product-image-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .product-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .timer-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .timer-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff4444, #ff6666);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+  }
+
+  .order-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-input {
+    padding: 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.2s;
+    background: #fafafa;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #25d366;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  }
+
+  .submit-btn:hover {
+    background: linear-gradient(135deg, #20b358, #0f7a6b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+  }
+
+  .form-disclaimer {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    line-height: 1.4;
+    margin-top: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  /* Call Booking Styles */
+  .call-to-action {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .call-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+  }
+
+  .call-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+
+  .time-selection {
+    margin-bottom: 24px;
+  }
+
+  .time-dropdown {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #90ee90;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #f0f8f0;
+    color: #333;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 20px;
+    box-sizing: border-box;
+    transition: all 0.2s;
+  }
+
+  .time-dropdown:focus {
+    outline: none;
+    border-color: #25d366;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+  }
+
+  .call-submit-btn {
+    background: linear-gradient(135deg, #4fc3f7, #25d366);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+  }
+
+  .call-submit-btn:hover {
+    background: linear-gradient(135deg, #29b6f6, #20b358);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 195, 247, 0.4);
+  }
+
+  .back-btn-chat {
+    background: #f0f0f0;
+    color: #666;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .back-btn-chat:hover {
+    background: #e0e0e0;
+    transform: translateY(-1px);
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 480px) {
+    .pwa-modal {
+      max-width: calc(100% - 40px);
+      left: 20px;
+      right: 20px;
+      transform: none;
+    }
+    
+    .pwa-modal-content {
+      border-radius: 16px 16px 0 0;
+    }
+    
+    .pwa-modal-body {
+      padding: 16px;
+    }
+    
+    .form-title {
+      font-size: 18px;
+    }
+    
+    .call-title {
+      font-size: 18px;
+    }
+
+    .reviews-banner {
+      padding: 12px;
+      margin: 16px 0 0 0;
+    }
+
+    .reviews-text {
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .review-item {
+      margin-bottom: 16px;
+    }
+
+    .review-images {
+      padding: 8px;
+      gap: 6px;
+    }
+
+    .review-content {
+      padding: 10px 12px 12px 12px;
+    }
+
+    .review-text {
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .rating-stars {
+      font-size: 14px;
+    }
+
+    .rating-score {
+      font-size: 13px;
+    }
+
+    .text-review-item {
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .reviewer-avatar {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+
+    .reviewer-name {
+      font-size: 13px;
+    }
+
+    .review-title {
+      font-size: 15px;
+    }
+
+    .review-date {
+      font-size: 11px;
+    }
+
+    .review-verified {
+      font-size: 11px;
+    }
+
+    .review-text {
+      font-size: 13px;
+    }
+
+    .review-helpful {
+      font-size: 11px;
+    }
+
+    .vsl-play-btn svg {
+      width: 60px;
+      height: 60px;
+    }
+
+    .vsl-save-text {
+      font-size: 12px;
+    }
+  }
+
+  .auto-message-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .auto-message .product-image {
+    width: 150px;
+    height: auto;
+    text-align: center;
+  }
+
+  .auto-message .product-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .message-text {
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    font-weight: 500;
+  }
+
+
+
+  .message-text p {
+    margin: 0 0 4px 0;
+  }
+
+  .message-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .auto-discount-container {
+    max-width: 90%;
+    margin: 8px 0;
+    text-align: center;
+  }
+
+  .auto-discount-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    width: 100%;
+  }
+
+  .auto-discount-btn:hover {
+    background: #0056b3;
+  }
+
+  /* Плашка с отзывами мужчин */
+  .reviews-banner {
+    background: #90EE90;
+    border: 2px solid #000;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 20px 0 0 0;
+    text-align: center;
+  }
+
+  .reviews-text {
+    color: #000;
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 16px;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .reviews-text br {
+    display: block;
+    content: "";
+    margin: 2px 0;
+  }
+
+  /* Секция отзывов */
+  .reviews-section {
+    margin: 20px 0 0 0;
+  }
+
+  .review-item {
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-images {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .review-images.single {
+    justify-content: center;
+  }
+
+  .review-image {
+    flex: 1;
+    max-width: 50%;
+  }
+
+  .review-images.single .review-image {
+    max-width: 80%;
+  }
+
+  .review-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .review-content {
+    padding: 12px 16px 16px 16px;
+  }
+
+  .review-text {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .review-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rating-stars {
+    color: #FFD700;
+    font-size: 16px;
+  }
+
+  .rating-score {
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+  }
+
+  /* Текстовые отзывы */
+  .text-reviews-section {
+    margin: 20px 0 0 0;
+  }
+
+  .text-review-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reviewer-avatar {
+    width: 32px;
+    height: 32px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .reviewer-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .review-title {
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .review-date {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .review-verified {
+    color: #ff6b35;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .review-text {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .review-helpful {
+    color: #666;
+    font-size: 12px;
+    font-style: italic;
+  }
+</style>
 
 

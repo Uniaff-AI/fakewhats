@@ -1,0 +1,199 @@
+---
+---
+
+<div id="timeSelectionPopup" class="time-selection-popup-backdrop" role="dialog" aria-modal="true" aria-label="Выбор времени звонка" style="display: none;">
+  <div class="time-selection-popup">
+    <div class="popup-content">
+      <div class="popup-text">
+        <h3>Не уходите без выбора времени!</h3>
+        <p class="consequence">Мы можем позвонить вам прямо сейчас</p>
+        <p class="solution">Или выберите удобное время</p>
+        <p class="highlight">ЗВОНОК БЕСПЛАТНЫЙ И КОНФИДЕНЦИАЛЬНЫЙ</p>
+      </div>
+      <div class="popup-buttons">
+        <button id="callNow" class="btn-primary">Позвонить ПРЯМО СЕЙЧАС</button>
+        <button id="goBack" class="btn-secondary">Вернутся назад</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const timeSelectionPopup = document.getElementById('timeSelectionPopup');
+  const callNowBtn = document.getElementById('callNow');
+  const goBackBtn = document.getElementById('goBack');
+
+  function showTimeSelectionPopup() {
+    timeSelectionPopup.style.display = 'flex';
+  }
+
+  function hideTimeSelectionPopup() {
+    timeSelectionPopup.style.display = 'none';
+  }
+
+  // Экспортируем функции для использования в других компонентах
+  window.showTimeSelectionPopup = showTimeSelectionPopup;
+  window.hideTimeSelectionPopup = hideTimeSelectionPopup;
+
+  callNowBtn?.addEventListener('click', async () => {
+    hideTimeSelectionPopup();
+    
+    // Получаем сохраненные данные из Chat.astro
+    const savedFormData = window.savedFormData || {};
+    
+    // Отправляем заявку с "Прямо сейчас"
+    const leadData = {
+      name: savedFormData.name || '',
+      phone: savedFormData.phone || '',
+      callTime: 'Прямо сейчас',
+      timestamp: new Date().toISOString(),
+      reason: 'call_now_selection',
+      videoWatchTime: savedFormData.videoWatchTime || 0,
+      userAgent: navigator.userAgent
+    };
+    
+    try {
+      const response = await fetch('/api/postback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData)
+      });
+      
+      if (response.ok) {
+        // Успешная отправка
+      } else {
+        console.error('Response not ok:', response.status);
+      }
+    } catch (error) {
+      console.error('Error submitting call now request:', error);
+    }
+  });
+
+  goBackBtn?.addEventListener('click', () => {
+    hideTimeSelectionPopup();
+    // Возвращаемся к форме выбора времени
+    const callBookingModal = document.getElementById('callBookingModal');
+    if (callBookingModal) {
+      callBookingModal.style.display = 'flex';
+      setTimeout(() => {
+        callBookingModal.classList.add('show');
+      }, 10);
+    }
+  });
+
+  timeSelectionPopup?.addEventListener('click', (e) => {
+    if (e.target === timeSelectionPopup) {
+      hideTimeSelectionPopup();
+      // Показываем домонетку (пятая стадия)
+      if (window.showDomonetkaForm) {
+        window.showDomonetkaForm();
+      }
+    }
+  });
+</script>
+
+<style>
+  .time-selection-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10002;
+  }
+
+  .time-selection-popup {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 90vw;
+    max-height: 80vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    width: 400px;
+  }
+
+  .popup-text h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #d32f2f;
+    text-align: center;
+  }
+
+  .popup-text p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    text-align: center;
+  }
+
+  .consequence {
+    font-weight: 600;
+    color: #d32f2f;
+  }
+
+  .solution {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .highlight {
+    font-weight: 700;
+    color: #d32f2f !important;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    margin: 8px 0;
+  }
+
+  .popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-primary {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #e55a2b;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+
+  @media (max-width: 768px) {
+    .time-selection-popup {
+      width: 95vw;
+      padding: 20px;
+    }
+  }
+</style>

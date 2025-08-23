@@ -1,0 +1,232 @@
+---
+---
+
+<div id="formReturnPopup" class="form-return-popup-backdrop" role="dialog" aria-modal="true" aria-label="Возврат к форме" style="display: none;">
+  <div class="form-return-popup">
+    <div class="popup-content">
+      <div class="popup-text">
+        <h3>Не уходите без заказа!</h3>
+        <p class="consequence">Вы можете потерять специальное предложение</p>
+        <p class="solution">Выберите удобный для вас вариант</p>
+        <p class="highlight">СПЕЦИАЛЬНАЯ ЦЕНА ДЕЙСТВУЕТ ОГРАНИЧЕННОЕ ВРЕМЯ</p>
+      </div>
+      <div class="popup-buttons">
+        <button id="specialOffer" class="btn-primary">Получить спец предложение</button>
+        <button id="fullPrice" class="btn-secondary">Получить UROXEL без скидки</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formReturnPopup = document.getElementById('formReturnPopup');
+  const specialOfferBtn = document.getElementById('specialOffer');
+  const fullPriceBtn = document.getElementById('fullPrice');
+
+  console.log('FormReturnPopup elements:', {
+    formReturnPopup: !!formReturnPopup,
+    specialOfferBtn: !!specialOfferBtn,
+    fullPriceBtn: !!fullPriceBtn
+  });
+
+  function showFormReturnPopup() {
+    formReturnPopup.style.display = 'flex';
+  }
+
+  function hideFormReturnPopup() {
+    formReturnPopup.style.display = 'none';
+  }
+
+  // Экспортируем функции для использования в других компонентах
+  window.showFormReturnPopup = showFormReturnPopup;
+  window.hideFormReturnPopup = hideFormReturnPopup;
+
+  // Привязываем события после загрузки DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    const specialOfferBtn = document.getElementById('specialOffer');
+    const fullPriceBtn = document.getElementById('fullPrice');
+
+    specialOfferBtn?.addEventListener('click', () => {
+    console.log('Special offer button clicked');
+    hideFormReturnPopup();
+    // Возвращаемся к форме заказа со скидкой
+    const orderFormModal = document.getElementById('orderFormModal');
+    if (orderFormModal) {
+      orderFormModal.style.display = 'flex';
+      setTimeout(() => {
+        orderFormModal.classList.add('show');
+      }, 10);
+    }
+  });
+
+    fullPriceBtn?.addEventListener('click', () => {
+      console.log('Full price button clicked');
+      hideFormReturnPopup();
+      // Показываем форму без скидки (можно создать отдельную форму или изменить текущую)
+      const orderFormModal = document.getElementById('orderFormModal');
+      if (orderFormModal) {
+        // Изменяем текст на "без скидки"
+        const submitBtn = orderFormModal.querySelector('.submit-btn');
+        if (submitBtn) {
+          submitBtn.textContent = 'Заказать UROXEL (полная цена)';
+        }
+        orderFormModal.style.display = 'flex';
+        setTimeout(() => {
+          orderFormModal.classList.add('show');
+        }, 10);
+      }
+    });
+
+    formReturnPopup?.addEventListener('click', (e) => {
+      if (e.target === formReturnPopup) {
+        hideFormReturnPopup();
+        // Показываем домонетку (пятая стадия)
+        if (window.showDomonetkaForm) {
+          window.showDomonetkaForm();
+        }
+      }
+    });
+  });
+
+  // Альтернативная привязка событий
+  window.addEventListener('load', () => {
+    const specialOfferBtn = document.getElementById('specialOffer');
+    const fullPriceBtn = document.getElementById('fullPrice');
+
+    if (specialOfferBtn) {
+      specialOfferBtn.onclick = () => {
+        console.log('Special offer button clicked (onclick)');
+        hideFormReturnPopup();
+        const orderFormModal = document.getElementById('orderFormModal');
+        if (orderFormModal) {
+          orderFormModal.style.display = 'flex';
+          setTimeout(() => {
+            orderFormModal.classList.add('show');
+          }, 10);
+        }
+      };
+    }
+
+    if (fullPriceBtn) {
+      fullPriceBtn.onclick = () => {
+        console.log('Full price button clicked (onclick)');
+        hideFormReturnPopup();
+        const orderFormModal = document.getElementById('orderFormModal');
+        if (orderFormModal) {
+          const submitBtn = orderFormModal.querySelector('.submit-btn');
+          if (submitBtn) {
+            submitBtn.textContent = 'Заказать UROXEL (полная цена)';
+          }
+          orderFormModal.style.display = 'flex';
+          setTimeout(() => {
+            orderFormModal.classList.add('show');
+          }, 10);
+        }
+      };
+    }
+  });
+</script>
+
+<style>
+  .form-return-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+  }
+
+  .form-return-popup {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 90vw;
+    max-height: 80vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    width: 400px;
+  }
+
+  .popup-text h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #d32f2f;
+    text-align: center;
+  }
+
+  .popup-text p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    text-align: center;
+  }
+
+  .consequence {
+    font-weight: 600;
+    color: #d32f2f;
+  }
+
+  .solution {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .highlight {
+    font-weight: 700;
+    color: #d32f2f !important;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    margin: 8px 0;
+  }
+
+  .popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-primary {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #e55a2b;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+
+  @media (max-width: 768px) {
+    .form-return-popup {
+      width: 95vw;
+      padding: 20px;
+    }
+  }
+</style>

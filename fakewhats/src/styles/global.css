@@ -9,47 +9,155 @@
   --border: #e5e7eb;
 }
 
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
+* { 
+  box-sizing: border-box; 
   margin: 0;
+  padding: 0;
+}
+html, body { 
+  height: 100vh; 
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--text);
   background: #d9f7e5;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+  display: flex;
+  justify-content: center;
 }
 
 .container {
   max-width: 420px;
-  margin: 24px auto;
+  width: 100%;
+  height: calc(100vh - 80px);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,.12);
   background: var(--wa-chat-bg);
+  display: flex;
+  flex-direction: column;
+  margin: 40px auto;
+  padding: 0;
+  position: relative;
 }
 
 .wa-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  background: var(--wa-header);
-  color: #fff;
+  padding: 8px 16px;
+  background: #f0f2f5;
+  color: #111b21;
+  border-bottom: 1px solid #e9edef;
+  border-radius: 0;
 }
-.wa-header .title {
-  font-weight: 700;
-}
-.wa-header .sub {
-  color: rgba(255,255,255,.85);
-  font-size: 12px;
-}
-.wa-toolbar { margin-left: auto; display: flex; gap: 12px; opacity: .9; }
 
-.chat {
-  background: var(--wa-chat-bg);
-  min-height: 560px;
-  padding: 10px 8px 72px;
-  position: relative;
+.wa-header .back-button {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #54656f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
 }
+
+.wa-header .back-button:hover {
+  background-color: #e9edef;
+}
+
+.wa-header .contact-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 12px;
+}
+
+.wa-header .contact-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wa-header .flag-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.wa-header .contact-details {
+  flex: 1;
+}
+
+.wa-header .contact-name {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #111b21;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wa-header .contact-status {
+  color: #667781;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.wa-header .verified-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.wa-header .verified-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+.wa-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wa-header .action-button {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #54656f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.wa-header .action-button:hover {
+  background-color: #e9edef;
+}
+
+/* Стили .chat перенесены в Chat.astro */
 
 .bubble {
   background: #fff;
@@ -86,8 +194,6 @@ body {
 .minimized { position: absolute; bottom: 8px; right: 12px; background: #fff; border: 1px solid var(--border); padding: 10px 12px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.15); display: none; align-items: center; gap: 8px; z-index: 30; }
 .minimized .dot { width: 8px; height: 8px; background: var(--wa-accent); border-radius: 50%; }
 
-@media (min-width: 500px) {
-  .chat { min-height: 680px; }
-}
+/* Медиа-запросы перенесены в Chat.astro */
 
 

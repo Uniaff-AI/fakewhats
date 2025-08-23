@@ -1,0 +1,368 @@
+---
+import { COPY } from '../content/copy';
+const { popup } = COPY;
+---
+
+<div id="returnPopup" class="return-popup-backdrop" role="dialog" aria-modal="true" aria-label="Возврат к видео" style="display: none;">
+  <div class="return-popup">
+    <div class="vsl-container">
+      <div class="vsl-overlay">
+        <div class="vsl-vignette"></div>
+        <video id="returnVslVideo" src="/gogo.mp4" controls playsinline></video>
+        
+        <!-- Текст поверх видео -->
+        <div class="vsl-text-overlay">
+          <div class="popup-text">
+            <h3>Слабая эрекция?</h3>
+            <p class="consequence">Прямой путь к импотенции!</p>
+            <p class="solution">Но мы знаем решение</p>
+            <p class="highlight">ОНО ПРЯМО В ЭТОМ ВИДЕО</p>
+            <p class="urgency">Спаси свою эрекцию за 24 часа!!</p>
+          </div>
+          <div class="popup-buttons">
+            <button id="continueWatching" class="btn-primary">Продолжить смотреть видео</button>
+            <button id="textVersion" class="btn-secondary">Перейти на текстовый вариант</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const returnPopup = document.getElementById('returnPopup');
+  const returnVideo = document.getElementById('returnVslVideo');
+  const continueBtn = document.getElementById('continueWatching');
+  const textVersionBtn = document.getElementById('textVersion');
+
+  let savedVideoTime = 0;
+
+  function showReturnPopup() {
+    // Проверяем, не открыт ли основной VSL
+    const mainPopup = document.getElementById('popup');
+    if (mainPopup && mainPopup.style.display === 'flex') {
+      return; // Не показываем попап возврата, если основной VSL открыт
+    }
+    
+    // Останавливаем VSL в чате
+    if (window.stopChatVsl) {
+      window.stopChatVsl();
+    }
+    
+    returnPopup.style.display = 'flex';
+    if (returnVideo) {
+      returnVideo.currentTime = savedVideoTime;
+      returnVideo.play().catch(() => {});
+    }
+  }
+
+  function hideReturnPopup() {
+    returnPopup.style.display = 'none';
+    if (returnVideo) {
+      returnVideo.pause();
+    }
+    
+    // НЕ запускаем VSL в чате после закрытия попапа
+    // VSL в чате должен запускаться только при клике на кнопку play
+  }
+
+  function saveVideoTime() {
+    if (returnVideo) {
+      savedVideoTime = returnVideo.currentTime;
+    }
+  }
+
+
+
+  // Экспортируем функции для использования в других компонентах
+  window.showReturnPopup = showReturnPopup;
+  window.hideReturnPopup = hideReturnPopup;
+  window.saveVideoTime = saveVideoTime;
+
+  continueBtn?.addEventListener('click', () => {
+    // Скрываем надписи, кнопки и виньетку
+    const textOverlay = document.querySelector('.vsl-text-overlay');
+    const vignette = document.querySelector('.vsl-vignette');
+    
+    if (textOverlay) {
+      textOverlay.style.display = 'none';
+    }
+    if (vignette) {
+      vignette.style.display = 'none';
+    }
+    
+    // Убираем курсор pointer с видео
+    const video = document.getElementById('returnVslVideo');
+    if (video) {
+      video.style.cursor = 'default';
+    }
+  });
+
+  textVersionBtn?.addEventListener('click', () => {
+    hideReturnPopup();
+    // Показываем форму заказа (текстовая версия)
+    const orderFormModal = document.getElementById('orderFormModal');
+    if (orderFormModal) {
+      orderFormModal.style.display = 'flex';
+      setTimeout(() => {
+        orderFormModal.classList.add('show');
+      }, 10);
+    }
+  });
+
+
+
+  returnPopup?.addEventListener('click', (e) => {
+    if (e.target === returnPopup) {
+      hideReturnPopup();
+      // Показываем домонетку (пятая стадия)
+      if (window.showDomonetkaForm) {
+        window.showDomonetkaForm();
+      }
+    }
+  });
+
+  // Обработчик клика на видео для закрытия попапа
+  returnVideo?.addEventListener('click', () => {
+    hideReturnPopup();
+    // Показываем домонетку (пятая стадия)
+    if (window.showDomonetkaForm) {
+      window.showDomonetkaForm();
+    }
+  });
+
+  // Сохраняем время видео при попытке ухода со страницы
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      saveVideoTime();
+    }
+  });
+
+  // Показываем попап при попытке ухода (только если VSL уже был показан)
+  let hasShownVsl = false;
+  
+  // Отслеживаем показ основного VSL
+  window.addEventListener('vsl-opened', () => {
+    hasShownVsl = true;
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.closest('#popup')) {
+      hasShownVsl = true;
+    }
+  });
+  
+  document.addEventListener('mouseleave', (e) => {
+    if (e.clientY <= 0 && hasShownVsl) {
+      showReturnPopup();
+    }
+  });
+  
+
+</script>
+
+<style>
+  .return-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .return-popup {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 420px;
+    max-height: 80vh;
+    width: 90vw;
+    height: 70vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .vsl-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .vsl-overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .vsl-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .vsl-overlay video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .vsl-text-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 3;
+  }
+
+  .popup-text {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .popup-text h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ff4444;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .popup-text p {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    line-height: 1.3;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .consequence {
+    font-weight: 600;
+    color: #ff4444;
+  }
+
+  .solution {
+    font-weight: 600;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  .highlight {
+    font-weight: 700;
+    color: #ff4444 !important;
+    font-size: 16px !important;
+    text-transform: uppercase;
+    margin: 8px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .urgency {
+    font-weight: 700;
+    color: #ff4444 !important;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    margin: 8px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #ff6b35, #ff4444);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #e55a2b, #e53935);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 107, 53, 0.6);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    text-transform: uppercase;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+  }
+
+
+
+  @media (max-width: 768px) {
+    .return-popup {
+      width: 95vw;
+      height: 70vh;
+      max-width: calc(100% - 40px);
+      max-height: 80vh;
+    }
+
+    .vsl-text-overlay {
+      padding: 15px;
+    }
+
+    .popup-text h3 {
+      font-size: 18px;
+    }
+
+    .popup-text p {
+      font-size: 12px;
+    }
+
+    .highlight {
+      font-size: 14px !important;
+    }
+
+    .urgency {
+      font-size: 12px !important;
+    }
+
+    .popup-buttons {
+      max-width: 200px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 10px 16px;
+      font-size: 12px;
+    }
+  }
+</style>

@@ -1,0 +1,534 @@
+---
+---
+
+<div id="vslExitPopup" class="vsl-exit-popup" style="display: none;">
+  <div class="vsl-backdrop" id="vslBackdrop"></div>
+  <div class="vsl-container">
+    <!-- VSL Video Section -->
+    <div class="vsl-video-section">
+      <video id="vslExitVideo" src="/gogo.mp4" controls autoplay class="vsl-video">
+        Your browser does not support the video tag.
+      </video>
+      
+      <!-- Vignette -->
+      <div class="vsl-vignette"></div>
+      
+      <!-- Green Banner at Top -->
+      <div class="vsl-green-banner">
+        <div class="banner-text">
+          <div class="banner-line-1">ВАМ ДОСТУПНО ЭКСКЛЮЗИВНОЕ ПРЕДЛОЖЕНИЕ</div>
+          <div class="banner-line-2">ОСТАВЬТЕ ЗАЯВКУ ПРЯМО СЕЙЧАС!</div>
+          <div class="banner-line-3">ВРЕМЯ ОГРАНИЧЕНО!</div>
+        </div>
+      </div>
+
+      <!-- Vignette Overlay -->
+      <div class="vsl-vignette-overlay" id="vslVignetteOverlay"></div>
+
+      <!-- Buttons Overlay -->
+      <div class="vsl-buttons-overlay">
+        <div class="popup-buttons">
+          <button id="continueWatchingVSL" class="btn-primary">Продолжить смотреть видео</button>
+          <button id="fillFormVSL" class="btn-secondary">Заполнить анкету</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Close Button -->
+    <button class="vsl-close-btn" id="closeVSLExit">✕</button>
+  </div>
+</div>
+
+<script>
+  const vslExitPopup = document.getElementById('vslExitPopup');
+  const closeVSLExit = document.getElementById('closeVSLExit');
+  const vslBackdrop = document.getElementById('vslBackdrop');
+  const vslExitVideo = document.getElementById('vslExitVideo');
+  const continueWatchingVSL = document.getElementById('continueWatchingVSL');
+  const fillFormVSL = document.getElementById('fillFormVSL');
+  const vslVignetteOverlay = document.getElementById('vslVignetteOverlay');
+  
+  let hasShownExitPopup = false;
+
+  function showVSLExitPopup() {
+    if (hasShownExitPopup) return;
+    
+    hasShownExitPopup = true;
+    vslExitPopup.style.display = 'flex';
+    setTimeout(() => {
+      vslExitPopup.classList.add('show');
+      if (vslExitVideo) {
+        // Стратегия 1: Сначала запускаем без звука, потом включаем
+        vslExitVideo.muted = true;
+        vslExitVideo.volume = 1.0;
+        vslExitVideo.currentTime = 0;
+        
+        vslExitVideo.play().then(() => {
+          console.log('VSL Exit video started playing (muted)');
+          // Через небольшую задержку включаем звук
+          setTimeout(() => {
+            vslExitVideo.muted = false;
+            console.log('Sound enabled');
+          }, 500);
+        }).catch(e => {
+          console.log('First attempt failed:', e);
+          
+          // Стратегия 2: Пробуем с задержкой
+          setTimeout(() => {
+            vslExitVideo.muted = true;
+            vslExitVideo.play().then(() => {
+              console.log('VSL Exit video started playing (delayed)');
+              setTimeout(() => {
+                vslExitVideo.muted = false;
+                console.log('Sound enabled (delayed)');
+              }, 1000);
+            }).catch(e2 => {
+              console.log('Second attempt failed:', e2);
+              
+              // Стратегия 3: Пробуем с пользовательским взаимодействием
+              const playButton = document.createElement('button');
+              playButton.textContent = 'Нажмите для воспроизведения';
+              playButton.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 8px;
+                cursor: pointer;
+                z-index: 10;
+                font-size: 16px;
+              `;
+              playButton.onclick = () => {
+                vslExitVideo.muted = false;
+                vslExitVideo.play();
+                playButton.remove();
+              };
+              vslExitPopup.appendChild(playButton);
+            });
+          }, 200);
+        });
+      }
+      
+      // Восстанавливаем кнопки
+      const buttonsOverlay = document.querySelector('.vsl-buttons-overlay');
+      if (buttonsOverlay) {
+        buttonsOverlay.style.display = 'flex';
+      }
+      
+      // Показываем виньетку
+      if (vslVignetteOverlay) {
+        vslVignetteOverlay.classList.remove('hidden');
+      }
+    }, 10);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideVSLExitPopup() {
+    vslExitPopup.classList.remove('show');
+    if (vslExitVideo) {
+      vslExitVideo.pause();
+      vslExitVideo.currentTime = 0; // Сбрасываем время видео
+      vslExitVideo.muted = true; // Отключаем звук
+      vslExitVideo.volume = 0; // Устанавливаем громкость в 0
+      // Принудительно останавливаем воспроизведение
+      vslExitVideo.load();
+    }
+    setTimeout(() => {
+      vslExitPopup.style.display = 'none';
+      // Сбрасываем виньетку
+      if (vslVignetteOverlay) {
+        vslVignetteOverlay.classList.remove('hidden');
+      }
+      // Сбрасываем флаг показа
+      hasShownExitPopup = false;
+    }, 300);
+    document.body.style.overflow = 'auto';
+  }
+
+  // Exit intent detection
+  function handleExitIntent(e) {
+    if (e.clientY <= 0 && !hasShownExitPopup) {
+      showVSLExitPopup();
+    }
+  }
+
+  // Функция для принудительного запуска видео при пользовательском взаимодействии
+  function forcePlayVideo() {
+    // Проверяем, что VSL Exit попап открыт и видео существует
+    if (vslExitPopup && vslExitPopup.style.display === 'flex' && vslExitVideo && vslExitVideo.paused) {
+      vslExitVideo.muted = false;
+      vslExitVideo.play().then(() => {
+        console.log('VSL Exit video forced to play');
+      }).catch(e => {
+        console.log('VSL Exit force play failed:', e);
+      });
+    }
+  }
+
+  // Event listeners
+  if (closeVSLExit) {
+    closeVSLExit.addEventListener('click', () => {
+      // Дополнительная остановка видео
+      if (vslExitVideo) {
+        vslExitVideo.pause();
+        vslExitVideo.muted = true;
+        vslExitVideo.volume = 0;
+        vslExitVideo.currentTime = 0;
+        vslExitVideo.load();
+      }
+      hideVSLExitPopup();
+    });
+  }
+  
+  if (vslBackdrop) {
+    vslBackdrop.addEventListener('click', () => {
+      // Дополнительная остановка видео
+      if (vslExitVideo) {
+        vslExitVideo.pause();
+        vslExitVideo.muted = true;
+        vslExitVideo.volume = 0;
+        vslExitVideo.currentTime = 0;
+        vslExitVideo.load();
+      }
+      hideVSLExitPopup();
+    });
+  }
+
+  // Обработчик клика на видео для закрытия попапа
+  if (vslExitVideo) {
+    vslExitVideo.addEventListener('click', () => {
+      // Останавливаем видео агрессивно
+      if (vslExitVideo) {
+        vslExitVideo.pause();
+        vslExitVideo.muted = true;
+        vslExitVideo.volume = 0;
+        vslExitVideo.currentTime = 0;
+        vslExitVideo.load();
+      }
+      hideVSLExitPopup();
+      // Показываем домонетку (пятая стадия)
+      if (window.showDomonetkaForm) {
+        window.showDomonetkaForm();
+      }
+    });
+  }
+
+  // Button event listeners
+  if (continueWatchingVSL) {
+    continueWatchingVSL.addEventListener('click', () => {
+      // Скрываем кнопки и виньетку
+      const buttonsOverlay = document.querySelector('.vsl-buttons-overlay');
+      if (buttonsOverlay) {
+        buttonsOverlay.style.display = 'none';
+      }
+      if (vslVignetteOverlay) {
+        vslVignetteOverlay.classList.add('hidden');
+      }
+      
+      // Убираем курсор pointer с видео
+      if (vslExitVideo) {
+        vslExitVideo.style.cursor = 'default';
+      }
+      
+      // НЕ останавливаем видео при нажатии "Продолжить просмотр"
+      // Видео должно продолжать играть без кнопок и виньетки
+    });
+  }
+
+  if (fillFormVSL) {
+    fillFormVSL.addEventListener('click', () => {
+      // Останавливаем видео и отключаем звук перед закрытием
+      if (vslExitVideo) {
+        vslExitVideo.pause();
+        vslExitVideo.muted = true;
+        vslExitVideo.volume = 0;
+        vslExitVideo.currentTime = 0;
+        vslExitVideo.load();
+      }
+      hideVSLExitPopup();
+      // Показываем форму заказа
+      const orderFormModal = document.getElementById('orderFormModal');
+      if (orderFormModal) {
+        orderFormModal.style.display = 'flex';
+        setTimeout(() => {
+          orderFormModal.classList.add('show');
+        }, 10);
+      }
+    });
+  }
+
+  // Exit intent detection
+  document.addEventListener('mouseleave', handleExitIntent);
+
+  // Обработчики для принудительного запуска видео только в VSL Exit попапе
+  if (vslExitPopup) {
+    vslExitPopup.addEventListener('click', forcePlayVideo);
+    vslExitPopup.addEventListener('touchstart', forcePlayVideo);
+    vslExitPopup.addEventListener('keydown', forcePlayVideo);
+  }
+
+  // Export functions
+  window.showVSLExitPopup = showVSLExitPopup;
+  window.hideVSLExitPopup = hideVSLExitPopup;
+</script>
+
+<style>
+  .vsl-exit-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .vsl-exit-popup.show {
+    opacity: 1;
+  }
+
+  .vsl-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+  }
+
+  .vsl-container {
+    position: relative;
+    width: 95%;
+    max-width: 400px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+  }
+
+  .vsl-exit-popup.show .vsl-container {
+    transform: scale(1);
+  }
+
+
+
+  .vsl-video-section {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .vsl-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .vsl-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .vsl-green-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: rgba(50, 205, 50, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+
+  .banner-text {
+    color: #000;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 10px 20px;
+  }
+
+  .banner-line-1 {
+    font-size: 12px;
+    text-decoration: underline;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+
+  .banner-line-2 {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .banner-line-3 {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .vsl-vignette-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    z-index: 4;
+    transition: opacity 0.3s ease;
+  }
+
+  .vsl-vignette-overlay.hidden {
+    opacity: 0;
+  }
+
+  .vsl-buttons-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 6;
+  }
+
+  .popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #32cd32, #228b22);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(50, 205, 50, 0.4);
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #28a728, #1e7e1e);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(50, 205, 50, 0.6);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  .vsl-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vsl-close-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .vsl-container {
+      width: 98%;
+      max-width: 350px;
+      margin: 10px;
+    }
+
+    .vsl-green-banner {
+      height: 70px;
+    }
+
+    .banner-text {
+      padding: 8px 15px;
+    }
+
+    .banner-line-1 {
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .banner-line-2,
+    .banner-line-3 {
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .vsl-buttons-overlay {
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .popup-buttons {
+      max-width: 280px;
+      gap: 10px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .vsl-close-btn {
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+    }
+  }
+</style>

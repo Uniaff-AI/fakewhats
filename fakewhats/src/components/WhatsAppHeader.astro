@@ -4,19 +4,43 @@ import { Icons } from '../content/icons';
 const { contactName, phone, status, verified } = COPY.header;
 ---
 <div class="wa-header">
-  <div class="back" set:html={Icons.back()} />
-  <div class="avatar" style="width:34px;height:34px;border-radius:50%;background:#eee;display:grid;place-items:center;overflow:hidden;">
-    <span style="display:inline-block" set:html={Icons.mexicoFlag()} />
-  </div>
-  <div>
-    <div class="title">{phone}</div>
-    <div class="sub">{status}</div>
-  </div>
-  <div class="wa-toolbar">
-    {verified && <span set:html={Icons.verified()} />}
-    <span set:html={Icons.call()} />
-    <span set:html={Icons.camera()} />
-    <span set:html={Icons.menu()} />
+  <button class="back-button">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  
+      <div class="contact-info">
+      <div class="contact-avatar">
+        <img src="/mexico-flag.svg" alt="Mexico Flag" class="flag-icon">
+      </div>
+      <div class="contact-details">
+        <div class="contact-name">
+          {phone}
+          <div class="verified-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L14.5 8.5L21 9.5L16.5 14.5L17.5 21L12 18L6.5 21L7.5 14.5L3 9.5L9.5 8.5L12 2Z" fill="#25D366"/>
+              <path d="M12 2L14.5 8.5L21 9.5L16.5 14.5L17.5 21L12 18L6.5 21L7.5 14.5L3 9.5L9.5 8.5L12 2Z" fill="#25D366" opacity="0.9" transform="rotate(36 12 12)"/>
+              <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="contact-status">{status}</div>
+      </div>
+    </div>
+  
+  <div class="header-actions">
+    <button class="action-button video-call">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M23 7L16 12L23 17V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 5H3C1.89543 5 1 5.89543 1 7V17C1 18.1046 1.89543 19 3 19H14C15.1046 19 16 18.1046 16 17V7C16 5.89543 15.1046 5 14 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="action-button phone-call">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7294C21.7209 20.9846 21.5573 21.2136 21.3521 21.4019C21.1469 21.5902 20.9046 21.7335 20.6407 21.8227C20.3768 21.9119 20.0973 21.9452 19.82 21.92C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3146 6.72533 15.2661 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.18C2.09477 3.90347 2.12787 3.62476 2.21649 3.36162C2.30512 3.09849 2.44756 2.85679 2.63476 2.65214C2.82196 2.4475 3.0498 2.28435 3.30379 2.17294C3.55778 2.06153 3.83233 2.00437 4.10999 2.005H7.10999C7.59522 1.99522 8.06579 2.16708 8.43373 2.48353C8.80168 2.79999 9.042 3.23945 9.10999 3.72C9.23662 4.68007 9.47144 5.62273 9.80999 6.53C9.94454 6.88792 9.97348 7.27675 9.89382 7.65319C9.81416 8.02963 9.6299 8.37471 9.35999 8.65L8.08999 9.92C9.51355 12.4135 11.5865 14.4865 14.08 15.91L15.35 14.64C15.6253 14.3701 15.9704 14.1858 16.3468 14.1062C16.7233 14.0265 17.1121 14.0555 17.47 14.19C18.3773 14.5286 19.3199 14.7634 20.28 14.89C20.7658 14.9585 21.2094 15.2032 21.5265 15.5775C21.8437 15.9518 22.0122 16.4296 21.9999 16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 </div>
 

@@ -1,0 +1,26 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Зеленая полоса -->
+  <rect x="0" y="0" width="10.67" height="32" fill="#006847"/>
+  
+  <!-- Белая полоса -->
+  <rect x="10.67" y="0" width="10.67" height="32" fill="#ffffff"/>
+  
+  <!-- Красная полоса -->
+  <rect x="21.33" y="0" width="10.67" height="32" fill="#ce1126"/>
+  
+  <!-- Герб Мексики (упрощенный) -->
+  <g transform="translate(16, 16) scale(0.15)">
+    <!-- Круг для герба -->
+    <circle cx="0" cy="0" r="40" fill="#8B4513"/>
+    <circle cx="0" cy="0" r="35" fill="#228B22"/>
+    
+    <!-- Кактус -->
+    <rect x="-3" y="-25" width="6" height="20" fill="#228B22"/>
+    <rect x="-8" y="-15" width="6" height="10" fill="#228B22"/>
+    <rect x="2" y="-15" width="6" height="10" fill="#228B22"/>
+    
+    <!-- Орел (упрощенный) -->
+    <ellipse cx="0" cy="-10" rx="8" ry="5" fill="#8B4513"/>
+    <ellipse cx="0" cy="-8" rx="6" ry="3" fill="#FFD700"/>
+  </g>
+</svg>
