@@ -1,18 +1,19 @@
 ---
 import { COPY } from '../content/copy';
+import { siteConfig } from '../config/site-config';
 const { form } = COPY;
 ---
 
 <div class="discount-message">
   <div class="product-image">
-    <img src="/Uroxel_ex.png" alt="UROXEL Triple Action" />
+    <img src={siteConfig.images.chatImages.productImage} alt={siteConfig.productName} />
   </div>
   <div class="discount-content">
     <p class="discount-text">
-      ЭКСКЛЮЗИВНО! Именно для вас доступна акционная цена на продукцию Uroxel! Оставьте заявку по кнопке ниже!
+      {siteConfig.texts.banners.exclusiveOffer} {siteConfig.texts.banners.actionPrice} {siteConfig.productName}! {siteConfig.texts.banners.leaveRequest}
     </p>
     <button id="getDiscountBtn" class="discount-btn">
-      Получить скидку
+      {siteConfig.texts.buttons.getSpecialOffer}
     </button>
   </div>
 </div>

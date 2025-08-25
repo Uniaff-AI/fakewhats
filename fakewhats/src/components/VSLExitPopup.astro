@@ -1,4 +1,5 @@
 ---
+import { siteConfig } from '../config/site-config';
 ---
 
 <div id="vslExitPopup" class="vsl-exit-popup" style="display: none;">
@@ -6,9 +7,9 @@
   <div class="vsl-container">
     <!-- VSL Video Section -->
     <div class="vsl-video-section">
-      <video id="vslExitVideo" src="/gogo.mp4" controls autoplay class="vsl-video">
-        Your browser does not support the video tag.
-      </video>
+              <!-- <video id="vslExitVideo" src={siteConfig.images.videos.chatVsl} controls preload="none" class="vsl-video">
+          Your browser does not support the video tag.
+        </video> -->
       
       <!-- Vignette -->
       <div class="vsl-vignette"></div>
@@ -16,9 +17,9 @@
       <!-- Green Banner at Top -->
       <div class="vsl-green-banner">
         <div class="banner-text">
-          <div class="banner-line-1">ВАМ ДОСТУПНО ЭКСКЛЮЗИВНОЕ ПРЕДЛОЖЕНИЕ</div>
-          <div class="banner-line-2">ОСТАВЬТЕ ЗАЯВКУ ПРЯМО СЕЙЧАС!</div>
-          <div class="banner-line-3">ВРЕМЯ ОГРАНИЧЕНО!</div>
+          <div class="banner-line-1">{siteConfig.texts.popups.vslExitPopup.bannerText.split(' ').slice(0, 4).join(' ')}</div>
+          <div class="banner-line-2">{siteConfig.texts.popups.vslExitPopup.bannerText.split(' ').slice(4, 8).join(' ')}</div>
+          <div class="banner-line-3">{siteConfig.texts.popups.vslExitPopup.bannerText.split(' ').slice(8).join(' ')}</div>
         </div>
       </div>
 
@@ -28,8 +29,8 @@
       <!-- Buttons Overlay -->
       <div class="vsl-buttons-overlay">
         <div class="popup-buttons">
-          <button id="continueWatchingVSL" class="btn-primary">Продолжить смотреть видео</button>
-          <button id="fillFormVSL" class="btn-secondary">Заполнить анкету</button>
+          <button id="continueWatchingVSL" class="btn-primary">{siteConfig.texts.popups.vslExitPopup.continueButton}</button>
+          <button id="fillFormVSL" class="btn-secondary">{siteConfig.texts.popups.vslExitPopup.fillFormButton}</button>
         </div>
       </div>
     </div>
@@ -198,10 +199,10 @@
     });
   }
 
-  // Обработчик клика на видео для закрытия попапа
+  // Обработчик клика на видео - НЕ показываем домонетку
   if (vslExitVideo) {
     vslExitVideo.addEventListener('click', () => {
-      // Останавливаем видео агрессивно
+      // Просто останавливаем видео, НЕ показываем домонетку
       if (vslExitVideo) {
         vslExitVideo.pause();
         vslExitVideo.muted = true;
@@ -210,10 +211,8 @@
         vslExitVideo.load();
       }
       hideVSLExitPopup();
-      // Показываем домонетку (пятая стадия)
-      if (window.showDomonetkaForm) {
-        window.showDomonetkaForm();
-      }
+      // НЕ показываем домонетку при клике на видео
+      // Домонетка показывается только при попытке закрыть попап
     });
   }
 
@@ -261,8 +260,8 @@
     });
   }
 
-  // Exit intent detection
-  document.addEventListener('mouseleave', handleExitIntent);
+  // Exit intent отключен - попап при попытке закрыть страницу не показывается
+  // document.addEventListener('mouseleave', handleExitIntent);
 
   // Обработчики для принудительного запуска видео только в VSL Exit попапе
   if (vslExitPopup) {

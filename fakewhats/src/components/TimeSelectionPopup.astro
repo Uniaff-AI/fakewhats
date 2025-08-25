@@ -1,18 +1,19 @@
 ---
+import { siteConfig } from '../config/site-config';
 ---
 
 <div id="timeSelectionPopup" class="time-selection-popup-backdrop" role="dialog" aria-modal="true" aria-label="Выбор времени звонка" style="display: none;">
   <div class="time-selection-popup">
     <div class="popup-content">
       <div class="popup-text">
-        <h3>Не уходите без выбора времени!</h3>
-        <p class="consequence">Мы можем позвонить вам прямо сейчас</p>
-        <p class="solution">Или выберите удобное время</p>
-        <p class="highlight">ЗВОНОК БЕСПЛАТНЫЙ И КОНФИДЕНЦИАЛЬНЫЙ</p>
+        <h3>{siteConfig.texts.popups.timeSelectionPopup.title}</h3>
+        <p class="consequence">{siteConfig.texts.popups.timeSelectionPopup.consequence}</p>
+        <p class="solution">{siteConfig.texts.popups.timeSelectionPopup.solution}</p>
+        <p class="highlight">{siteConfig.texts.popups.timeSelectionPopup.highlight}</p>
       </div>
       <div class="popup-buttons">
-        <button id="callNow" class="btn-primary">Позвонить ПРЯМО СЕЙЧАС</button>
-        <button id="goBack" class="btn-secondary">Вернутся назад</button>
+        <button id="callNow" class="btn-primary">{siteConfig.texts.popups.timeSelectionPopup.callNowButton}</button>
+        <button id="goBack" class="btn-secondary">{siteConfig.texts.popups.timeSelectionPopup.goBackButton}</button>
       </div>
     </div>
   </div>

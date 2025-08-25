@@ -6,7 +6,10 @@ import FormReturnPopup from './FormReturnPopup.astro';
 import TimeSelectionPopup from './TimeSelectionPopup.astro';
 import DomonetkaForm from './DomonetkaForm.astro';
 import VSLExitPopup from './VSLExitPopup.astro';
+import ReturnVisitPopup from './ReturnVisitPopup.astro';
+
 import DiscountButton from './DiscountButton.astro';
+import { siteConfig } from '../config/site-config';
 const { messages, form } = COPY;
   const autoPostbackMs = form.autoPostbackSeconds ? form.autoPostbackSeconds * 1000 : 180000;
 ---
@@ -16,36 +19,47 @@ const { messages, form } = COPY;
   <div class="chat" id="chat">
     <!-- Encryption Message -->
     <div class="bubble encryption">
-      {messages.encryption}
+      {siteConfig.texts.chatMessages.encryptionMessage}
     </div>
 
     <!-- Urgent Message -->
     <div class="bubble urgent">
-      <strong>{messages.urgent}</strong><br><br>
-      {messages.problem}
+      <strong>{siteConfig.texts.chatMessages.urgentMessage}</strong><br><br>
+      {siteConfig.texts.chatMessages.problemMessage}
     </div>
 
     <!-- VSL Card -->
     <div class="bubble vsl-bubble">
       <div class="vsl-card">
         <div class="vsl-thumb">
-          <video id="vslVideoInline" src="/gogo.mp4" muted loop playsinline class="vsl-video" onloadstart="console.log('Video loading started')" onloadeddata="console.log('Video data loaded')" oncanplay="console.log('Video can play')" onerror="console.log('Video error:', this.error)"></video>
+                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl} onloadstart="console.log('Video loading started')" onloadeddata="console.log('Video data loaded')" oncanplay="console.log('Video can play, duration:', this.duration)" onerror="console.log('Video error:', this.error)"></video>
           <div class="vsl-overlay">
-            <!-- Основная кнопка play -->
-            <div class="vsl-play-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="40" r="40" fill="rgba(0, 0, 0, 0.7)"/>
-                <path d="M32 24L52 40L32 56V24Z" fill="white"/>
-              </svg>
-              <div class="vsl-save-text">Спасение вашей эрекции</div>
+            <!-- Зеленая мигающая кнопка включения звука -->
+            <div class="vsl-sound-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
+              <div class="sound-btn-content">
+                <div class="sound-btn-text-top">{siteConfig.texts.buttons.enableSound}</div>
+                <div class="sound-btn-text-bottom">{siteConfig.texts.buttons.saveErection}</div>
+              </div>
             </div>
             
             <!-- Простая кнопка поверх основной (скрыта изначально) -->
-            <button id="vslPlayBtnSimple" onclick="toggleVslSound();" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: transparent; border: none; width: 200px; height: 80px; cursor: pointer; z-index: 7; display: none;"></button>
+            <button id="vslPlayBtnSimple" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: transparent; border: none; width: 200px; height: 80px; cursor: pointer; z-index: 7; display: none;"></button>
             
             <!-- Маленькая кнопка выключения звука (скрыта изначально) -->
             <button id="vslMuteBtn" style="position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 6; font-size: 16px; display: none; pointer-events: auto;">🔇</button>
             
+            <!-- Крестик для закрытия VSL -->
+            <button id="vslCloseBtn" style="position: absolute; top: 10px; right: 50px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 8; font-size: 18px; display: none; pointer-events: auto;">✕</button>
+            
+            <!-- Попап на определенной минуте VSL -->
+            <div id="vslMidPopup" class="vsl-mid-popup" style="display: none;">
+              <!-- Зеленая плашка сверху -->
+              <div class="vsl-mid-banner" onclick="if(window.showOrderForm) window.showOrderForm();" style="cursor: pointer;">
+                <div class="vsl-mid-vignette"></div>
+                <div>{siteConfig.texts.popups.vslMidPopup.title}</div>
+                <div style="font-size: 14px; margin-top: 5px;">{siteConfig.texts.popups.vslMidPopup.subtitle}</div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -55,16 +69,16 @@ const { messages, form } = COPY;
     <!-- Discount Button Message (скрыт изначально) -->
     <div class="discount-message" style="display: none;">
       <div class="product-image">
-        <img src="/Uroxel_ex.png" alt="UROXEL Triple Action" loading="lazy" />
+        <img src={siteConfig.images.chatImages.productImage} alt={siteConfig.productName} loading="lazy" />
       </div>
       <div class="discount-content">
         <div class="discount-text">
-          <p><strong>ЭКСКЛЮЗИВНО!</strong> Именно для вас доступна</p>
-          <p>акционная цена на продукцию Uroxel!</p>
-          <p>Оставьте заявку по кнопке ниже!</p>
+          <p><strong>{siteConfig.texts.banners.exclusiveOffer}</strong> Именно для вас доступна</p>
+          <p>{siteConfig.texts.banners.actionPrice} {siteConfig.productName}!</p>
+          <p>{siteConfig.texts.banners.leaveRequest}</p>
         </div>
         <button id="getDiscountBtn" class="discount-btn">
-          Получить скидку
+          {siteConfig.texts.buttons.getSpecialOffer}
         </button>
       </div>
     </div>
@@ -75,12 +89,12 @@ const { messages, form } = COPY;
     <div class="auto-message" id="autoMessage" style="display: none;">
       <div class="auto-message-content">
         <div class="product-image">
-          <img src="/Uroxel_ex.png" alt="UROXEL Triple Action" loading="lazy" />
+          <img src={siteConfig.images.chatImages.productImage} alt={siteConfig.productName} loading="lazy" />
         </div>
         <div class="message-text">
-          <p><strong>ЭКСКЛЮЗИВНО!</strong> Именно для вас доступна</p>
-          <p>акционная цена на продукцию Uroxel!</p>
-          <p>Оставьте заявку по кнопке ниже!</p>
+          <p><strong>{siteConfig.texts.banners.exclusiveOffer}</strong> Именно для вас доступна</p>
+          <p>{siteConfig.texts.banners.actionPrice} {siteConfig.productName}!</p>
+          <p>{siteConfig.texts.banners.leaveRequest}</p>
         </div>
       </div>
     </div>
@@ -88,9 +102,22 @@ const { messages, form } = COPY;
     <!-- Auto Discount Button (separate from message) -->
     <div class="bubble auto-discount-container" id="autoDiscountContainer" style="display: none;">
       <button class="auto-discount-btn" id="autoDiscountBtn">
-        Получить скидку
+        {siteConfig.texts.buttons.getSpecialOffer}
       </button>
     </div>
+
+    <!-- Попап выбора при закрытии VSL -->
+    <div id="vslCloseChoicePopup" class="vsl-close-choice-popup" style="display: none;">
+      <div class="vsl-close-choice-content">
+        <h3>{siteConfig.texts.popups.vslCloseChoicePopup.title}</h3>
+        <div class="vsl-close-choice-buttons">
+          <button id="continueWatchingChoice" class="btn-primary">{siteConfig.texts.popups.vslCloseChoicePopup.continueButton}</button>
+          <button id="returnToChatChoice" class="btn-secondary">{siteConfig.texts.popups.vslCloseChoicePopup.returnToChatButton}</button>
+        </div>
+      </div>
+    </div>
+
+
 
 
 
@@ -126,27 +153,27 @@ const { messages, form } = COPY;
         <!-- Form Fields -->
         <form id="orderLeadForm" class="order-form-fields">
           <div class="form-group">
-            <label for="orderName" class="field-label">Имя</label>
-            <input type="text" id="orderName" name="name" class="form-input" placeholder="Иван" required>
+            <label for="orderName" class="field-label">{siteConfig.texts.forms.orderForm.namePlaceholder}</label>
+            <input type="text" id="orderName" name="name" class="form-input" placeholder={siteConfig.texts.forms.orderForm.namePlaceholder} required>
           </div>
 
           <div class="form-group">
-            <label for="orderPhone" class="field-label">Телефон</label>
-            <input type="tel" id="orderPhone" name="phone" class="form-input" placeholder="+7 900 000-00-00" required>
+            <label for="orderPhone" class="field-label">{siteConfig.texts.forms.orderForm.phonePlaceholder}</label>
+                          <input type="tel" id="orderPhone" name="phone" class="form-input" placeholder={siteConfig.texts.forms.orderForm.phonePlaceholder} required>
           </div>
 
-          <button type="submit" class="submit-btn">Заказать звонок</button>
+                      <button type="submit" class="submit-btn">{siteConfig.texts.buttons.orderCall}</button>
 
           <div class="form-disclaimer">
-            Специальная цена действует ограниченное количество времени. Таймер указывает оставшееся время до конца акции. Акция применима только для жителей Мексики. Полная консультация происходит во обратного звонка нашего специалиста.
+            {siteConfig.legal.specialPriceDisclaimer} {siteConfig.legal.timerDisclaimer} {siteConfig.legal.mexicoOnly} {siteConfig.legal.consultationDisclaimer}
           </div>
 
           <!-- Плашка с отзывами мужчин -->
           <div class="reviews-banner">
             <div class="reviews-text">
-              Отзывы мужчин,<br>
-              которые уже вернули крепкую эрекцию и<br>
-              спасли свою простату
+              {siteConfig.texts.banners.reviewsBanner.split(', ').slice(0, 1).join(', ')}<br>
+              {siteConfig.texts.banners.reviewsBanner.split(', ').slice(1, 2).join(', ')}<br>
+              {siteConfig.texts.banners.reviewsBanner.split(', ').slice(2).join(', ')}
             </div>
           </div>
 
@@ -156,14 +183,14 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src="/feedback_1.png" alt="Uroxel отзыв Антонио" loading="lazy">
+                  <img src={siteConfig.reviews.feedback1.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback1.name}`} loading="lazy">
                 </div>
               </div>
               <div class="review-content">
-                <div class="review-text">Антонио, 58 - Счастливое утро - утро с UROXEL</div>
+                <div class="review-text">{siteConfig.reviews.feedback1.name} - {siteConfig.reviews.feedback1.text}</div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.reviews.feedback1.rating)}{'☆'.repeat(5 - siteConfig.reviews.feedback1.rating)}</span>
+                  <span class="rating-score">{siteConfig.reviews.feedback1.rating}.0</span>
                 </div>
               </div>
             </div>
@@ -172,14 +199,14 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src="/feedback_2.png" alt="Uroxel отзыв Карлоса" loading="lazy">
+                  <img src={siteConfig.reviews.feedback2.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback2.name}`} loading="lazy">
                 </div>
               </div>
               <div class="review-content">
-                <div class="review-text">Карлос, 45 - Всегда теперь ношу с собой и никто не догадывается, что у меня проблемы с потенцией были</div>
+                <div class="review-text">{siteConfig.reviews.feedback2.name} - {siteConfig.reviews.feedback2.text}</div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.reviews.feedback2.rating)}{'☆'.repeat(5 - siteConfig.reviews.feedback2.rating)}</span>
+                  <span class="rating-score">{siteConfig.reviews.feedback2.rating}.0</span>
                 </div>
               </div>
             </div>
@@ -188,14 +215,14 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src="/feedback_3.png" alt="Uroxel отзыв Амалии" loading="lazy">
+                  <img src={siteConfig.reviews.feedback3.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback3.name}`} loading="lazy">
                 </div>
               </div>
               <div class="review-content">
-                <div class="review-text">Амалия, 53 - Всегда ношу для мужа 1 баночку в сумке</div>
+                <div class="review-text">{siteConfig.reviews.feedback3.name} - {siteConfig.reviews.feedback3.text}</div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.reviews.feedback3.rating)}{'☆'.repeat(5 - siteConfig.reviews.feedback3.rating)}</span>
+                  <span class="rating-score">{siteConfig.reviews.feedback3.rating}.0</span>
                 </div>
               </div>
             </div>
@@ -204,14 +231,14 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src="/feedback_4.png" alt="Uroxel отзыв Алонсо" loading="lazy">
+                  <img src={siteConfig.reviews.feedback4.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback4.name}`} loading="lazy">
                 </div>
               </div>
               <div class="review-content">
-                <div class="review-text">Алонсо, 51 - Всё пришло быстро и хорошая анонимная упавка! Очень нравится и удобно</div>
+                <div class="review-text">{siteConfig.reviews.feedback4.name} - {siteConfig.reviews.feedback4.text}</div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.reviews.feedback4.rating)}{'☆'.repeat(5 - siteConfig.reviews.feedback4.rating)}</span>
+                  <span class="rating-score">{siteConfig.reviews.feedback4.rating}.0</span>
                 </div>
               </div>
             </div>
@@ -220,14 +247,14 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src="/feedback_5.png" alt="Uroxel отзыв Густаво" loading="lazy">
+                  <img src={siteConfig.reviews.feedback5.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback5.name}`} loading="lazy">
                 </div>
               </div>
               <div class="review-content">
-                <div class="review-text">Густаво, 51 - Всё идёт по плану, даже в дороге UROXEL со мной!</div>
+                <div class="review-text">{siteConfig.reviews.feedback5.name} - {siteConfig.reviews.feedback5.text}</div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.reviews.feedback5.rating)}{'☆'.repeat(5 - siteConfig.reviews.feedback5.rating)}</span>
+                  <span class="rating-score">{siteConfig.reviews.feedback5.rating}.0</span>
                 </div>
               </div>
             </div>
@@ -236,14 +263,14 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src="/feedback_6.png" alt="Uroxel отзыв Игнасио" loading="lazy">
+                  <img src={siteConfig.reviews.feedback6.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback6.name}`} loading="lazy">
                 </div>
               </div>
               <div class="review-content">
-                <div class="review-text">Игнасио, 68 - 3 день приёма - член стоит каждое утро - приятные эффект</div>
+                <div class="review-text">{siteConfig.reviews.feedback6.name} - {siteConfig.reviews.feedback6.text}</div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.reviews.feedback6.rating)}{'☆'.repeat(5 - siteConfig.reviews.feedback6.rating)}</span>
+                  <span class="rating-score">{siteConfig.reviews.feedback6.rating}.0</span>
                 </div>
               </div>
             </div>
@@ -256,17 +283,18 @@ const { messages, form } = COPY;
               <div class="review-header">
                 <div class="reviewer-info">
                   <div class="reviewer-avatar">👤</div>
-                  <div class="reviewer-name">Fernando C</div>
+                  <div class="reviewer-name">{siteConfig.textReviews.review1.name}</div>
                 </div>
                 <div class="review-rating">
-                  <span class="rating-stars">★★★★★</span>
-                  <span class="rating-score">5.0</span>
+                  <span class="rating-stars">{'★'.repeat(siteConfig.textReviews.review1.rating)}{'☆'.repeat(5 - siteConfig.textReviews.review1.rating)}</span>
+                  <span class="rating-score">{siteConfig.textReviews.review1.rating}.0</span>
                 </div>
               </div>
-              <div class="review-title">Calidad y precio</div>
-              <div class="review-date">Comentado en México el 7 de agosto de 2025</div>
+              <div class="review-title">{siteConfig.textReviews.review1.title}</div>
+              <div class="review-date">{siteConfig.textReviews.review1.date}</div>
               <div class="review-verified">Compra verificada</div>
-              <div class="review-text">Buena calidad y excelente precio</div>
+              <div class="review-text">{siteConfig.textReviews.review1.text}</div>
+              {siteConfig.textReviews.review1.helpful && <div class="review-helpful">{siteConfig.textReviews.review1.helpful}</div>}
             </div>
 
             <!-- Отзыв 2 -->
@@ -417,8 +445,8 @@ const { messages, form } = COPY;
         </div>
 
         <div class="call-to-action">
-          <h3 class="call-title">ЗАБРОНИРУЙТЕ ЗВОНОК</h3>
-          <p class="call-subtitle">Выберите время для обратного звонка</p>
+          <h3 class="call-title">{siteConfig.texts.headers.bookCallTitle}</h3>
+                      <p class="call-subtitle">{siteConfig.texts.headers.bookCallSubtitle}</p>
         </div>
 
         <div class="time-selection">
@@ -430,8 +458,8 @@ const { messages, form } = COPY;
           </select>
         </div>
 
-        <button id="callSubmitBtn" class="call-submit-btn">Заказать звонок</button>
-        <button id="backToOrderBtn" class="back-btn-chat">Назад</button>
+                  <button id="callSubmitBtn" class="call-submit-btn">{siteConfig.texts.buttons.orderCall}</button>
+        <button id="backToOrderBtn" class="back-btn-chat">{siteConfig.texts.buttons.backToOrder}</button>
       </div>
     </div>
   </div>
@@ -477,12 +505,7 @@ const { messages, form } = COPY;
 </div>
 
 <!-- Main VSL Popup -->
-<div id="popup" class="popup-backdrop" role="dialog" aria-modal="true" aria-label="Видео">
-  <div class="popup">
-    <button id="closePopup" class="close" aria-label="Закрыть">✕</button>
-    <video id="vslVideo" src="/gogo.mp4" controls playsinline></video>
-  </div>
-</div>
+<!-- Попап с видео удален - больше не используется -->
 
 <!-- Return Popup Component -->
 <ReturnPopup />
@@ -499,14 +522,20 @@ const { messages, form } = COPY;
   <!-- Domonetka Form Component -->
   <DomonetkaForm />
   
+  <!-- VSL Start Popup Component -->
+  
+  
   <!-- VSL Exit Popup Component -->
-  <VSLExitPopup />
+  <!-- <VSLExitPopup /> -->
+  
+  <!-- Return Visit Popup Component -->
+  <ReturnVisitPopup />
 
 <script>
   const openVsl = document.getElementById('openVsl');
-  const popup = document.getElementById('popup');
-  const closePopup = document.getElementById('closePopup');
-  const video = document.getElementById('vslVideo');
+  // const popup = document.getElementById('popup'); // Удален
+  // const closePopup = document.getElementById('closePopup'); // Удален
+  // const video = document.getElementById('vslVideo'); // Удален
   const floatingForm = document.getElementById('floatingForm');
   const minimizeBtn = document.getElementById('minimizeBtn');
   const minimizedBadge = document.getElementById('minimizedBadge');
@@ -522,31 +551,61 @@ const { messages, form } = COPY;
     const playBtn = document.getElementById('vslPlayBtn');
     const playBtnSimple = document.getElementById('vslPlayBtnSimple');
     const muteBtn = document.getElementById('vslMuteBtn');
+    const closeBtn = document.getElementById('vslCloseBtn');
     
     if (video) {
       if (video.muted) {
         // Включаем звук
         video.muted = false;
         
-        // Скрываем основную кнопку и показываем кнопку выключения
+        // Скрываем основную кнопку и показываем кнопки управления
         if (playBtn) playBtn.style.display = 'none';
         if (playBtnSimple) playBtnSimple.style.display = 'none';
         if (muteBtn) {
           muteBtn.style.display = 'block';
           muteBtn.textContent = '🔇';
         }
+        if (closeBtn) closeBtn.style.display = 'block';
       } else {
         // Выключаем звук
         video.muted = true;
         
-        // Показываем основную кнопку и скрываем кнопку выключения
+        // Показываем основную кнопку и скрываем кнопки управления
         if (playBtn) playBtn.style.display = 'flex';
         if (playBtnSimple) playBtnSimple.style.display = 'block';
         if (muteBtn) muteBtn.style.display = 'none';
+        if (closeBtn) closeBtn.style.display = 'none';
       }
     }
   }
 
+  // Функция для открытия видео в ReturnPopup без кнопок
+  function openVideoInReturnPopup() {
+    // Показываем ReturnPopup
+    if (window.showReturnPopup) {
+      window.showReturnPopup();
+      
+      // Сразу скрываем кнопки и текст
+      setTimeout(function() {
+        const textOverlay = document.querySelector('.vsl-text-overlay');
+        const vignette = document.querySelector('.vsl-vignette');
+        
+        if (textOverlay) {
+          textOverlay.style.display = 'none';
+        }
+        if (vignette) {
+          vignette.style.display = 'none';
+        }
+        
+        // Убираем курсор pointer с видео
+        const video = document.getElementById('returnVslVideo');
+        if (video) {
+          video.style.cursor = 'default';
+        }
+      }, 100);
+    }
+  }
+  
   function openPopup() {
     // Останавливаем VSL в чате перед показом попапа
     if (window.stopChatVsl) {
@@ -559,29 +618,12 @@ const { messages, form } = COPY;
     }
   }
 
-  function closePopupAndShowForm() {
-    popup.style.display = 'none';
-    video.pause();
-    
-    // Уведомляем другие компоненты, что VSL закрыт
-    window.dispatchEvent(new CustomEvent('vsl-closed'));
-    
-    // НЕ запускаем VSL в чате после закрытия основного попапа
-    // VSL в чате должен запускаться только при клике на кнопку play
-    
-    // Показываем форму заказа как PWA модал (третья стадия)
-    const orderFormModal = document.getElementById('orderFormModal');
-    if (orderFormModal) {
-      orderFormModal.style.display = 'flex';
-      // Добавляем класс для анимации
-      setTimeout(() => {
-        orderFormModal.classList.add('show');
-      }, 10);
-    }
-    hasShownForm = true;
-    
-    scheduleAutoPostback();
-  }
+  // function closePopupAndShowForm() {
+  //   // Удалена - попап больше не используется
+  // }
+  
+  hasShownForm = true;
+  scheduleAutoPostback();
 
   function minimizeForm() {
     floatingForm.dataset.minimized = 'true';
@@ -628,15 +670,15 @@ const { messages, form } = COPY;
   //   openPopup(); 
   // });
 
-  closePopup?.addEventListener('click', () => { 
-    closePopupAndShowForm(); 
-  });
+  // closePopup?.addEventListener('click', () => { 
+  //   closePopupAndShowForm(); 
+  // });
 
-  popup?.addEventListener('click', (e) => { 
-    if (e.target === popup) { 
-      closePopupAndShowForm(); 
-    } 
-  });
+  // popup?.addEventListener('click', (e) => { 
+  //   if (e.target === popup) { 
+  //     closePopupAndShowForm(); 
+  //   } 
+  // });
 
   minimizeBtn?.addEventListener('click', () => { 
     minimizeForm(); 
@@ -660,6 +702,7 @@ const { messages, form } = COPY;
 
   // Сохраняем время видео при попытке ухода
   document.addEventListener('visibilitychange', () => {
+    const video = document.getElementById('vslVideoInline');
     if (document.hidden && video && !video.paused) {
       if (window.saveVideoTime) {
         window.saveVideoTime();
@@ -667,14 +710,16 @@ const { messages, form } = COPY;
     }
   });
 
-  // Показываем попап возврата при попытке ухода (первая стадия воронки)
-  document.addEventListener('mouseleave', (e) => {
-    if (e.clientY <= 0 && !hasShownForm && !hasVisitedBefore) {
-      if (window.showReturnPopup) {
-        window.showReturnPopup();
-      }
-    }
-  });
+
+
+  // Exit intent отключен - попап при попытке закрыть страницу не показывается
+  // document.addEventListener('mouseleave', (e) => {
+  //   if (e.clientY <= 0 && !hasShownForm && !hasVisitedBefore) {
+  //     if (window.showReturnPopup) {
+  //       window.showReturnPopup();
+  //     }
+  //   }
+  // });
 
   // VSL не открывается автоматически - только по клику
   let hasOpenedVsl = false;
@@ -1082,16 +1127,16 @@ const { messages, form } = COPY;
 
 
 
-  // Автоматическое сообщение через 3 минуты
+  // Автоматическое сообщение с предложением
   const autoMessage = document.getElementById('autoMessage');
   const autoDiscountContainer = document.getElementById('autoDiscountContainer');
   const autoDiscountBtn = document.getElementById('autoDiscountBtn');
   let hasShownAutoMessage = false;
 
   function showAutoMessage() {
-    console.log('showAutoMessage called');
+    console.log('🎯 showAutoMessage called');
     if (!hasShownAutoMessage && autoMessage && autoDiscountContainer) {
-      console.log('Showing auto message and button');
+      console.log('✅ Showing auto message and button');
       autoMessage.style.display = 'block';
       autoDiscountContainer.style.display = 'block';
       hasShownAutoMessage = true;
@@ -1101,27 +1146,24 @@ const { messages, form } = COPY;
         const chatContainer = document.querySelector('.chat');
         if (chatContainer) {
           chatContainer.scrollTop = chatContainer.scrollHeight;
-          console.log('Scrolled chat to bottom');
+          console.log('📜 Scrolled chat to bottom');
         }
       }, 200);
     } else {
-      console.log('Auto message already shown or element not found');
+      console.log('⚠️ Auto message already shown or element not found');
     }
   }
 
-  // Показываем сообщение через 3 минуты (180000 мс)
-  setTimeout(showAutoMessage, 180000);
-
-  // Показываем сообщение при сворачивании окна
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && !hasShownAutoMessage) {
-      showAutoMessage();
-    }
-  });
+  // Убираем показ сообщения при сворачивании окна - оно должно показываться только в нужное время VSL
+  // document.addEventListener('visibilitychange', () => {
+  //   if (document.hidden && !hasShownAutoMessage) {
+  //     showAutoMessage();
+  //   }
+  // });
 
   // Обработчик кнопки "Получить скидку" в автосообщении
   autoDiscountBtn?.addEventListener('click', () => {
-    console.log('autoDiscountBtn clicked');
+    console.log('🎯 autoDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
@@ -1132,15 +1174,20 @@ const { messages, form } = COPY;
     }
   });
 
-  // Для тестирования - показываем сообщение через 5 секунд
-  setTimeout(showAutoMessage, 5000);
+
+
+  // Убираем автоматический показ сообщения - оно будет показываться только в нужное время VSL
+  // setTimeout(showAutoMessage, 5000);
+
+
 
   // Обработчик mousedown для VSL кнопок (основной)
   document.addEventListener('mousedown', function(e) {
-    if (e.target && (e.target.closest('.vsl-play-btn') || e.target.id === 'vslPlayBtnSimple')) {
+    if (e.target && (e.target.closest('.vsl-sound-btn') || e.target.id === 'vslPlayBtnSimple')) {
       e.preventDefault();
       e.stopPropagation();
-      // Открываем ReturnPopup вместо включения звука
+      
+      // Открываем видео напрямую в ReturnPopup
       if (window.showReturnPopup) {
         window.showReturnPopup();
       }
@@ -1158,7 +1205,7 @@ const { messages, form } = COPY;
   document.addEventListener('click', function(e) {
     // Проверяем, что клик был на VSL видео или его контейнере, но не на кнопках звука
     if (e.target && e.target.closest('.vsl-bubble') && 
-        !e.target.closest('.vsl-play-btn') && 
+        !e.target.closest('.vsl-sound-btn') && 
         e.target.id !== 'vslMuteBtn' && 
         e.target.id !== 'vslPlayBtnSimple') {
       e.preventDefault();
@@ -1173,10 +1220,11 @@ const { messages, form } = COPY;
 
   // Обработчик touchstart для мобильных устройств
   document.addEventListener('touchstart', function(e) {
-    if (e.target && (e.target.closest('.vsl-play-btn') || e.target.id === 'vslPlayBtnSimple')) {
+    if (e.target && (e.target.closest('.vsl-sound-btn') || e.target.id === 'vslPlayBtnSimple')) {
       e.preventDefault();
       e.stopPropagation();
-      // Открываем ReturnPopup вместо включения звука
+      
+      // Открываем видео напрямую в ReturnPopup
       if (window.showReturnPopup) {
         window.showReturnPopup();
       }
@@ -1194,7 +1242,7 @@ const { messages, form } = COPY;
   document.addEventListener('touchstart', function(e) {
     // Проверяем, что клик был на VSL видео или его контейнере, но не на кнопках звука
     if (e.target && e.target.closest('.vsl-bubble') && 
-        !e.target.closest('.vsl-play-btn') && 
+        !e.target.closest('.vsl-sound-btn') && 
         e.target.id !== 'vslMuteBtn' && 
         e.target.id !== 'vslPlayBtnSimple') {
       e.preventDefault();
@@ -1209,29 +1257,7 @@ const { messages, form } = COPY;
 
   // Добавляем обработчик для кнопки звука VSL
   document.addEventListener('DOMContentLoaded', function() {
-    const vslPlayBtn = document.querySelector('.vsl-play-btn');
     const muteBtn = document.getElementById('vslMuteBtn');
-    const video = document.getElementById('vslVideoInline');
-    
-    if (vslPlayBtn) {
-      vslPlayBtn.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        // Открываем ReturnPopup вместо включения звука
-        if (window.showReturnPopup) {
-          window.showReturnPopup();
-        }
-      });
-      
-      vslPlayBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        // Открываем ReturnPopup вместо включения звука
-        if (window.showReturnPopup) {
-          window.showReturnPopup();
-        }
-      });
-    }
     
     if (muteBtn) {
       muteBtn.addEventListener('mousedown', function(e) {
@@ -1252,28 +1278,269 @@ const { messages, form } = COPY;
   function startChatVsl() {
     const video = document.getElementById('vslVideoInline');
     if (video) {
-      video.play().catch(function(error) {
-        console.log('Chat VSL play failed:', error);
-      });
+      // Сначала загружаем видео, если оно не загружено
+      if (video.readyState === 0) {
+        video.load();
+      }
       
-      // Настраиваем обработчики кнопки после запуска видео
-      setTimeout(() => {
+      // Запускаем видео
+      video.play().then(function() {
+        
+        // Настраиваем обработчики кнопки после запуска видео
+        setTimeout(() => {
+          if (window.setupVslButtonHandlers) {
+            window.setupVslButtonHandlers();
+          }
+        }, 100);
+        
+        // Также настраиваем обработчики сразу
         if (window.setupVslButtonHandlers) {
           window.setupVslButtonHandlers();
         }
-      }, 100);
-      
-      // Также настраиваем обработчики сразу
-      if (window.setupVslButtonHandlers) {
-        window.setupVslButtonHandlers();
-      }
+        
+        // Добавляем обработчик времени для показа попапа на определенной минуте
+        setupVslTimePopup(video);
+      }).catch(function(error) {
+        console.error('❌ Chat VSL play failed:', error);
+      });
+    } else {
+      console.error('❌ Video element not found in startChatVsl');
     }
   }
+
+  // Инициализация попапа при загрузке страницы
+  document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем, повторное ли это посещение
+    const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+    const savedVideoTime = localStorage.getItem('savedVideoTime');
+    
+    if (hasVisitedBefore && savedVideoTime && savedVideoTime > 0) {
+      
+      // Показываем попап с предложением продолжить просмотр
+      setTimeout(function() {
+        if (window.showReturnVisitPopup) {
+          window.showReturnVisitPopup();
+        }
+      }, 2000); // Задержка 2 секунды
+    } else {
+      // Первый визит - запоминаем
+      localStorage.setItem('hasVisitedBefore', 'true');
+      console.log('✅ First visit, saved to localStorage');
+    }
+    
+    // Ждем, пока ReturnPopup загрузится и создаст видео
+    setTimeout(function() {
+      const popupVideo = document.getElementById('returnVslVideo');
+      if (popupVideo) {
+        console.log('✅ Found returnVslVideo element, setting up popup');
+        console.log('Video id:', popupVideo.id);
+        console.log('Video src:', popupVideo.src);
+        console.log('Video currentTime:', popupVideo.currentTime);
+        console.log('Video readyState:', popupVideo.readyState);
+        console.log('Video paused:', popupVideo.paused);
+        console.log('Video duration:', popupVideo.duration);
+        setupVslTimePopup(popupVideo);
+      } else {
+        console.log('⚠️ returnVslVideo not found yet, will try again when popup opens');
+      }
+    }, 1000);
+    
+    // Проверяем все видео элементы на странице
+    const allVideos = document.querySelectorAll('video');
+    console.log('📹 Found video elements:', allVideos.length);
+    allVideos.forEach((v, index) => {
+      console.log(`Video ${index + 1}:`, {
+        id: v.id,
+        src: v.src,
+        preload: v.preload,
+        autoplay: v.autoplay,
+        muted: v.muted,
+        currentTime: v.currentTime,
+        readyState: v.readyState,
+        paused: v.paused,
+        duration: v.duration
+      });
+    });
+    
+    // Дополнительная проверка через 3 секунды
+    setTimeout(function() {
+      console.log('🔄 3 seconds later - checking vslVideoInline again:');
+      const videoAgain = document.getElementById('vslVideoInline');
+      if (videoAgain) {
+        console.log('Video currentTime:', videoAgain.currentTime);
+        console.log('Video readyState:', videoAgain.readyState);
+        console.log('Video paused:', videoAgain.paused);
+      }
+    }, 3000);
+  });
 
   function stopChatVsl() {
     const video = document.getElementById('vslVideoInline');
     if (video) {
       video.pause();
+    }
+  }
+
+        // Функция для настройки попапа в диапазоне времени VSL
+  function setupVslTimePopup(video) {
+    console.log('🎬 setupVslTimePopup called for video:', video.id);
+    console.log('🎬 Video readyState:', video.readyState);
+    console.log('🎬 Video duration:', video.duration);
+    console.log('🎬 Video paused:', video.paused);
+    
+    // Проверяем, готово ли видео
+    if (video.readyState < 1 || isNaN(video.duration)) {
+      console.log('🎬 Video not ready, waiting for metadata...');
+      video.addEventListener('loadedmetadata', function() {
+        console.log('🎬 Video metadata loaded, setting up popup now');
+        setupVslTimePopupInternal(video);
+      });
+      return;
+    }
+    
+    setupVslTimePopupInternal(video);
+  }
+  
+  function setupVslTimePopupInternal(video) {
+    let popupShown = false;
+    let messageShown = false;
+    
+    // Читаем значения из data-атрибутов или используем значения из конфигурации
+    const startTime = parseInt(video.dataset.popupStart) || 893;
+    const endTime = parseInt(video.dataset.popupEnd) || 1100;
+    const messageTime = 713; // За 3 минуты до попапа (893 - 180 = 713)
+    
+    // Проверяем, что время сообщения действительно за 3 минуты до попапа
+    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд
+    if (messageTime !== expectedMessageTime) {
+      console.warn('⚠️ Message time mismatch! Expected:', expectedMessageTime, 'Got:', messageTime);
+    }
+    
+
+    
+    // Функция проверки времени и показа попапа/сообщения
+    function checkTimeAndShowPopup() {
+      const currentTime = video.currentTime;
+      
+      // Показываем сообщение с предложением за 3 минуты до попапа
+      if (!messageShown && currentTime >= messageTime) {
+        console.log('💬 Showing auto message at time:', Math.floor(currentTime));
+        if (window.showAutoMessage) {
+          window.showAutoMessage();
+        }
+        messageShown = true;
+      }
+      
+      // Показываем попап если время в диапазоне и попап еще не показывался
+      if (!popupShown && currentTime >= startTime && currentTime <= endTime) {
+        console.log('🎯 Showing VSL popup at time:', Math.floor(currentTime));
+        showVslMidPopup();
+        popupShown = true;
+      }
+    }
+    
+    // Обработчик для воспроизведения видео
+    video.addEventListener('timeupdate', function() {
+      checkTimeAndShowPopup();
+    });
+    
+    // Обработчик для перемотки видео (когда пользователь перематывает)
+    video.addEventListener('seeked', function() {
+      checkTimeAndShowPopup();
+    });
+    
+    // Обработчик для изменения времени (когда пользователь кликает на прогресс-бар)
+    video.addEventListener('seeking', function() {
+      // Пустой обработчик
+    });
+    
+    // Обработчик для загрузки метаданных
+    video.addEventListener('loadedmetadata', function() {
+      checkTimeAndShowPopup();
+    });
+    
+    // Обработчик для готовности воспроизведения
+                  video.addEventListener('canplay', function() {
+                checkTimeAndShowPopup();
+              });
+
+              // Открываем форму заказа когда видео закончилось
+              video.addEventListener('ended', function() {
+                console.log('🎬 Video ended, showing order form');
+                if (window.showOrderFormModal) {
+                  window.showOrderFormModal();
+                }
+              });
+    
+    // Проверяем сразу при настройке, если видео уже в нужном диапазоне
+    if (video.readyState >= 1) { // HAVE_METADATA или больше
+      checkTimeAndShowPopup();
+    }
+    
+    // Дополнительная проверка каждые 1 секунду
+    setInterval(function() {
+      const currentTime = video.currentTime;
+      
+      if (video.readyState >= 1) {
+        if (currentTime >= startTime && currentTime <= endTime && !popupShown) {
+          showVslMidPopup();
+          popupShown = true;
+        }
+      }
+    }, 1000);
+  }
+
+  // Функция показа попапа на определенной минуте
+  function showVslMidPopup() {
+    console.log('🎯 showVslMidPopup called');
+    
+    // Проверяем, какое видео воспроизводится
+    const returnVideo = document.getElementById('returnVslVideo');
+    const returnVisitVideo = document.getElementById('returnVisitVideo');
+    const chatVideo = document.getElementById('vslVideoInline');
+    
+    // Проверяем, какой попап открыт
+    const returnPopup = document.getElementById('returnPopup');
+    const returnVisitPopup = document.getElementById('returnVisitPopup');
+    
+    console.log('🎯 returnPopup display:', returnPopup ? returnPopup.style.display : 'not found');
+    console.log('🎯 returnVisitPopup display:', returnVisitPopup ? returnVisitPopup.style.display : 'not found');
+    console.log('🎯 returnVideo paused:', returnVideo ? returnVideo.paused : 'not found');
+    console.log('🎯 returnVisitVideo paused:', returnVisitVideo ? returnVisitVideo.paused : 'not found');
+    
+    if (returnPopup && returnPopup.style.display === 'flex' && returnVideo) {
+      // Если открыт ReturnPopup
+      console.log('🎯 Showing popup in ReturnPopup');
+      if (window.showReturnVslMidPopup) {
+        window.showReturnVslMidPopup();
+      } else {
+        console.error('❌ showReturnVslMidPopup is not defined!');
+      }
+    } else if (returnVisitPopup && returnVisitPopup.style.display === 'flex' && returnVisitVideo) {
+      // Если открыт ReturnVisitPopup
+      console.log('🎯 Showing popup in ReturnVisitPopup');
+      if (window.showReturnVisitVslMidPopup) {
+        window.showReturnVisitVslMidPopup();
+      } else {
+        console.error('❌ showReturnVisitVslMidPopup is not defined!');
+      }
+    } else if (chatVideo && !chatVideo.paused) {
+      // Если воспроизводится видео в чате
+      console.log('🎯 Showing popup in chat');
+      const popup = document.getElementById('vslMidPopup');
+      if (popup) {
+        popup.style.display = 'block';
+        popup.style.opacity = '1';
+        popup.style.visibility = 'visible';
+        popup.style.zIndex = '1000';
+        
+        const banner = popup.querySelector('.vsl-mid-banner');
+        if (banner) {
+          banner.style.zIndex = '1001';
+        }
+      }
+    } else {
+      console.log('⚠️ No suitable popup found to show green banner');
     }
   }
 
@@ -1401,6 +1668,55 @@ const { messages, form } = COPY;
   window.startChatVsl = startChatVsl;
   window.stopChatVsl = stopChatVsl;
   window.setupVslButtonHandlers = setupVslButtonHandlers;
+  window.setupVslTimePopup = setupVslTimePopup;
+  // Обработчики для крестика и попапа выбора
+  const vslCloseBtn = document.getElementById('vslCloseBtn');
+  const vslCloseChoicePopup = document.getElementById('vslCloseChoicePopup');
+  const continueWatchingChoice = document.getElementById('continueWatchingChoice');
+  const returnToChatChoice = document.getElementById('returnToChatChoice');
+
+  vslCloseBtn?.addEventListener('click', () => {
+    if (vslCloseChoicePopup) {
+      vslCloseChoicePopup.style.display = 'flex';
+    }
+  });
+
+  continueWatchingChoice?.addEventListener('click', () => {
+    if (vslCloseChoicePopup) {
+      vslCloseChoicePopup.style.display = 'none';
+    }
+  });
+
+  returnToChatChoice?.addEventListener('click', () => {
+    if (vslCloseChoicePopup) {
+      vslCloseChoicePopup.style.display = 'none';
+    }
+    
+    // Просто закрываем попапы
+    const returnPopup = document.getElementById('returnPopup');
+    const returnVisitPopup = document.getElementById('returnVisitPopup');
+    
+    if (returnPopup) {
+      returnPopup.style.display = 'none';
+    }
+    
+    if (returnVisitPopup) {
+      returnVisitPopup.style.display = 'none';
+    }
+  });
+
+  // Функция для показа попапа выбора
+  function showVslCloseChoicePopup() {
+    if (vslCloseChoicePopup) {
+      vslCloseChoicePopup.style.display = 'flex';
+    }
+  }
+
+
+
+  window.showVslMidPopup = showVslMidPopup;
+  window.showVslCloseChoicePopup = showVslCloseChoicePopup;
+  window.showAutoMessage = showAutoMessage;
   window.savedFormData = savedFormData;
 </script>
 
@@ -2463,6 +2779,183 @@ const { messages, form } = COPY;
     font-size: 12px;
     font-style: italic;
   }
+
+  /* Стили для попапа на определенной минуте VSL */
+  .vsl-mid-popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Позволяет кликать через попап на видео */
+    background: transparent; /* Убираем затемнение видео */
+  }
+
+  .vsl-mid-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #4CAF50; /* Менее яркий зеленый цвет */
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 11;
+    pointer-events: auto; /* Позволяет взаимодействовать с баннером */
+    position: relative;
+  }
+
+  .vsl-mid-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Стили для прямого попапа с видео удалены - используем ReturnPopup */
+
+  /* Стили для зеленой мигающей кнопки включения звука */
+  .vsl-sound-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    cursor: pointer;
+  }
+
+  .sound-btn-content {
+    background: #4CAF50;
+    border: 3px solid #45a049;
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    text-align: center;
+    min-width: 200px;
+    animation: pulse-green 2s infinite;
+  }
+
+  .sound-btn-text-top {
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .sound-btn-text-bottom {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .vsl-sound-btn:hover {
+    animation: none;
+  }
+
+  .vsl-sound-btn:hover .sound-btn-content {
+    animation: none;
+    background: #45a049;
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.6);
+  }
+
+  /* Исправляем анимацию, чтобы она не влияла на позиционирование */
+  @keyframes pulse-green {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Стили для попапа выбора при закрытии VSL */
+  .vsl-close-choice-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .vsl-close-choice-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .vsl-close-choice-content h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+  }
+
+  .vsl-close-choice-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .vsl-close-choice-buttons .btn-primary {
+    background: linear-gradient(135deg, #ff6b35, #ff4444);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .vsl-close-choice-buttons .btn-primary:hover {
+    background: linear-gradient(135deg, #e55a2b, #e53935);
+    transform: translateY(-2px);
+  }
+
+  .vsl-close-choice-buttons .btn-secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: 2px solid #ddd;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .vsl-close-choice-buttons .btn-secondary:hover {
+    background: #e9e9e9;
+    border-color: #ccc;
+    transform: translateY(-2px);
+  }
+
+
 </style>
 
 

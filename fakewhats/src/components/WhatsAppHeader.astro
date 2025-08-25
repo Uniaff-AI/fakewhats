@@ -1,6 +1,7 @@
 ---
 import { COPY } from '../content/copy';
 import { Icons } from '../content/icons';
+import { siteConfig } from '../config/site-config';
 const { contactName, phone, status, verified } = COPY.header;
 ---
 <div class="wa-header">
@@ -12,11 +13,11 @@ const { contactName, phone, status, verified } = COPY.header;
   
       <div class="contact-info">
       <div class="contact-avatar">
-        <img src="/mexico-flag.svg" alt="Mexico Flag" class="flag-icon">
+        <img src={siteConfig.contact.flag} alt="Mexico Flag" class="flag-icon">
       </div>
       <div class="contact-details">
         <div class="contact-name">
-          {phone}
+          {siteConfig.contact.phone}
           <div class="verified-badge">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L14.5 8.5L21 9.5L16.5 14.5L17.5 21L12 18L6.5 21L7.5 14.5L3 9.5L9.5 8.5L12 2Z" fill="#25D366"/>
@@ -25,7 +26,7 @@ const { contactName, phone, status, verified } = COPY.header;
             </svg>
           </div>
         </div>
-        <div class="contact-status">{status}</div>
+        <div class="contact-status">{siteConfig.contact.status}</div>
       </div>
     </div>
   

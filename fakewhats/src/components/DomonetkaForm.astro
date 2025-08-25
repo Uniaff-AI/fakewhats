@@ -1,5 +1,6 @@
 ---
 import { COPY } from '../content/copy';
+import { siteConfig } from '../config/site-config';
 const { form, testimonials } = COPY;
 ---
 
@@ -13,14 +14,14 @@ const { form, testimonials } = COPY;
       <!-- Form Header -->
       <div class="form-bubble">
         <button class="close-form-btn" id="closeDomonetka">✕</button>
-        <h2 class="form-title-main">Официальная форма заказа UROXEL</h2>
+        <h2 class="form-title-main">{siteConfig.texts.forms.domonetkaForm.title}</h2>
         <button class="menu-dots">⋮</button>
       </div>
 
       <!-- Product and Timer Section -->
       <div class="product-timer-section">
         <div class="product-image-section">
-          <img src="/Uroxel_off_form.png" alt="UROXEL" class="product-image" loading="eager" />
+          <img src={siteConfig.images.formImages.uroxleOffForm} alt={siteConfig.productName} class="product-image" loading="eager" />
         </div>
         
         <div class="timer-price-section">
@@ -28,8 +29,8 @@ const { form, testimonials } = COPY;
             <span id="domonetkaTimer">04:19</span>
           </div>
           <div class="price-container">
-            <div class="price-original">1390 MXN</div>
-            <div class="price-discount">590 MXN</div>
+            <div class="price-original">{siteConfig.pricing.originalPrice}</div>
+            <div class="price-discount">{siteConfig.pricing.discountedPrice}</div>
           </div>
         </div>
       </div>
@@ -38,23 +39,23 @@ const { form, testimonials } = COPY;
       <form id="domonetkaLeadForm" class="order-form">
         <div class="form-group">
           <div class="field-header">
-            <label for="domonetkaName" class="field-label">Имя</label>
+            <label for="domonetkaName" class="field-label">{siteConfig.texts.forms.domonetkaForm.namePlaceholder}</label>
             <div class="bottles-counter">
-              <span id="domonetkaBottles">Осталось банок: 39/1500</span>
+              <span id="domonetkaBottles">{siteConfig.texts.banners.bottlesLeft}: 39/1500</span>
             </div>
           </div>
-          <input type="text" id="domonetkaName" name="name" class="form-input" placeholder="Иван" required>
+          <input type="text" id="domonetkaName" name="name" class="form-input" placeholder={siteConfig.texts.forms.domonetkaForm.namePlaceholder} required>
         </div>
 
         <div class="form-group">
-          <label for="domonetkaPhone" class="field-label">Телефон</label>
-          <input type="tel" id="domonetkaPhone" name="phone" class="form-input" placeholder="+7 900 000-00-00" required>
+          <label for="domonetkaPhone" class="field-label">{siteConfig.texts.forms.domonetkaForm.phonePlaceholder}</label>
+          <input type="tel" id="domonetkaPhone" name="phone" class="form-input" placeholder={siteConfig.texts.forms.domonetkaForm.phonePlaceholder} required>
         </div>
 
-        <button type="submit" class="submit-btn">Заказать звонок</button>
+        <button type="submit" class="submit-btn">{siteConfig.texts.forms.domonetkaForm.submitButton}</button>
 
         <div class="form-disclaimer">
-          Специальная цена действует ограниченное время. Акция применима только для жителей Мексики.
+          {siteConfig.texts.forms.domonetkaForm.disclaimer}
         </div>
       </form>
 

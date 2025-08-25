@@ -1,18 +1,19 @@
 ---
+import { siteConfig } from '../config/site-config';
 ---
 
 <div id="formReturnPopup" class="form-return-popup-backdrop" role="dialog" aria-modal="true" aria-label="Возврат к форме" style="display: none;">
   <div class="form-return-popup">
     <div class="popup-content">
       <div class="popup-text">
-        <h3>Не уходите без заказа!</h3>
-        <p class="consequence">Вы можете потерять специальное предложение</p>
-        <p class="solution">Выберите удобный для вас вариант</p>
-        <p class="highlight">СПЕЦИАЛЬНАЯ ЦЕНА ДЕЙСТВУЕТ ОГРАНИЧЕННОЕ ВРЕМЯ</p>
+        <h3>{siteConfig.texts.popups.formReturnPopup.title}</h3>
+        <p class="consequence">{siteConfig.texts.popups.formReturnPopup.consequence}</p>
+        <p class="solution">{siteConfig.texts.popups.formReturnPopup.solution}</p>
+        <p class="highlight">{siteConfig.texts.banners.specialOffer}</p>
       </div>
       <div class="popup-buttons">
-        <button id="specialOffer" class="btn-primary">Получить спец предложение</button>
-        <button id="fullPrice" class="btn-secondary">Получить UROXEL без скидки</button>
+        <button id="specialOffer" class="btn-primary">{siteConfig.texts.popups.formReturnPopup.specialOfferButton}</button>
+        <button id="fullPrice" class="btn-secondary">{siteConfig.texts.popups.formReturnPopup.withoutDiscountButton}</button>
       </div>
     </div>
   </div>
@@ -68,7 +69,7 @@
         // Изменяем текст на "без скидки"
         const submitBtn = orderFormModal.querySelector('.submit-btn');
         if (submitBtn) {
-          submitBtn.textContent = 'Заказать UROXEL (полная цена)';
+          submitBtn.textContent = siteConfig.texts.forms.orderForm.submitButton + ' (полная цена)';
         }
         orderFormModal.style.display = 'flex';
         setTimeout(() => {
@@ -115,7 +116,7 @@
         if (orderFormModal) {
           const submitBtn = orderFormModal.querySelector('.submit-btn');
           if (submitBtn) {
-            submitBtn.textContent = 'Заказать UROXEL (полная цена)';
+            submitBtn.textContent = siteConfig.texts.forms.orderForm.submitButton + ' (полная цена)';
           }
           orderFormModal.style.display = 'flex';
           setTimeout(() => {
