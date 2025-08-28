@@ -59,6 +59,124 @@ const { form, testimonials } = COPY;
         </div>
       </form>
 
+      <!-- Results Cards Section -->
+      <div class="results-section">
+        <h3 class="results-title">{siteConfig.texts.forms.domonetkaForm.resultsTitle}</h3>
+        <div class="results-disclaimer">{siteConfig.texts.forms.domonetkaForm.resultsDisclaimer}</div>
+        
+        <div class="results-cards">
+          <div class="result-card">
+            <h4 class="card-title">{siteConfig.texts.forms.domonetkaForm.resultCard1.title}</h4>
+            <p class="card-description">{siteConfig.texts.forms.domonetkaForm.resultCard1.description}</p>
+          </div>
+          
+          <div class="result-card">
+            <h4 class="card-title">{siteConfig.texts.forms.domonetkaForm.resultCard2.title}</h4>
+            <p class="card-description">{siteConfig.texts.forms.domonetkaForm.resultCard2.description}</p>
+          </div>
+          
+          <div class="result-card">
+            <h4 class="card-title">{siteConfig.texts.forms.domonetkaForm.resultCard3.title}</h4>
+            <p class="card-description">{siteConfig.texts.forms.domonetkaForm.resultCard3.description}</p>
+          </div>
+          
+          <div class="result-card">
+            <h4 class="card-title">{siteConfig.texts.forms.domonetkaForm.resultCard4.title}</h4>
+            <p class="card-description">{siteConfig.texts.forms.domonetkaForm.resultCard4.description}</p>
+          </div>
+        </div>
+        
+        <!-- Benefit Cards Grid -->
+        <div class="benefit-cards-grid">
+          <div class="benefit-card">
+            <h4 class="benefit-title">{siteConfig.texts.forms.domonetkaForm.benefitCard1.title}</h4>
+            <p class="benefit-description">{siteConfig.texts.forms.domonetkaForm.benefitCard1.description}</p>
+          </div>
+          
+          <div class="benefit-card">
+            <h4 class="benefit-title">{siteConfig.texts.forms.domonetkaForm.benefitCard2.title}</h4>
+            <p class="benefit-description">{siteConfig.texts.forms.domonetkaForm.benefitCard2.description}</p>
+          </div>
+          
+          <div class="benefit-card benefit-card-full">
+            <h4 class="benefit-title">{siteConfig.texts.forms.domonetkaForm.benefitCard3.title}</h4>
+            <p class="benefit-description">{siteConfig.texts.forms.domonetkaForm.benefitCard3.description}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Science Says Section -->
+      <div class="science-section">
+        <h3 class="science-title">{siteConfig.texts.forms.domonetkaForm.scienceTitle}</h3>
+        <p class="science-intro">{siteConfig.texts.forms.domonetkaForm.scienceIntro}</p>
+
+        <div class="ingredient-card">
+          <div class="ingredient-header">
+            <span class="dropdown-arrow">▼</span>
+            <h4 class="ingredient-name">{siteConfig.texts.forms.domonetkaForm.ingredient1.name}</h4>
+            <span class="evidence-tag">{siteConfig.texts.forms.domonetkaForm.evidenceTag}</span>
+          </div>
+          <div class="ingredient-content">
+            <p>{siteConfig.texts.forms.domonetkaForm.ingredient1.description}</p>
+          </div>
+        </div>
+
+        <div class="ingredient-card">
+          <div class="ingredient-header">
+            <span class="dropdown-arrow">▼</span>
+            <h4 class="ingredient-name">{siteConfig.texts.forms.domonetkaForm.ingredient2.name}</h4>
+            <span class="evidence-tag">{siteConfig.texts.forms.domonetkaForm.evidenceTag}</span>
+          </div>
+          <div class="ingredient-content">
+            <p>{siteConfig.texts.forms.domonetkaForm.ingredient2.description}</p>
+          </div>
+        </div>
+
+        <div class="ingredient-card">
+          <div class="ingredient-header">
+            <span class="dropdown-arrow">▼</span>
+            <h4 class="ingredient-name">{siteConfig.texts.forms.domonetkaForm.ingredient3.name}</h4>
+            <span class="evidence-tag">{siteConfig.texts.forms.domonetkaForm.evidenceTag}</span>
+          </div>
+          <div class="ingredient-content">
+            <p>{siteConfig.texts.forms.domonetkaForm.ingredient3.description}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Reviews and Safety Section -->
+      <div class="reviews-safety-section">
+        <div class="reviews-column">
+          <h3 class="reviews-title">{siteConfig.texts.forms.domonetkaForm.reviewsTitle}</h3>
+          <p class="reviews-subtitle">{siteConfig.texts.forms.domonetkaForm.reviewsSubtitle}</p>
+          
+          <div class="review-item">
+            <div class="reviewer-name">{siteConfig.texts.forms.domonetkaForm.review1.name}</div>
+            <div class="review-text">{siteConfig.texts.forms.domonetkaForm.review1.text}</div>
+          </div>
+          
+          <div class="review-item">
+            <div class="reviewer-name">{siteConfig.texts.forms.domonetkaForm.review2.name}</div>
+            <div class="review-text">{siteConfig.texts.forms.domonetkaForm.review2.text}</div>
+          </div>
+          
+          <div class="review-item">
+            <div class="reviewer-name">{siteConfig.texts.forms.domonetkaForm.review3.name}</div>
+            <div class="review-text">{siteConfig.texts.forms.domonetkaForm.review3.text}</div>
+          </div>
+          
+          <p class="reviews-note">{siteConfig.texts.forms.domonetkaForm.reviewsNote}</p>
+        </div>
+        
+        <div class="safety-column">
+          <h3 class="safety-title">{siteConfig.texts.forms.domonetkaForm.safetyTitle}</h3>
+          <ul class="safety-list">
+            <li>{siteConfig.texts.forms.domonetkaForm.safetyItem1}</li>
+            <li>{siteConfig.texts.forms.domonetkaForm.safetyItem2}</li>
+            <li>{siteConfig.texts.forms.domonetkaForm.safetyItem3}</li>
+          </ul>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -178,6 +296,13 @@ const { form, testimonials } = COPY;
       return;
     }
     
+    // Блокируем показ домонетки, если видео играет в чате
+    const chatVideo = document.getElementById('vslVideoInline');
+    if (chatVideo && !chatVideo.paused) {
+      console.log('🚫 Blocked domonetka form from showing while video is playing in chat');
+      return;
+    }
+    
     // Останавливаем предыдущие таймеры перед открытием
     stopDomonetkaTimers();
     
@@ -266,6 +391,14 @@ const { form, testimonials } = COPY;
   // Отслеживаем движение мыши к верхней части экрана (попытка закрыть вкладку)
   document.addEventListener('mouseleave', function(e) {
     if (e.clientY <= 0 && !exitIntentTriggered) {
+      // Проверяем, что нет активного видео в чате
+      const chatVideo = document.getElementById('vslVideoInline');
+      if (chatVideo && !chatVideo.paused) {
+        // Если видео играет в чате, не показываем домонетку при mouseleave
+        console.log('🚫 Blocked domonetka form from showing on mouseleave while video is playing');
+        return;
+      }
+      
       exitIntentTriggered = true;
       showDomonetkaForm();
       
@@ -283,6 +416,14 @@ const { form, testimonials } = COPY;
     // Alt+F4 или Ctrl+W
     if ((e.altKey && e.key === 'F4') || (e.ctrlKey && e.key === 'w')) {
       if (!exitIntentTriggered) {
+        // Проверяем, что нет активного видео в чате
+        const chatVideo = document.getElementById('vslVideoInline');
+        if (chatVideo && !chatVideo.paused) {
+          // Если видео играет в чате, не показываем домонетку при keydown
+          console.log('🚫 Blocked domonetka form from showing on keydown while video is playing');
+          return;
+        }
+        
         exitIntentTriggered = true;
         showDomonetkaForm();
         
@@ -291,6 +432,33 @@ const { form, testimonials } = COPY;
         }, 3000);
       }
     }
+  });
+
+  // Science section interactivity
+  document.addEventListener('DOMContentLoaded', () => {
+    const ingredientHeaders = document.querySelectorAll('.ingredient-header');
+
+    ingredientHeaders.forEach(header => {
+      header.addEventListener('click', () => {
+        const card = header.closest('.ingredient-card');
+        const content = card.querySelector('.ingredient-content');
+        
+        if (content.style.display === 'block') {
+          content.style.display = 'none';
+          card.classList.remove('expanded');
+        } else {
+          // Close other open cards
+          document.querySelectorAll('.ingredient-card.expanded').forEach(openCard => {
+            if (openCard !== card) {
+              openCard.querySelector('.ingredient-content').style.display = 'none';
+              openCard.classList.remove('expanded');
+            }
+          });
+          content.style.display = 'block';
+          card.classList.add('expanded');
+        }
+      });
+    });
   });
 </script>
 
@@ -301,25 +469,27 @@ const { form, testimonials } = COPY;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 400px; /* Как в обычной форме */
-    height: 100%;
+    max-width: 420px; /* Ограничиваем ширину как у контейнера чата */
+    height: 100vh; /* Используем viewport height */
     z-index: 10000;
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    box-sizing: border-box; /* Включаем padding в общую высоту */
+    overflow-y: auto; /* Добавляем прокрутку */
   }
 
   .domonetka-container {
     position: relative;
     width: 100%;
     background: #fff;
-    border-radius: 12px 12px 0 0; /* Как в обычной форме */
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2); /* Как в обычной форме */
+    border-radius: 0; /* Убираем скругление углов */
+    box-shadow: none; /* Убираем тень */
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     max-height: 80vh;
-    overflow: hidden;
-    margin: 20px; /* Добавляем отступы как в обычной форме */
+    overflow-y: auto; /* Добавляем прокрутку */
+    margin: 0; /* Убираем отступы */
   }
 
   .domonetka-form.show .domonetka-container {
@@ -636,14 +806,13 @@ const { form, testimonials } = COPY;
   @media (max-width: 768px) {
     .domonetka-form {
       width: 100%; /* Занимаем всю ширину экрана */
-      max-width: 100%; /* Убираем ограничение ширины */
-      left: 0; /* Убираем отступы слева */
-      right: 0; /* Убираем отступы справа */
-      transform: none;
+      max-width: 420px; /* Ограничиваем ширину как у контейнера чата */
+      left: 50%; /* Центрируем */
+      transform: translateX(-50%); /* Центрируем */
     }
     
     .domonetka-container {
-      border-radius: 12px 12px 0 0; /* Как в обычной форме */
+      border-radius: 0; /* Убираем скругление углов */
       margin: 0; /* Убираем отступы на мобильных */
       width: 100%; /* Занимаем всю ширину */
     }
@@ -773,5 +942,389 @@ const { form, testimonials } = COPY;
     color: #666;
     line-height: 1.4;
     text-align: center;
+  }
+
+  /* Results Cards Section */
+  .results-section {
+    margin-top: 0;
+    padding: 20px;
+    background: #fff;
+    border-radius: 0;
+  }
+
+  .results-title {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    text-align: center;
+  }
+
+  .results-disclaimer {
+    color: #666;
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+
+  .results-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .result-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+  }
+
+  .card-title {
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+  }
+
+  .card-description {
+    color: #666;
+    font-size: 11px;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+
+
+  .benefit-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .benefit-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+  }
+
+  .benefit-card-full {
+    grid-column: 1 / -1; /* Занимает всю ширину */
+  }
+
+  .benefit-title {
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+  }
+
+  .benefit-description {
+    color: #666;
+    font-size: 11px;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Science Says Section */
+  .science-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 0;
+  }
+
+  .science-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .science-intro {
+    font-size: 11px;
+    margin-bottom: 12px;
+    color: #666;
+    opacity: 0.8;
+  }
+
+  .ingredient-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+  }
+
+  .ingredient-card:last-child {
+    margin-bottom: 0;
+  }
+
+  .ingredient-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+  }
+
+  .dropdown-arrow {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+    color: #666;
+  }
+
+  .ingredient-card.expanded .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .ingredient-name {
+    font-size: 13px;
+    margin: 0;
+    color: #333;
+  }
+
+  .evidence-tag {
+    background: #e9ecef;
+    color: #333;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .ingredient-content {
+    font-size: 11px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e9ecef;
+    display: none;
+    color: #666;
+  }
+
+  .ingredient-content p {
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ingredient-content a {
+    color: #007bff;
+    text-decoration: underline;
+  }
+
+  /* Reviews and Safety Section */
+  .reviews-safety-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .reviews-column {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+  }
+
+  .reviews-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .reviews-subtitle {
+    font-size: 11px;
+    margin-bottom: 12px;
+    color: #666;
+  }
+
+  .review-item {
+    margin-bottom: 12px;
+  }
+
+  .reviewer-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .review-text {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .reviews-note {
+    font-size: 10px;
+    color: #666;
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  .safety-column {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+  }
+
+  .safety-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  .safety-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .safety-list li {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 8px;
+    padding-left: 15px;
+    position: relative;
+    line-height: 1.4;
+  }
+
+  .safety-list li:before {
+    content: "•";
+    color: #333;
+    position: absolute;
+    left: 0;
+  }
+
+  /* Mobile styles for results cards */
+  @media (max-width: 768px) {
+    .results-section {
+      margin-top: 0;
+      padding: 15px;
+    }
+
+    .results-title {
+      font-size: 16px;
+      margin: 0 0 8px 0;
+    }
+
+    .results-cards {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .result-card {
+      padding: 10px;
+    }
+
+    .card-title {
+      font-size: 12px;
+    }
+
+    .card-description {
+      font-size: 10px;
+    }
+
+
+
+    .benefit-cards-grid {
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .benefit-card {
+      padding: 10px;
+    }
+
+    .benefit-title {
+      font-size: 12px;
+    }
+
+    .benefit-description {
+      font-size: 10px;
+    }
+
+    /* Mobile optimizations for science section */
+    .science-section {
+      margin-top: 15px;
+      padding: 15px;
+    }
+
+    .science-title {
+      font-size: 16px;
+    }
+
+    .science-intro {
+      font-size: 10px;
+    }
+
+    .ingredient-card {
+      padding: 10px;
+      margin-bottom: 6px;
+    }
+
+    .ingredient-name {
+      font-size: 12px;
+    }
+
+    .evidence-tag {
+      font-size: 9px;
+      padding: 2px 5px;
+    }
+
+    .ingredient-content {
+      font-size: 10px;
+      margin-top: 6px;
+      padding-top: 6px;
+    }
+
+    /* Mobile optimizations for reviews and safety section */
+    .reviews-safety-section {
+      margin-top: 15px;
+      padding: 15px;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .reviews-column,
+    .safety-column {
+      padding: 12px;
+    }
+
+    .reviews-title,
+    .safety-title {
+      font-size: 16px;
+    }
+
+    .reviews-subtitle {
+      font-size: 10px;
+    }
+
+    .reviewer-name {
+      font-size: 11px;
+    }
+
+    .review-text {
+      font-size: 10px;
+    }
+
+    .reviews-note {
+      font-size: 9px;
+    }
+
+    .safety-list li {
+      font-size: 10px;
+    }
   }
 </style>

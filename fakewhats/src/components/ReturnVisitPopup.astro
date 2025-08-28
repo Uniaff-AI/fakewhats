@@ -12,7 +12,7 @@ const { popup } = COPY;
         <video id="returnVisitVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback"></video>
         
         <!-- Крестик для закрытия VSL -->
-        <button id="returnVisitVslCloseBtn" style="position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 8; font-size: 18px; pointer-events: auto;">✕</button>
+        <button id="returnVisitVslCloseBtn" style="position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 20; font-size: 18px; pointer-events: auto;">✕</button>
         
 
         
@@ -60,6 +60,19 @@ const { popup } = COPY;
 
   function showReturnVisitPopup() {
     returnVisitPopup.style.display = 'flex';
+    
+    // ПОКАЗЫВАЕМ ТЕКСТОВЫЙ ОВЕРЛЕЙ С КНОПКАМИ ПРИ ОТКРЫТИИ ПОПАПА
+    const textOverlay = returnVisitPopup.querySelector('.vsl-text-overlay');
+    if (textOverlay) {
+      textOverlay.style.display = 'flex';
+    }
+    
+    // ПОКАЗЫВАЕМ ВИНЬЕТКУ ПРИ ОТКРЫТИИ ПОПАПА
+    const vignette = returnVisitPopup.querySelector('.vsl-vignette');
+    if (vignette) {
+      vignette.style.display = 'block';
+    }
+    
     if (returnVisitVideo) {
       // Устанавливаем время видео с сохраненного момента
       returnVisitVideo.currentTime = savedVideoTime;
@@ -285,8 +298,8 @@ const { popup } = COPY;
     }
     
     // Скрываем надписи, кнопки и виньетку
-    const textOverlay = document.querySelector('.vsl-text-overlay');
-    const vignette = document.querySelector('.vsl-vignette');
+    const textOverlay = document.querySelector('#returnVisitPopup .vsl-text-overlay');
+    const vignette = document.querySelector('#returnVisitPopup .vsl-vignette');
     
     if (textOverlay) {
       textOverlay.style.display = 'none';
@@ -331,8 +344,8 @@ const { popup } = COPY;
     }
     
     // Скрываем надписи, кнопки и виньетку (как при клике на "Продолжить")
-    const textOverlay = document.querySelector('.vsl-text-overlay');
-    const vignette = document.querySelector('.vsl-vignette');
+    const textOverlay = document.querySelector('#returnVisitPopup .vsl-text-overlay');
+    const vignette = document.querySelector('#returnVisitPopup .vsl-vignette');
     
     if (textOverlay) {
       textOverlay.style.display = 'none';
@@ -351,7 +364,7 @@ const { popup } = COPY;
   returnVisitPopup?.addEventListener('click', (e) => {
     if (e.target === returnVisitPopup) {
       hideReturnVisitPopup();
-      // Показываем домонетку при попытке закрыть попап
+      // Показываем домонетку при закрытии попапа
       if (window.showDomonetkaForm) {
         window.showDomonetkaForm();
       }
@@ -402,14 +415,14 @@ const { popup } = COPY;
   }
 
   .return-visit-popup {
-    background: #fff;
-    border-radius: 16px;
+    background: #000;
+    border-radius: 0;
     overflow: hidden;
-    max-width: 420px;
-    max-height: 80vh;
-    width: 90vw;
-    height: 70vh;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    box-shadow: none;
   }
 
   .vsl-container {
@@ -438,7 +451,8 @@ const { popup } = COPY;
   .vsl-overlay video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    background: #000;
   }
 
   /* Исправление обрезания видео на мобильных устройствах */
@@ -449,13 +463,19 @@ const { popup } = COPY;
     }
     
     .return-visit-popup {
-      height: 60vh; /* Уменьшаем высоту на мобильных */
+      height: 100vh; /* Полная высота на мобильных */
+      width: 100vw; /* Полная ширина на мобильных */
+      max-width: 100vw;
+      max-height: 100vh;
     }
   }
 
   @media (max-width: 480px) {
     .return-visit-popup {
-      height: 50vh; /* Еще меньше на маленьких экранах */
+      height: 100vh; /* Полная высота на маленьких экранах */
+      width: 100vw; /* Полная ширина на маленьких экранах */
+      max-width: 100vw;
+      max-height: 100vh;
     }
   }
 

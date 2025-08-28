@@ -1,4 +1,4 @@
----
+клик---
 import { COPY } from '../content/copy';
 import OrderForm from './OrderForm.astro';
 import ReturnPopup from './ReturnPopup.astro';
@@ -507,6 +507,24 @@ const { messages, form } = COPY;
   </div>
 </div>
 
+<!-- Полноэкранный плеер для кнопки включить звук -->
+<div id="fullscreenPlayer" class="fullscreen-player" style="display: none;">
+  <div class="fullscreen-player-content">
+    <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback"></video>
+    <button id="fullscreenCloseBtn" class="fullscreen-close-btn" style="z-index: 20;">✕</button>
+    
+    <!-- Попап на определенной минуте VSL (скрыт изначально) -->
+    <div id="fullscreenVslMidPopup" class="fullscreen-vsl-mid-popup" style="display: none;">
+      <!-- Зеленая плашка сверху -->
+      <div class="fullscreen-vsl-mid-banner" onclick="showOrderFormModal();" style="cursor: pointer;">
+        <div class="fullscreen-vsl-mid-vignette"></div>
+        <div>{siteConfig.texts.popups.vslMidPopup.title}</div>
+        <div style="font-size: 14px; margin-top: 5px;">{siteConfig.texts.popups.vslMidPopup.subtitle}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Main VSL Popup -->
 <!-- Попап с видео удален - больше не используется -->
 
@@ -725,12 +743,39 @@ const { messages, form } = COPY;
     alert('Спасибо! Мы свяжемся с вами.');
   });
 
+  // Проверяем сохраненное время при загрузке страницы
+  console.log('🔍 Chat.astro: Checking localStorage for savedVideoTime...');
+  const savedTimeFromStorage = localStorage.getItem('savedVideoTime');
+  console.log('🔍 Chat.astro: savedTimeFromStorage:', savedTimeFromStorage);
+  console.log('🔍 Chat.astro: All localStorage keys:', Object.keys(localStorage));
+  
+  if (savedTimeFromStorage) {
+    const savedTime = parseFloat(savedTimeFromStorage);
+    console.log('🔍 Chat.astro: Found saved time:', savedTime, 'seconds');
+    if (savedTime > 10) {
+      console.log('🔍 Chat.astro: Time > 10 seconds, should show return popup');
+    }
+  } else {
+    console.log('🔍 Chat.astro: No saved time found');
+  }
+
   // Сохраняем время видео при попытке ухода
   document.addEventListener('visibilitychange', () => {
     const video = document.getElementById('vslVideoInline');
-    if (document.hidden && video && !video.paused) {
-      if (window.saveVideoTime) {
-        window.saveVideoTime();
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    
+    if (document.hidden) {
+      // Сохраняем время основного видео в чате
+      if (video && !video.paused) {
+        if (window.saveVideoTime) {
+          window.saveVideoTime();
+        }
+      }
+      
+      // Сохраняем время полноэкранного видео
+      if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
+        localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
+        console.log('💾 Saved fullscreen video time on page hide:', fullscreenVideo.currentTime, 'seconds');
       }
     }
   });
@@ -1206,16 +1251,228 @@ const { messages, form } = COPY;
 
 
 
+  // Функция для обхода блокировки автовоспроизведения
+  function startAutoplayWithBypass(video) {
+    if (!video) return;
+    
+    // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
+    video.muted = true;
+    video.play().then(() => {
+      console.log('✅ Fullscreen video started playing (muted)');
+      // Включаем звук сразу
+      video.muted = false;
+      console.log('🔊 Sound enabled immediately');
+    }).catch((error) => {
+      console.log('❌ Muted autoplay failed:', error.name);
+      
+      // Стратегия 2: Пробуем с задержкой
+      setTimeout(() => {
+        video.muted = true;
+        video.play().then(() => {
+          console.log('✅ Fullscreen video started playing (delayed muted)');
+          // Включаем звук сразу
+          video.muted = false;
+          console.log('🔊 Sound enabled immediately (delayed)');
+        }).catch((error2) => {
+          console.log('❌ Delayed autoplay failed:', error2.name);
+          
+          // Стратегия 3: Ждем взаимодействия пользователя
+          setupUserInteractionAutoplay(video);
+        });
+      }, 500);
+    });
+  }
+
+  // Функция для запуска видео после взаимодействия пользователя
+  function setupUserInteractionAutoplay(video) {
+    let hasUserInteracted = false;
+    
+    // Создаем невидимую кнопку воспроизведения
+    const playButton = document.createElement('div');
+    playButton.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      cursor: pointer;
+      z-index: 1000;
+    `;
+    playButton.innerHTML = `
+      <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 10px;
+        font-size: 18px;
+        text-align: center;
+        pointer-events: none;
+      ">
+        ▶️ Нажмите для воспроизведения
+      </div>
+    `;
+    
+    playButton.onclick = () => {
+      if (!hasUserInteracted) {
+        hasUserInteracted = true;
+        playButton.remove();
+        video.muted = false;
+        video.play().then(() => {
+          console.log('✅ Fullscreen video started after user interaction');
+        }).catch((error) => {
+          console.error('❌ Failed to play after interaction:', error);
+        });
+      }
+    };
+    
+    // Добавляем обработчики для различных типов взаимодействия
+    const interactionEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
+    interactionEvents.forEach(event => {
+      playButton.addEventListener(event, () => {
+        if (!hasUserInteracted) {
+          hasUserInteracted = true;
+          playButton.remove();
+          video.muted = false;
+          video.play().then(() => {
+            console.log('✅ Fullscreen video started after user interaction');
+          }).catch((error) => {
+            console.error('❌ Failed to play after interaction:', error);
+          });
+        }
+      });
+    });
+    
+    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+    if (fullscreenPlayer) {
+      fullscreenPlayer.appendChild(playButton);
+    }
+  }
+
+  // Функции для управления полноэкранным плеером
+  function showFullscreenPlayer() {
+    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    
+    if (fullscreenPlayer && fullscreenVideo) {
+      fullscreenPlayer.style.display = 'flex';
+      
+      // Запускаем видео с обходом блокировки автоплея
+      startAutoplayWithBypass(fullscreenVideo);
+      
+      // Настраиваем попап на определенной минуте для этого видео
+      console.log('🎬 Setting up popup for fullscreenVideo');
+      if (window.setupVslTimePopup) {
+        console.log('🎬 Calling window.setupVslTimePopup(fullscreenVideo)...');
+        window.setupVslTimePopup(fullscreenVideo);
+      } else {
+        console.error('❌ window.setupVslTimePopup is not defined!');
+      }
+
+      // Открываем форму заказа когда видео закончилось
+      fullscreenVideo.addEventListener('ended', function() {
+        console.log('🎬 Fullscreen video ended, showing order form');
+        if (window.showOrderFormModal) {
+          window.showOrderFormModal();
+        }
+      });
+
+      // Периодически сохраняем время просмотра каждые 10 секунд
+      const fullscreenTimeInterval = setInterval(() => {
+        if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
+          localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
+          console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+        }
+      }, 10000);
+
+      // Очищаем интервал при закрытии плеера
+      const originalHideFullscreenPlayer = hideFullscreenPlayer;
+      hideFullscreenPlayer = function() {
+        clearInterval(fullscreenTimeInterval);
+        originalHideFullscreenPlayer();
+      };
+    }
+  }
+  
+  function hideFullscreenPlayer() {
+    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    
+    console.log('🔍 hideFullscreenPlayer called');
+    console.log('🔍 fullscreenPlayer found:', !!fullscreenPlayer);
+    console.log('🔍 fullscreenVideo found:', !!fullscreenVideo);
+    
+    if (fullscreenPlayer && fullscreenVideo) {
+      console.log('🔍 fullscreenVideo.currentTime:', fullscreenVideo.currentTime);
+      console.log('🔍 fullscreenVideo.paused:', fullscreenVideo.paused);
+      
+      // Сохраняем время просмотра перед закрытием
+      if (fullscreenVideo.currentTime > 0) {
+        localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
+        console.log('💾 Saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+        
+        // Проверяем, что действительно сохранилось
+        const savedTime = localStorage.getItem('savedVideoTime');
+        console.log('🔍 Verified saved time in localStorage:', savedTime);
+      } else {
+        console.log('⚠️ Video time is 0, not saving');
+      }
+      
+      fullscreenPlayer.style.display = 'none';
+      fullscreenVideo.pause();
+    }
+  }
+
+  // Функция показа попапа на определенной минуте VSL в полноэкранном плеере
+  function showFullscreenVslMidPopup() {
+    console.log('🎯 Showing fullscreen VSL mid popup');
+    const popup = document.getElementById('fullscreenVslMidPopup');
+    console.log('🎯 Popup element found:', !!popup);
+    if (popup) {
+      console.log('✅ Fullscreen popup element found, showing...');
+      console.log('🎯 Popup current display:', popup.style.display);
+      console.log('🎯 Popup current z-index:', popup.style.zIndex);
+      
+      // Принудительно показываем попап
+      popup.style.display = 'block';
+      popup.style.opacity = '1';
+      popup.style.visibility = 'visible';
+      popup.style.zIndex = '1000';
+      
+      console.log('🎯 Popup display after change:', popup.style.display);
+      console.log('🎯 Popup z-index after change:', popup.style.zIndex);
+      console.log('✅ Fullscreen popup should now be visible');
+      
+      // Проверяем, что баннер тоже виден
+      const banner = popup.querySelector('.fullscreen-vsl-mid-banner');
+      if (banner) {
+        console.log('✅ Fullscreen banner element found');
+        banner.style.zIndex = '1001';
+        console.log('🎯 Fullscreen banner z-index set to:', banner.style.zIndex);
+      } else {
+        console.error('❌ Fullscreen banner element not found!');
+      }
+    } else {
+      console.error('❌ Fullscreen popup element not found! fullscreenVslMidPopup does not exist in DOM');
+      
+      // Проверим все элементы с похожими ID
+      const allElements = document.querySelectorAll('[id*="popup"]');
+      console.log('🎯 All elements with "popup" in ID:', Array.from(allElements).map(el => el.id));
+    }
+  }
+
   // Обработчик mousedown для VSL кнопок (основной)
   document.addEventListener('mousedown', function(e) {
     if (e.target && (e.target.closest('.vsl-sound-btn') || e.target.id === 'vslPlayBtnSimple')) {
       e.preventDefault();
       e.stopPropagation();
       
-      // Открываем видео напрямую в ReturnPopup
-      if (window.showReturnPopup) {
-        window.showReturnPopup();
-      }
+      // Открываем полноэкранный плеер
+      showFullscreenPlayer();
     }
     
     // Кнопка выключения звука работает как раньше
@@ -1233,26 +1490,63 @@ const { messages, form } = COPY;
         !e.target.closest('.vsl-sound-btn') && 
         e.target.id !== 'vslMuteBtn' && 
         e.target.id !== 'vslPlayBtnSimple') {
+      console.log('🎬 VSL bubble clicked!');
       e.preventDefault();
       e.stopPropagation();
       
       // Открываем ReturnPopup с VSL
+      console.log('🎬 Trying to show return popup');
+      console.log('🎬 window.showReturnPopup exists:', !!window.showReturnPopup);
       if (window.showReturnPopup) {
         window.showReturnPopup();
+      } else {
+        console.error('❌ window.showReturnPopup is not defined!');
       }
     }
-  });
+    
+    // Блокируем показ домонетки при клике вне видео, когда видео играет и нет попапов
+    // Проверяем, что клик НЕ на видео и НЕ на попапах
+    if (!e.target.closest('.vsl-bubble') && 
+        !e.target.closest('.return-popup-backdrop') && 
+        !e.target.closest('.return-visit-popup-backdrop') && 
+        !e.target.closest('.vsl-exit-popup') && 
+        !e.target.closest('.pwa-modal') && 
+        !e.target.closest('.domonetka-form')) {
+      
+      // Если есть активное видео в чате и нет открытых попапов, блокируем показ домонетки
+      const chatVideo = document.getElementById('vslVideoInline');
+      const returnPopup = document.getElementById('returnPopup');
+      const returnVisitPopup = document.getElementById('returnVisitPopup');
+      const vslExitPopup = document.getElementById('vslExitPopup');
+      const orderFormModal = document.getElementById('orderFormModal');
+      const callBookingModal = document.getElementById('callBookingModal');
+      const domonetkaForm = document.getElementById('domonetkaForm');
+      
+      if (chatVideo && !chatVideo.paused && 
+          (!returnPopup || returnPopup.style.display === 'none') &&
+          (!returnVisitPopup || returnVisitPopup.style.display === 'none') &&
+          (!vslExitPopup || vslExitPopup.style.display === 'none') &&
+          (!orderFormModal || orderFormModal.style.display === 'none') &&
+          (!callBookingModal || callBookingModal.style.display === 'none') &&
+          (!domonetkaForm || domonetkaForm.style.display === 'none')) {
+        
+        // Блокируем показ домонетки при клике вне видео
+        e.stopPropagation();
+        e.preventDefault();
+        console.log('🚫 Blocked domonetka form from showing on click outside video');
+        return false;
+      }
+    }
+  }, true); // Используем capture: true для перехвата события раньше других обработчиков
 
-  // Обработчик touchstart для мобильных устройств
-  document.addEventListener('touchstart', function(e) {
+  // Обработчик click для мобильных устройств
+  document.addEventListener('click', function(e) {
     if (e.target && (e.target.closest('.vsl-sound-btn') || e.target.id === 'vslPlayBtnSimple')) {
       e.preventDefault();
       e.stopPropagation();
       
-      // Открываем видео напрямую в ReturnPopup
-      if (window.showReturnPopup) {
-        window.showReturnPopup();
-      }
+      // Открываем полноэкранный плеер
+      showFullscreenPlayer();
     }
     
     // Кнопка выключения звука работает как раньше
@@ -1505,10 +1799,12 @@ const { messages, form } = COPY;
     const returnVideo = document.getElementById('returnVslVideo');
     const returnVisitVideo = document.getElementById('returnVisitVideo');
     const chatVideo = document.getElementById('vslVideoInline');
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
     
     // Проверяем, какой попап открыт
     const returnPopup = document.getElementById('returnPopup');
     const returnVisitPopup = document.getElementById('returnVisitPopup');
+    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     
     console.log('🎯 returnPopup display:', returnPopup ? returnPopup.style.display : 'not found');
     console.log('🎯 returnVisitPopup display:', returnVisitPopup ? returnVisitPopup.style.display : 'not found');
@@ -1530,6 +1826,14 @@ const { messages, form } = COPY;
         window.showReturnVisitVslMidPopup();
       } else {
         console.error('❌ showReturnVisitVslMidPopup is not defined!');
+      }
+    } else if (fullscreenPlayer && fullscreenPlayer.style.display === 'flex' && fullscreenVideo) {
+      // Если открыт полноэкранный плеер
+      console.log('🎯 Showing popup in fullscreen player');
+      if (window.showFullscreenVslMidPopup) {
+        window.showFullscreenVslMidPopup();
+      } else {
+        console.error('❌ showFullscreenVslMidPopup is not defined!');
       }
     } else if (chatVideo && !chatVideo.paused) {
       // Если воспроизводится видео в чате
@@ -1820,6 +2124,25 @@ const { messages, form } = COPY;
   document.addEventListener('keydown', markUserInteraction, { once: true });
   document.addEventListener('mousedown', markUserInteraction, { once: true });
 
+  // Обработчик для кнопки закрытия полноэкранного плеера
+  document.addEventListener('DOMContentLoaded', function() {
+    const fullscreenCloseBtn = document.getElementById('fullscreenCloseBtn');
+    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+    
+    if (fullscreenCloseBtn) {
+      fullscreenCloseBtn.addEventListener('click', hideFullscreenPlayer);
+    }
+    
+    // Закрытие по клику на фон
+    if (fullscreenPlayer) {
+      fullscreenPlayer.addEventListener('click', function(e) {
+        if (e.target === fullscreenPlayer) {
+          hideFullscreenPlayer();
+        }
+      });
+    }
+  });
+
   // Export functions to window
   window.openPopup = openPopup;
   window.toggleVslSound = toggleVslSound;
@@ -1828,6 +2151,9 @@ const { messages, form } = COPY;
   window.setupVslButtonHandlers = setupVslButtonHandlers;
   window.setupVslTimePopup = setupVslTimePopup;
   window.hasUserInteracted = () => hasUserInteracted;
+  window.showFullscreenPlayer = showFullscreenPlayer;
+  window.hideFullscreenPlayer = hideFullscreenPlayer;
+  window.showFullscreenVslMidPopup = showFullscreenVslMidPopup;
   // Обработчики для крестика и попапа выбора
   const vslCloseBtn = document.getElementById('vslCloseBtn');
   const vslRestartBtn = document.getElementById('vslRestartBtn');
@@ -3187,6 +3513,108 @@ const { messages, form } = COPY;
     transform: translateY(-2px);
   }
 
+  /* Стили для полноэкранного плеера */
+  .fullscreen-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent; /* Убираем затемнение в полноэкранном режиме */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .fullscreen-player-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent; /* Убираем любой фон */
+  }
+
+  .fullscreen-player video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  .fullscreen-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 20;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fullscreen-close-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  /* Мобильные стили для полноэкранного плеера */
+  @media (max-width: 768px) {
+    .fullscreen-close-btn {
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+  }
+
+  /* Стили для попапа на определенной минуте VSL в полноэкранном плеере */
+  .fullscreen-vsl-mid-popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Позволяет кликать через попап на видео */
+    background: transparent; /* Убираем затемнение видео */
+  }
+
+  .fullscreen-vsl-mid-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #4CAF50; /* Менее яркий зеленый цвет */
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 11;
+    pointer-events: auto; /* Позволяет взаимодействовать с баннером */
+    position: relative;
+  }
+
+  .fullscreen-vsl-mid-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent; /* Убираем затемнение в полноэкранном режиме */
+    pointer-events: none;
+    z-index: 1;
+  }
 
 </style>
 

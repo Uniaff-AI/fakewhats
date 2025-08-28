@@ -30,21 +30,40 @@ body {
     radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
   display: flex;
   justify-content: center;
+  overflow-x: hidden; /* Убираем горизонтальную прокрутку */
+}
+
+/* Мобильные стили для body */
+@media (max-width: 768px) {
+  body {
+    padding: 0; /* Убираем все отступы на мобильных */
+    margin: 0;
+  }
 }
 
 .container {
   max-width: 420px;
   width: 100%;
-  height: calc(100vh - 80px);
+  height: 100vh; /* Используем полную высоту viewport */
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,.12);
   background: var(--wa-chat-bg);
   display: flex;
   flex-direction: column;
-  margin: 40px auto;
+  margin: 0 auto; /* Убираем верхний и нижний отступы */
   padding: 0;
   position: relative;
+}
+
+/* Мобильные стили для контейнера */
+@media (max-width: 768px) {
+  .container {
+    height: 100vh; /* Полная высота на мобильных */
+    border-radius: 0; /* Убираем скругления на мобильных */
+    margin: 0; /* Убираем все отступы */
+    max-width: 100%; /* Занимаем всю ширину */
+  }
 }
 
 .wa-header {
