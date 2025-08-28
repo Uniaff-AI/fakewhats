@@ -301,7 +301,7 @@ const { form, testimonials } = COPY;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 420px;
+    max-width: 400px; /* Как в обычной форме */
     height: 100%;
     z-index: 10000;
     display: flex;
@@ -313,12 +313,13 @@ const { form, testimonials } = COPY;
     position: relative;
     width: 100%;
     background: #fff;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 12px 12px 0 0; /* Как в обычной форме */
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2); /* Как в обычной форме */
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     max-height: 80vh;
     overflow: hidden;
+    margin: 20px; /* Добавляем отступы как в обычной форме */
   }
 
   .domonetka-form.show .domonetka-container {
@@ -634,14 +635,17 @@ const { form, testimonials } = COPY;
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .domonetka-form {
-      max-width: calc(100% - 40px);
-      left: 20px;
-      right: 20px;
+      width: 100%; /* Занимаем всю ширину экрана */
+      max-width: 100%; /* Убираем ограничение ширины */
+      left: 0; /* Убираем отступы слева */
+      right: 0; /* Убираем отступы справа */
       transform: none;
     }
     
     .domonetka-container {
-      border-radius: 16px 16px 0 0;
+      border-radius: 12px 12px 0 0; /* Как в обычной форме */
+      margin: 0; /* Убираем отступы на мобильных */
+      width: 100%; /* Занимаем всю ширину */
     }
 
     .form-content {
@@ -679,6 +683,21 @@ const { form, testimonials } = COPY;
 
     .price-discount {
       font-size: 20px;
+    }
+  }
+
+  /* Дополнительные стили для очень маленьких экранов */
+  @media (max-width: 480px) {
+    .domonetka-form {
+      width: 100%;
+      max-width: 100%;
+      left: 0;
+      right: 0;
+    }
+    
+    .domonetka-container {
+      width: 100%;
+      margin: 0;
     }
   }
 
