@@ -29,7 +29,11 @@ import { siteConfig } from '../config/site-config';
   }
 
   function hideTimeSelectionPopup() {
-    timeSelectionPopup.style.display = 'none';
+    if (timeSelectionPopup) {
+      timeSelectionPopup.style.display = 'none';
+      timeSelectionPopup.classList.remove('show');
+      console.log('🔴 hideTimeSelectionPopup() called');
+    }
   }
 
   // Экспортируем функции для использования в других компонентах
@@ -37,7 +41,27 @@ import { siteConfig } from '../config/site-config';
   window.hideTimeSelectionPopup = hideTimeSelectionPopup;
 
   callNowBtn?.addEventListener('click', async () => {
+    console.log('🔴 Call Now button clicked - closing all forms');
+    
+    // Закрываем попап выбора времени
     hideTimeSelectionPopup();
+    
+    // Дополнительная проверка - принудительно скрываем попап
+    if (timeSelectionPopup) {
+      timeSelectionPopup.style.display = 'none';
+      timeSelectionPopup.classList.remove('show');
+      console.log('✅ Time selection popup closed');
+    }
+    
+    // Закрываем основную форму бронирования звонка
+    const callBookingModal = document.getElementById('callBookingModal');
+    if (callBookingModal) {
+      callBookingModal.classList.remove('show');
+      setTimeout(() => {
+        callBookingModal.style.display = 'none';
+      }, 300);
+      console.log('✅ Call booking modal closed');
+    }
     
     // Получаем сохраненные данные из Chat.astro
     const savedFormData = window.savedFormData || {};
@@ -53,23 +77,18 @@ import { siteConfig } from '../config/site-config';
       userAgent: navigator.userAgent
     };
     
-    try {
-      const response = await fetch('/api/postback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(leadData)
-      });
-      
-      if (response.ok) {
-        // Успешная отправка
-      } else {
-        console.error('Response not ok:', response.status);
-      }
-    } catch (error) {
-      console.error('Error submitting call now request:', error);
-    }
+    // Логируем данные заявки (замена API)
+    console.log('[UROXEL Lead - time_selection]', {
+      serverTimestamp: new Date().toISOString(),
+      name: leadData.name,
+      phone: leadData.phone,
+      calltime: leadData.callTime,
+      reason: leadData.reason,
+      videoWatchTime: leadData.videoWatchTime,
+      userAgent: leadData.userAgent,
+      clientTimestamp: leadData.timestamp
+    });
+    console.log('📊 Данные заявки (time_selection) готовы для отправки в CRM:', leadData);
   });
 
   goBackBtn?.addEventListener('click', () => {

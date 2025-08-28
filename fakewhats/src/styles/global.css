@@ -252,4 +252,90 @@ body {
 
 /* Медиа-запросы перенесены в Chat.astro */
 
+/* Стили для intl-tel-input */
+.iti {
+  width: 100%;
+  position: relative;
+  display: inline-block;
+}
+
+.iti__country-list {
+  position: absolute;
+  z-index: 1000;
+  list-style: none;
+  text-align: left;
+  padding: 0;
+  margin: 0 0 0 -1px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  max-height: 150px;
+  overflow-y: scroll;
+  border-radius: 4px;
+}
+
+.iti__country {
+  padding: 5px 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.iti__country:hover {
+  background-color: #f1f1f1;
+}
+
+.iti__country.iti__highlight {
+  background-color: #007bff;
+  color: white;
+}
+
+.iti__flag {
+  width: 20px;
+  height: 15px;
+  margin-right: 8px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.iti__country-name {
+  margin-right: 6px;
+}
+
+.iti__dial-code {
+  color: #999;
+}
+
+.iti__selected-flag {
+  z-index: 4;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 6px 0 8px;
+  cursor: pointer;
+}
+
+.iti__arrow {
+  margin-left: 6px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #555;
+}
+
+.iti__arrow--up {
+  border-top: none;
+  border-bottom: 4px solid #555;
+}
+
+/* Адаптация для форм */
+.form-input {
+  min-height: 48px !important;
+  height: 48px !important;
+  font-size: 16px !important;
+  width: 100% !important;
+}
+
 

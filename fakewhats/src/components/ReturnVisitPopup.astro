@@ -64,10 +64,8 @@ const { popup } = COPY;
       // Устанавливаем время видео с сохраненного момента
       returnVisitVideo.currentTime = savedVideoTime;
       
-      // Запускаем воспроизведение
-      returnVisitVideo.play().catch((error) => {
-        console.error('❌ Error playing video:', error);
-      });
+      // Запускаем автовоспроизведение с обходом блокировки
+      startAutoplayWithBypass(returnVisitVideo);
       
       // Настраиваем попап на определенной минуте для этого видео
       console.log('🎬 Setting up popup for returnVisitVideo');
@@ -99,6 +97,8 @@ const { popup } = COPY;
       returnVisitVideo.pause();
     }
   }
+
+
 
   function saveVideoTime() {
     if (returnVisitVideo && returnVisitVideo.currentTime > 0) {
@@ -170,6 +170,105 @@ const { popup } = COPY;
     }
   });
 
+  // Функция для обхода блокировки автовоспроизведения
+  function startAutoplayWithBypass(video) {
+    if (!video) return;
+    
+    // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
+    video.muted = true;
+    video.play().then(() => {
+      console.log('✅ Return visit video started playing (muted)');
+      // Включаем звук сразу
+      video.muted = false;
+      console.log('🔊 Sound enabled immediately');
+    }).catch((error) => {
+      console.log('❌ Muted autoplay failed:', error.name);
+      
+      // Стратегия 2: Пробуем с задержкой
+      setTimeout(() => {
+        video.muted = true;
+        video.play().then(() => {
+          console.log('✅ Return visit video started playing (delayed muted)');
+          // Включаем звук сразу
+          video.muted = false;
+          console.log('🔊 Sound enabled immediately (delayed)');
+        }).catch((error2) => {
+          console.log('❌ Delayed autoplay failed:', error2.name);
+          
+          // Стратегия 3: Ждем взаимодействия пользователя
+          setupUserInteractionAutoplay(video);
+        });
+      }, 500);
+    });
+  }
+
+  // Функция для запуска видео после взаимодействия пользователя
+  function setupUserInteractionAutoplay(video) {
+    let hasUserInteracted = false;
+    
+    // Создаем невидимую кнопку воспроизведения
+    const playButton = document.createElement('div');
+    playButton.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      cursor: pointer;
+      z-index: 1000;
+    `;
+    playButton.innerHTML = `
+      <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 10px;
+        font-size: 18px;
+        text-align: center;
+        pointer-events: none;
+      ">
+        ▶️ Нажмите для воспроизведения
+      </div>
+    `;
+    
+    playButton.onclick = () => {
+      if (!hasUserInteracted) {
+        hasUserInteracted = true;
+        playButton.remove();
+        video.muted = false;
+        video.play().then(() => {
+          console.log('✅ Return visit video started after user interaction');
+        }).catch((error) => {
+          console.error('❌ Failed to play after interaction:', error);
+        });
+      }
+    };
+    
+    // Добавляем обработчики для различных типов взаимодействия
+    const interactionEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
+    interactionEvents.forEach(event => {
+      playButton.addEventListener(event, () => {
+        if (!hasUserInteracted) {
+          hasUserInteracted = true;
+          playButton.remove();
+          video.muted = false;
+          video.play().then(() => {
+            console.log('✅ Return visit video started after user interaction');
+          }).catch((error) => {
+            console.error('❌ Failed to play after interaction:', error);
+          });
+        }
+      });
+    });
+    
+    returnVisitPopup.appendChild(playButton);
+  }
+
   // Экспортируем функции для использования в других компонентах
   window.showReturnVisitPopup = showReturnVisitPopup;
   window.hideReturnVisitPopup = hideReturnVisitPopup;
@@ -196,9 +295,20 @@ const { popup } = COPY;
       vignette.style.display = 'none';
     }
     
-    // Убираем курсор pointer с видео
+    // Убираем курсор pointer с видео и возобновляем воспроизведение
     if (returnVisitVideo) {
       returnVisitVideo.style.cursor = 'default';
+      
+      // Возобновляем воспроизведение видео
+      if (returnVisitVideo.paused) {
+        returnVisitVideo.play().then(() => {
+          console.log('▶️ Return visit video resumed from pause');
+        }).catch((error) => {
+          console.log('❌ Failed to resume return visit video:', error.name);
+          // Если автоплей заблокирован, используем обход
+          startAutoplayWithBypass(returnVisitVideo);
+        });
+      }
     }
   });
 
@@ -211,10 +321,8 @@ const { popup } = COPY;
       savedVideoTime = 0;
       localStorage.removeItem('savedVideoTime');
       
-      // Запускаем воспроизведение с начала
-      returnVisitVideo.play().catch((error) => {
-        console.error('❌ Error playing video from beginning:', error);
-      });
+      // Запускаем воспроизведение с начала используя обход блокировки
+      startAutoplayWithBypass(returnVisitVideo);
       
       // Настраиваем попап на определенной минуте для видео, которое начинается с начала
       if (window.setupVslTimePopup) {
@@ -255,42 +363,16 @@ const { popup } = COPY;
     // Просто сохраняем время, НЕ показываем домонетку
   });
 
-  // Отключаем перемотку для видео
+  // Настройки видео (перемотка разрешена)
   if (returnVisitVideo) {
-    // Отключаем контекстное меню
+    // Отключаем только контекстное меню
     returnVisitVideo.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       return false;
     });
-
-    // Отключаем перемотку при перетаскивании
-    returnVisitVideo.addEventListener('seeking', (e) => {
-      e.preventDefault();
-      return false;
-    });
-
-    // Блокируем перемотку при попытке изменить время
-    returnVisitVideo.addEventListener('seeking', (e) => {
-      e.preventDefault();
-      returnVisitVideo.currentTime = returnVisitVideo.currentTime;
-      return false;
-    });
-
-    // Блокируем перемотку при попытке установить время
-    const originalCurrentTime = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime');
-    Object.defineProperty(returnVisitVideo, 'currentTime', {
-      get: function() {
-        return originalCurrentTime.get.call(this);
-      },
-      set: function(value) {
-        // Разрешаем только автоматическое изменение времени
-        if (this.paused) {
-          originalCurrentTime.set.call(this, value);
-        }
-        // Блокируем ручную перемотку
-        return;
-      }
-    });
+    
+    // Перемотка теперь разрешена - убираем все блокировки
+    console.log('✅ Video seeking enabled for returnVisitVideo');
   }
 
   // Сохраняем время видео при попытке ухода со страницы
@@ -511,70 +593,8 @@ const { popup } = COPY;
     z-index: 1;
   }
 
-  /* Отключаем элементы управления видео */
-  video::-webkit-media-controls {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-panel {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-play-button {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-timeline {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-current-time-display {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-time-remaining-display {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-mute-button {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-volume-slider {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-fullscreen-button {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-enclosure {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-overlay-play-button {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-rewind-button {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-return-to-realtime-button {
-    display: none !important;
-  }
-
-  video::-webkit-media-controls-toggle-closed-captions-button {
-    display: none !important;
-  }
-
-  /* Отключаем все элементы управления для Firefox */
-  video::-moz-media-controls {
-    display: none !important;
-  }
-
-  /* Отключаем все элементы управления для Edge */
-  video::-ms-media-controls {
-    display: none !important;
+  /* Элементы управления видео теперь видны */
+  video {
+    /* Стили для видимых элементов управления */
   }
 </style>

@@ -238,23 +238,20 @@ const { form, testimonials } = COPY;
       userAgent: navigator.userAgent
     };
     
-    try {
-      const response = await fetch('/api/postback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(leadData)
-      });
-      
-      if (response.ok) {
-        hideDomonetkaForm();
-      } else {
-        console.error('Response not ok:', response.status);
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
+    // Логируем данные заявки (замена API)
+    console.log('[UROXEL Lead - domonetka_form]', {
+      serverTimestamp: new Date().toISOString(),
+      name: leadData.name,
+      phone: leadData.phone,
+      calltime: leadData.calltime,
+      reason: leadData.reason,
+      videoWatchTime: leadData.videoWatchTime,
+      userAgent: leadData.userAgent,
+      clientTimestamp: leadData.ts
+    });
+    console.log('📊 Данные заявки (domonetka_form) готовы для отправки в CRM:', leadData);
+    
+    hideDomonetkaForm();
   });
 
   // Export functions to window only if form exists and not already exported
@@ -262,6 +259,39 @@ const { form, testimonials } = COPY;
     window.showDomonetkaForm = showDomonetkaForm;
     window.hideDomonetkaForm = hideDomonetkaForm;
   }
+
+  // Обработчики для показа формы домонетки при попытке покинуть страницу
+  let exitIntentTriggered = false;
+  
+  // Отслеживаем движение мыши к верхней части экрана (попытка закрыть вкладку)
+  document.addEventListener('mouseleave', function(e) {
+    if (e.clientY <= 0 && !exitIntentTriggered) {
+      exitIntentTriggered = true;
+      showDomonetkaForm();
+      
+      // Сбрасываем флаг через 3 секунды
+      setTimeout(() => {
+        exitIntentTriggered = false;
+      }, 3000);
+    }
+  });
+  
+
+  
+  // Отслеживаем нажатие клавиш (Alt+F4, Ctrl+W, etc.)
+  document.addEventListener('keydown', function(e) {
+    // Alt+F4 или Ctrl+W
+    if ((e.altKey && e.key === 'F4') || (e.ctrlKey && e.key === 'w')) {
+      if (!exitIntentTriggered) {
+        exitIntentTriggered = true;
+        showDomonetkaForm();
+        
+        setTimeout(() => {
+          exitIntentTriggered = false;
+        }, 3000);
+      }
+    }
+  });
 </script>
 
 <style>

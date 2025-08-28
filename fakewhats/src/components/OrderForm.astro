@@ -377,19 +377,20 @@ const { form, testimonials } = COPY;
       userAgent: navigator.userAgent
     };
     
-    fetch('/api/postback', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(leadData)
-    }).then(response => response.json())
-    .then(data => {
-      console.log('Call booking submitted:', data);
-      hideDynamicCallBookingForm();
-    }).catch(error => {
-      console.error('Error submitting call booking:', error);
+    // Логируем данные заявки (замена API)
+    console.log('[UROXEL Lead - call_booking]', {
+      serverTimestamp: new Date().toISOString(),
+      name: leadData.name,
+      phone: leadData.phone,
+      calltime: leadData.calltime,
+      reason: leadData.reason,
+      videoWatchTime: leadData.videoWatchTime,
+      userAgent: leadData.userAgent,
+      clientTimestamp: leadData.timestamp
     });
+    console.log('📊 Данные заявки (call_booking) готовы для отправки в CRM:', leadData);
+    
+    hideDynamicCallBookingForm();
   }
 
   function hideCallBookingForm() {
@@ -422,13 +423,18 @@ const { form, testimonials } = COPY;
     };
     
     try {
-      const response = await fetch('/api/postback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(leadData)
+      // Логируем данные заявки (замена API)
+      console.log('[UROXEL Lead - order_form]', {
+        serverTimestamp: new Date().toISOString(),
+        name: leadData.name,
+        phone: leadData.phone,
+        calltime: leadData.calltime,
+        reason: leadData.reason,
+        videoWatchTime: leadData.videoWatchTime,
+        userAgent: leadData.userAgent,
+        clientTimestamp: leadData.timestamp
       });
+      console.log('📊 Данные заявки (order_form) готовы для отправки в CRM:', leadData);
       
       console.log('Response status:', response.status);
       
@@ -455,13 +461,18 @@ const { form, testimonials } = COPY;
     };
     
     try {
-      const response = await fetch('/api/postback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(leadData)
+      // Логируем данные заявки (замена API)
+      console.log('[UROXEL Lead - order_form]', {
+        serverTimestamp: new Date().toISOString(),
+        name: leadData.name,
+        phone: leadData.phone,
+        calltime: leadData.calltime,
+        reason: leadData.reason,
+        videoWatchTime: leadData.videoWatchTime,
+        userAgent: leadData.userAgent,
+        clientTimestamp: leadData.timestamp
       });
+      console.log('📊 Данные заявки (order_form) готовы для отправки в CRM:', leadData);
       
       if (response.ok) {
         hideCallBookingForm();
