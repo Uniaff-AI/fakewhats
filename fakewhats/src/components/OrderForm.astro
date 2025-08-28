@@ -574,6 +574,9 @@ const { form, testimonials } = COPY;
   .contact-details .phone {
     font-size: 16px;
     font-weight: 600;
+    white-space: nowrap; /* Предотвращаем перенос строки */
+    overflow: hidden; /* Скрываем переполнение */
+    text-overflow: ellipsis; /* Добавляем многоточие при переполнении */
   }
 
   .contact-details .status {
@@ -904,5 +907,30 @@ const { form, testimonials } = COPY;
 
   .call-submit-btn:hover {
     background: linear-gradient(135deg, #29b6f6, #20b358) !important;
+  }
+
+  /* Адаптивные стили для маленьких экранов в формах */
+  @media (max-width: 375px) {
+    .contact-details .phone {
+      font-size: 14px; /* Уменьшаем размер шрифта на iPhone SE и подобных */
+    }
+    
+    .flag-circle {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .contact-details .phone {
+      font-size: 13px; /* Еще меньше для очень маленьких экранов */
+    }
+    
+    .flag-circle {
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+    }
   }
 </style>

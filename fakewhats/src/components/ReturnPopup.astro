@@ -9,7 +9,7 @@ const { popup } = COPY;
     <div class="vsl-container">
       <div class="vsl-overlay">
 
-        <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none"></video>
+        <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback"></video>
         
         <!-- Крестик для закрытия VSL -->
         <button id="returnVslCloseBtn" style="position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 8; font-size: 18px; pointer-events: auto;">✕</button>
@@ -283,6 +283,44 @@ const { popup } = COPY;
     // НЕ показываем домонетку при клике на видео
     // Домонетка показывается только при попытке закрыть попап (клик на фон)
   });
+
+  // Отключаем перемотку для видео
+  if (returnVideo) {
+    // Отключаем контекстное меню
+    returnVideo.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Отключаем перемотку при перетаскивании
+    returnVideo.addEventListener('seeking', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Блокируем перемотку при попытке изменить время
+    returnVideo.addEventListener('seeking', (e) => {
+      e.preventDefault();
+      returnVideo.currentTime = returnVideo.currentTime;
+      return false;
+    });
+
+    // Блокируем перемотку при попытке установить время
+    const originalCurrentTime = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime');
+    Object.defineProperty(returnVideo, 'currentTime', {
+      get: function() {
+        return originalCurrentTime.get.call(this);
+      },
+      set: function(value) {
+        // Разрешаем только автоматическое изменение времени
+        if (this.paused) {
+          originalCurrentTime.set.call(this, value);
+        }
+        // Блокируем ручную перемотку
+        return;
+      }
+    });
+  }
 
   // Сохраняем время видео при попытке ухода со страницы
   document.addEventListener('visibilitychange', () => {
@@ -564,5 +602,72 @@ const { popup } = COPY;
     background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
     pointer-events: none;
     z-index: 1;
+  }
+
+  /* Отключаем элементы управления видео */
+  video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-panel {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-play-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-timeline {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-current-time-display {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-time-remaining-display {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-mute-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-volume-slider {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-rewind-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-return-to-realtime-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-toggle-closed-captions-button {
+    display: none !important;
+  }
+
+  /* Отключаем все элементы управления для Firefox */
+  video::-moz-media-controls {
+    display: none !important;
+  }
+
+  /* Отключаем все элементы управления для Edge */
+  video::-ms-media-controls {
+    display: none !important;
   }
 </style>

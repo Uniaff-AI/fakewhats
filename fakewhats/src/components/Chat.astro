@@ -32,7 +32,7 @@ const { messages, form } = COPY;
     <div class="bubble vsl-bubble">
       <div class="vsl-card">
         <div class="vsl-thumb">
-                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl} onloadstart="console.log('Video loading started')" onloadeddata="console.log('Video data loaded')" oncanplay="console.log('Video can play, duration:', this.duration)" onerror="console.log('Video error:', this.error)"></video>
+                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl} controlsList="nodownload nofullscreen noremoteplayback" onloadstart="console.log('Video loading started')" onloadeddata="console.log('Video data loaded')" oncanplay="console.log('Video can play, duration:', this.duration)" onerror="console.log('Video error:', this.error)"></video>
           <div class="vsl-overlay">
             <!-- Зеленая мигающая кнопка включения звука -->
             <div class="vsl-sound-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
@@ -709,6 +709,57 @@ const { messages, form } = COPY;
       }
     }
   });
+
+  // Отключаем перемотку и контекстное меню для видео
+  const vslVideoInline = document.getElementById('vslVideoInline');
+  if (vslVideoInline) {
+    // Отключаем контекстное меню
+    vslVideoInline.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Отключаем перемотку при клике на прогресс-бар
+    vslVideoInline.addEventListener('click', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Отключаем перемотку при перетаскивании
+    vslVideoInline.addEventListener('seeking', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Блокируем перемотку при попытке изменить время
+    vslVideoInline.addEventListener('seeking', (e) => {
+      e.preventDefault();
+      vslVideoInline.currentTime = vslVideoInline.currentTime;
+      return false;
+    });
+
+    // Блокируем перемотку при попытке установить время
+    const originalCurrentTime = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime');
+    Object.defineProperty(vslVideoInline, 'currentTime', {
+      get: function() {
+        return originalCurrentTime.get.call(this);
+      },
+      set: function(value) {
+        // Разрешаем только автоматическое изменение времени
+        if (this.paused) {
+          originalCurrentTime.set.call(this, value);
+        }
+        // Блокируем ручную перемотку
+        return;
+      }
+    });
+
+    // Отключаем перемотку при изменении времени
+    vslVideoInline.addEventListener('timeupdate', () => {
+      // Разрешаем только автоматическое воспроизведение
+      // Блокируем любые попытки перемотки
+    });
+  }
 
 
 
@@ -1841,6 +1892,76 @@ const { messages, form } = COPY;
     position: absolute;
     top: 0;
     left: 0;
+    /* Отключаем элементы управления */
+    pointer-events: none;
+  }
+
+  /* Скрываем элементы управления видео */
+  .vsl-video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-panel {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-play-button {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-timeline {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-current-time-display {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-time-remaining-display {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-mute-button {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-volume-slider {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+  }
+
+  /* Дополнительные стили для отключения элементов управления */
+  .vsl-video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-rewind-button {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-return-to-realtime-button {
+    display: none !important;
+  }
+
+  .vsl-video::-webkit-media-controls-toggle-closed-captions-button {
+    display: none !important;
+  }
+
+  /* Отключаем все элементы управления для Firefox */
+  .vsl-video::-moz-media-controls {
+    display: none !important;
+  }
+
+  /* Отключаем все элементы управления для Edge */
+  .vsl-video::-ms-media-controls {
+    display: none !important;
   }
 
   .vsl-overlay {

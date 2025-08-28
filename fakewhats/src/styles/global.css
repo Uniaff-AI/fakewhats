@@ -112,6 +112,9 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap; /* Предотвращаем перенос строки */
+  overflow: hidden; /* Скрываем переполнение */
+  text-overflow: ellipsis; /* Добавляем многоточие при переполнении */
 }
 
 .wa-header .contact-status {
@@ -155,6 +158,59 @@ body {
 
 .wa-header .action-button:hover {
   background-color: #e9edef;
+}
+
+/* Адаптивные стили для маленьких экранов */
+@media (max-width: 375px) {
+  .wa-header .contact-name {
+    font-size: 14px; /* Уменьшаем размер шрифта на iPhone SE и подобных */
+  }
+  
+  .wa-header .contact-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .wa-header .flag-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .wa-header .verified-badge {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .wa-header .verified-badge svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 320px) {
+  .wa-header .contact-name {
+    font-size: 13px; /* Еще меньше для очень маленьких экранов */
+  }
+  
+  .wa-header .contact-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .wa-header .flag-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .wa-header .verified-badge {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .wa-header .verified-badge svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* Стили .chat перенесены в Chat.astro */
