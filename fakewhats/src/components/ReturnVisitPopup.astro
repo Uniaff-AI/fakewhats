@@ -441,6 +441,24 @@ const { popup } = COPY;
     object-fit: cover;
   }
 
+  /* Исправление обрезания видео на мобильных устройствах */
+  @media (max-width: 768px) {
+    .vsl-overlay video {
+      object-fit: contain; /* Показываем видео полностью без обрезания */
+      background: #000; /* Черный фон для пустых областей */
+    }
+    
+    .return-visit-popup {
+      height: 60vh; /* Уменьшаем высоту на мобильных */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .return-visit-popup {
+      height: 50vh; /* Еще меньше на маленьких экранах */
+    }
+  }
+
   .vsl-text-overlay {
     position: absolute;
     top: 0;

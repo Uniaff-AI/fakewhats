@@ -400,6 +400,24 @@ import { siteConfig } from '../config/site-config';
     object-fit: cover;
   }
 
+  /* Исправление обрезания видео на мобильных устройствах */
+  @media (max-width: 768px) {
+    .vsl-video {
+      object-fit: contain; /* Показываем видео полностью без обрезания */
+      background: #000; /* Черный фон для пустых областей */
+    }
+    
+    .vsl-container {
+      height: 60vh; /* Уменьшаем высоту на мобильных */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .vsl-container {
+      height: 50vh; /* Еще меньше на маленьких экранах */
+    }
+  }
+
   .vsl-vignette {
     position: absolute;
     top: 0;

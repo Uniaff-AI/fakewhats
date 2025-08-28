@@ -2041,6 +2041,40 @@ const { messages, form } = COPY;
     pointer-events: none;
   }
 
+  /* Исправление обрезания видео на мобильных устройствах */
+  @media (max-width: 768px) {
+    .vsl-video {
+      object-fit: contain; /* Показываем видео полностью без обрезания */
+      background: #000; /* Черный фон для пустых областей */
+    }
+    
+    .vsl-thumb {
+      height: 300px !important; /* Уменьшаем высоту на мобильных */
+      min-height: 300px !important;
+      max-height: 300px !important; /* Фиксируем максимальную высоту */
+    }
+    
+    .vsl-card {
+      height: 300px !important; /* Фиксируем высоту карточки */
+      min-height: 300px !important;
+      max-height: 300px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .vsl-thumb {
+      height: 250px !important; /* Еще меньше на маленьких экранах */
+      min-height: 250px !important;
+      max-height: 250px !important; /* Фиксируем максимальную высоту */
+    }
+    
+    .vsl-card {
+      height: 250px !important; /* Фиксируем высоту карточки */
+      min-height: 250px !important;
+      max-height: 250px !important;
+    }
+  }
+
   .vsl-overlay {
     position: absolute;
     top: 0;

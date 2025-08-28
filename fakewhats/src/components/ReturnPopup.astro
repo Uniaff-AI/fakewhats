@@ -493,6 +493,31 @@ const { popup } = COPY;
     object-fit: cover;
   }
 
+  /* Исправление обрезания видео на мобильных устройствах */
+  @media (max-width: 768px) {
+    .vsl-overlay video {
+      object-fit: contain; /* Показываем видео полностью без обрезания */
+      background: #000; /* Черный фон для пустых областей */
+    }
+    
+    .return-popup {
+      height: 60vh; /* Уменьшаем высоту на мобильных */
+      max-height: 60vh; /* Фиксируем максимальную высоту */
+    }
+    
+    .vsl-container {
+      height: 100%; /* Заполняем весь контейнер */
+      max-height: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .return-popup {
+      height: 50vh; /* Еще меньше на маленьких экранах */
+      max-height: 50vh; /* Фиксируем максимальную высоту */
+    }
+  }
+
   .vsl-text-overlay {
     position: absolute;
     top: 0;
