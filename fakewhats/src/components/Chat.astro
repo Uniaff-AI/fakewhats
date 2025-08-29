@@ -32,7 +32,7 @@ const { messages, form } = COPY;
     <div class="bubble vsl-bubble">
       <div class="vsl-card">
         <div class="vsl-thumb">
-                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl} onloadstart="console.log('Video loading started')" onloadeddata="console.log('Video data loaded')" oncanplay="console.log('Video can play, duration:', this.duration)" onerror="console.log('Video error:', this.error)"></video>
+                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
           <div class="vsl-overlay">
             <!-- Зеленая мигающая кнопка включения звука -->
             <div class="vsl-sound-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
@@ -144,7 +144,7 @@ const { messages, form } = COPY;
 
         <!-- Product Image -->
         <div class="product-image-section">
-          <img src="/Uroxel_form.png" alt="UROXEL Triple Action" class="product-image" loading="lazy" />
+          <img src="/Uroxel_form.png" alt="UROXEL Triple Action" class="product-image" loading="eager" fetchpriority="high" />
         </div>
 
         <!-- Timer -->
@@ -187,7 +187,7 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src={siteConfig.reviews.feedback1.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback1.name}`} loading="lazy">
+                  <img src={siteConfig.reviews.feedback1.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback1.name}`} loading="eager" fetchpriority="high">
                 </div>
               </div>
               <div class="review-content">
@@ -203,7 +203,7 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src={siteConfig.reviews.feedback2.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback2.name}`} loading="lazy">
+                  <img src={siteConfig.reviews.feedback2.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback2.name}`} loading="eager" fetchpriority="high">
                 </div>
               </div>
               <div class="review-content">
@@ -219,7 +219,7 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src={siteConfig.reviews.feedback3.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback3.name}`} loading="lazy">
+                  <img src={siteConfig.reviews.feedback3.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback3.name}`} loading="eager" fetchpriority="high">
                 </div>
               </div>
               <div class="review-content">
@@ -235,7 +235,7 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src={siteConfig.reviews.feedback4.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback4.name}`} loading="lazy">
+                  <img src={siteConfig.reviews.feedback4.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback4.name}`} loading="eager" fetchpriority="high">
                 </div>
               </div>
               <div class="review-content">
@@ -251,7 +251,7 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src={siteConfig.reviews.feedback5.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback5.name}`} loading="lazy">
+                  <img src={siteConfig.reviews.feedback5.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback5.name}`} loading="eager" fetchpriority="high">
                 </div>
               </div>
               <div class="review-content">
@@ -267,7 +267,7 @@ const { messages, form } = COPY;
             <div class="review-item">
               <div class="review-images single">
                 <div class="review-image">
-                  <img src={siteConfig.reviews.feedback6.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback6.name}`} loading="lazy">
+                  <img src={siteConfig.reviews.feedback6.image} alt={`${siteConfig.productName} отзыв ${siteConfig.reviews.feedback6.name}`} loading="eager" fetchpriority="high">
                 </div>
               </div>
               <div class="review-content">
@@ -445,7 +445,7 @@ const { messages, form } = COPY;
       <div class="pwa-modal-body">
         <!-- Product Image -->
         <div class="product-image-section">
-          <img src="/Uroxel_form.png" alt="UROXEL Triple Action" class="product-image" loading="lazy" />
+          <img src="/Uroxel_form.png" alt="UROXEL Triple Action" class="product-image" loading="eager" fetchpriority="high" />
         </div>
 
         <div class="call-to-action">
@@ -679,22 +679,22 @@ const { messages, form } = COPY;
     };
     
     // Логируем данные заявки в консоль (для статического сайта)
-    console.log('[UROXEL Lead]', {
-      serverTimestamp: new Date().toISOString(),
-      ktDomain: payload.ktDomain,
-      ktCampaignId: payload.ktCampaignId,
-      leadName: payload.leadName,
-      phone: payload.phone,
-      calltime: payload.calltime,
-      reason: payload.reason,
-      videoWatchTime: payload.videoWatchTime,
-      userAgent: payload.ua,
-      clientTimestamp: payload.ts
-    });
+    // console.log('[UROXEL Lead]', {
+    //   serverTimestamp: new Date().toISOString(),
+    //   ktDomain: payload.ktDomain,
+    //   ktCampaignId: payload.ktCampaignId,
+    //   leadName: payload.leadName,
+    //   phone: payload.phone,
+    //   calltime: payload.calltime,
+    //   reason: payload.reason,
+    //   videoWatchTime: payload.videoWatchTime,
+    //   userAgent: payload.ua,
+    //   clientTimestamp: payload.ts
+    // });
     
     // Здесь можно добавить отправку в внешние сервисы
     // Например: Google Analytics, Facebook Pixel, внешние CRM и т.д.
-    console.log('📊 Данные заявки готовы для отправки в CRM:', payload);
+    // console.log('📊 Данные заявки готовы для отправки в CRM:', payload);
   }
 
   // Универсальная функция для отправки данных на API
@@ -711,7 +711,7 @@ const { messages, form } = COPY;
     };
     
     try {
-      console.log(`🚀 Отправляем данные на API (${action}):`, apiData);
+      // console.log(`🚀 Отправляем данные на API (${action}):`, apiData);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -723,33 +723,33 @@ const { messages, form } = COPY;
       
       if (response.ok) {
         const result = await response.json();
-        console.log(`✅ Данные успешно отправлены на API (${action}):`, result);
+        // console.log(`✅ Данные успешно отправлены на API (${action}):`, result);
         return { success: true, data: result };
       } else {
-        console.error(`❌ Ошибка API (${action}):`, response.status, response.statusText);
+        // console.error(`❌ Ошибка API (${action}):`, response.status, response.statusText);
         return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
       }
     } catch (error) {
-      console.error(`❌ Ошибка отправки на API (${action}):`, error);
+      // console.error(`❌ Ошибка отправки на API (${action}):`, error);
       return { success: false, error: error.message };
     }
   }
 
   // Универсальная функция для логирования данных (замена API)
   function logLeadData(leadData, action) {
-    console.log(`[UROXEL Lead - ${action}]`, {
-      serverTimestamp: new Date().toISOString(),
-      ktDomain: leadData.ktDomain || "uniaffshark.com",
-      ktCampaignId: leadData.ktCampaignId || 10314,
-      leadName: leadData.leadName || leadData.name,
-      phone: leadData.phone,
-      calltime: leadData.calltime,
-      reason: leadData.reason || action,
-      videoWatchTime: leadData.videoWatchTime,
-      userAgent: leadData.userAgent,
-      clientTimestamp: leadData.ts || Date.now()
-    });
-    console.log(`📊 Данные заявки (${action}) готовы для отправки в CRM:`, leadData);
+    // console.log(`[UROXEL Lead - ${action}]`, {
+    //   serverTimestamp: new Date().toISOString(),
+    //   ktDomain: leadData.ktDomain || "uniaffshark.com",
+    //   ktCampaignId: leadData.ktCampaignId || 10314,
+    //   leadName: leadData.leadName || leadData.name,
+    //   phone: leadData.phone,
+    //   calltime: leadData.calltime,
+    //   reason: leadData.reason || action,
+    //   videoWatchTime: leadData.videoWatchTime,
+    //   userAgent: leadData.userAgent,
+    //   clientTimestamp: leadData.ts || Date.now()
+    // });
+    // console.log(`📊 Данные заявки (${action}) готовы для отправки в CRM:`, leadData);
   }
 
   // Event Listeners
@@ -789,19 +789,19 @@ const { messages, form } = COPY;
   });
 
   // Проверяем сохраненное время при загрузке страницы
-  console.log('🔍 Chat.astro: Checking localStorage for savedVideoTime...');
+  // console.log('🔍 Chat.astro: Checking localStorage for savedVideoTime...');
   const savedTimeFromStorage = localStorage.getItem('savedVideoTime');
-  console.log('🔍 Chat.astro: savedTimeFromStorage:', savedTimeFromStorage);
-  console.log('🔍 Chat.astro: All localStorage keys:', Object.keys(localStorage));
+  // console.log('🔍 Chat.astro: savedTimeFromStorage:', savedTimeFromStorage);
+  // console.log('🔍 Chat.astro: All localStorage keys:', Object.keys(localStorage));
   
   if (savedTimeFromStorage) {
     const savedTime = parseFloat(savedTimeFromStorage);
-    console.log('🔍 Chat.astro: Found saved time:', savedTime, 'seconds');
+    // console.log('🔍 Chat.astro: Found saved time:', savedTime, 'seconds');
     if (savedTime > 10) {
-      console.log('🔍 Chat.astro: Time > 10 seconds, should show return popup');
+      // console.log('🔍 Chat.astro: Time > 10 seconds, should show return popup');
     }
   } else {
-    console.log('🔍 Chat.astro: No saved time found');
+    // console.log('🔍 Chat.astro: No saved time found');
   }
 
   // Сохраняем время видео при попытке ухода
@@ -843,7 +843,7 @@ const { messages, form } = COPY;
         }
         
         localStorage.setItem('savedVideoTime', maxTime.toString());
-        console.log('💾 Saved MAX video time on page hide from', maxSource, ':', maxTime, 'seconds');
+        // console.log('💾 Saved MAX video time on page hide from', maxSource, ':', maxTime, 'seconds');
       }
     }
   });
@@ -858,7 +858,7 @@ const { messages, form } = COPY;
     });
     
     // Перемотка теперь разрешена - убираем все блокировки
-    console.log('✅ Video seeking enabled for vslVideoInline');
+    // console.log('✅ Video seeking enabled for vslVideoInline');
 
     // Логика сохранения времени просмотра для видео в чате
     let savedChatVideoTime = 0;
@@ -867,7 +867,7 @@ const { messages, form } = COPY;
     const savedTime = localStorage.getItem('savedChatVideoTime');
     if (savedTime) {
       savedChatVideoTime = parseFloat(savedTime);
-      console.log('📺 Loaded saved chat video time:', savedChatVideoTime);
+      // console.log('📺 Loaded saved chat video time:', savedChatVideoTime);
     }
     
     // Функция сохранения времени просмотра
@@ -903,8 +903,8 @@ const { messages, form } = COPY;
         
         const minutes = Math.floor(savedChatVideoTime / 60);
         const seconds = Math.floor(savedChatVideoTime % 60);
-        console.log(`💾 Saved chat video time: ${savedChatVideoTime} seconds (${minutes}:${seconds.toString().padStart(2, '0')})`);
-        console.log(`💾 Saved MAX video time from ${maxSource}: ${maxTime} seconds`);
+        // console.log(`💾 Saved chat video time: ${savedChatVideoTime} seconds (${minutes}:${seconds.toString().padStart(2, '0')})`);
+        // console.log(`💾 Saved MAX video time from ${maxSource}: ${maxTime} seconds`);
       }
     }
     
@@ -925,7 +925,7 @@ const { messages, form } = COPY;
     vslVideoInline.addEventListener('loadeddata', () => {
       if (savedChatVideoTime > 0) {
         vslVideoInline.currentTime = savedChatVideoTime;
-        console.log('⏰ Restored chat video time to:', savedChatVideoTime);
+        // console.log('⏰ Restored chat video time to:', savedChatVideoTime);
       }
     });
 
@@ -998,19 +998,21 @@ const { messages, form } = COPY;
     }
   }
   
-  // Запускаем таймеры только один раз при загрузке страницы
-  startGlobalTimers();
+  // Таймеры будут запускаться только при показе форм
+  // startGlobalTimers(); // Убрано - таймеры запускаются при показе форм
 
   // Обработчик кнопки "Получить скидку"
   const getDiscountBtn = document.getElementById('getDiscountBtn');
   getDiscountBtn?.addEventListener('click', () => {
-    console.log('getDiscountBtn clicked');
+    // console.log('getDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        // Запускаем таймеры при показе формы
+        startGlobalTimers();
       }, 10);
     }
   });
@@ -1027,7 +1029,7 @@ const { messages, form } = COPY;
   orderLeadForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    console.log('Order form submitted');
+    // console.log('Order form submitted');
     
     const formData = new FormData(orderLeadForm);
     const leadData = {
@@ -1054,7 +1056,7 @@ const { messages, form } = COPY;
     
     // Логируем данные заявки
     logLeadData(leadData, 'order_form_submit');
-    console.log('Order form submitted successfully');
+    // console.log('Order form submitted successfully');
     
     // Показываем форму бронирования звонка
     const orderFormModal = document.getElementById('orderFormModal');
@@ -1079,8 +1081,8 @@ const { messages, form } = COPY;
     const callTimeElement = document.getElementById('callTime');
     const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
     
-    console.log('Selected call time:', callTime);
-    console.log('Call time element:', callTimeElement);
+    // console.log('Selected call time:', callTime);
+    // console.log('Call time element:', callTimeElement);
     
     const leadData = {
       ktDomain: "uniaffshark.com",
@@ -1094,7 +1096,7 @@ const { messages, form } = COPY;
       userAgent: navigator.userAgent
     };
     
-    console.log('Call booking form submitted with data:', leadData);
+    // console.log('Call booking form submitted with data:', leadData);
     
     // Отправляем данные на API
     const apiResult = await sendLeadToAPI(leadData, 'call_booking_submit');
@@ -1116,7 +1118,7 @@ const { messages, form } = COPY;
     
     // Очищаем сохраненные данные
     savedFormData = {};
-    console.log('Call booking form submitted successfully');
+    // console.log('Call booking form submitted successfully');
   });
 
   // Обработчик кнопки "Назад" в форме бронирования
@@ -1139,9 +1141,9 @@ const { messages, form } = COPY;
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
-        console.log('Call booking back button clicked - data sent');
+        // console.log('Call booking back button clicked - data sent');
       } catch (error) {
-        console.error('Error sending call booking back button data:', error);
+        // console.error('Error sending call booking back button data:', error);
       }
     }
     
@@ -1186,7 +1188,7 @@ const { messages, form } = COPY;
     
     // Логируем данные заявки
     logLeadData(leadData, 'call_booking_submit');
-    console.log('Auto call request sent successfully');
+    // console.log('Auto call request sent successfully');
   }
 
   closeOrderFormModal?.addEventListener('click', async () => {
@@ -1210,9 +1212,9 @@ const { messages, form } = COPY;
         
         // Логируем данные заявки
         logLeadData(leadData, 'form_interaction');
-        console.log('Order form closed - data sent');
+        // console.log('Order form closed - data sent');
       } catch (error) {
-        console.error('Error sending order form close data:', error);
+        // console.error('Error sending order form close data:', error);
       }
     }
     
@@ -1241,9 +1243,9 @@ const { messages, form } = COPY;
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
-        console.log('Call booking form closed - data sent');
+        // console.log('Call booking form closed - data sent');
       } catch (error) {
-        console.error('Error sending call booking close data:', error);
+        // console.error('Error sending call booking close data:', error);
       }
     }
     
@@ -1269,9 +1271,9 @@ const { messages, form } = COPY;
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
-        console.log('Order form backdrop clicked - data sent');
+        // console.log('Order form backdrop clicked - data sent');
       } catch (error) {
-        console.error('Error sending order form backdrop data:', error);
+        // console.error('Error sending order form backdrop data:', error);
       }
     }
     
@@ -1300,9 +1302,9 @@ const { messages, form } = COPY;
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
-        console.log('Call booking backdrop clicked - data sent');
+        // console.log('Call booking backdrop clicked - data sent');
       } catch (error) {
-        console.error('Error sending call booking backdrop data:', error);
+        // console.error('Error sending call booking backdrop data:', error);
       }
     }
     
@@ -1323,9 +1325,9 @@ const { messages, form } = COPY;
   let hasShownAutoMessage = false;
 
   function showAutoMessage() {
-    console.log('🎯 showAutoMessage called');
+    // console.log('🎯 showAutoMessage called');
     if (!hasShownAutoMessage && autoMessage && autoDiscountContainer) {
-      console.log('✅ Showing auto message and button');
+      // console.log('✅ Showing auto message and button');
       autoMessage.style.display = 'block';
       autoDiscountContainer.style.display = 'block';
       hasShownAutoMessage = true;
@@ -1335,11 +1337,11 @@ const { messages, form } = COPY;
         const chatContainer = document.querySelector('.chat');
         if (chatContainer) {
           chatContainer.scrollTop = chatContainer.scrollHeight;
-          console.log('📜 Scrolled chat to bottom');
+          // console.log('📜 Scrolled chat to bottom');
         }
       }, 200);
     } else {
-      console.log('⚠️ Auto message already shown or element not found');
+      // console.log('⚠️ Auto message already shown or element not found');
     }
   }
 
@@ -1352,13 +1354,15 @@ const { messages, form } = COPY;
 
   // Обработчик кнопки "Получить скидку" в автосообщении
   autoDiscountBtn?.addEventListener('click', () => {
-    console.log('🎯 autoDiscountBtn clicked');
+    // console.log('🎯 autoDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        // Запускаем таймеры при показе формы
+        startGlobalTimers();
       }, 10);
     }
   });
@@ -1377,23 +1381,23 @@ const { messages, form } = COPY;
     // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
     video.muted = true;
     video.play().then(() => {
-      console.log('✅ Fullscreen video started playing (muted)');
+      // console.log('✅ Fullscreen video started playing (muted)');
       // Включаем звук сразу
       video.muted = false;
-      console.log('🔊 Sound enabled immediately');
+      // console.log('🔊 Sound enabled immediately');
     }).catch((error) => {
-      console.log('❌ Muted autoplay failed:', error.name);
+      // console.log('❌ Muted autoplay failed:', error.name);
       
       // Стратегия 2: Пробуем с задержкой
       setTimeout(() => {
         video.muted = true;
         video.play().then(() => {
-          console.log('✅ Fullscreen video started playing (delayed muted)');
+          // console.log('✅ Fullscreen video started playing (delayed muted)');
           // Включаем звук сразу
           video.muted = false;
-          console.log('🔊 Sound enabled immediately (delayed)');
+          // console.log('🔊 Sound enabled immediately (delayed)');
         }).catch((error2) => {
-          console.log('❌ Delayed autoplay failed:', error2.name);
+          // console.log('❌ Delayed autoplay failed:', error2.name);
           
           // Стратегия 3: Ждем взаимодействия пользователя
           setupUserInteractionAutoplay(video);
@@ -1442,9 +1446,9 @@ const { messages, form } = COPY;
         playButton.remove();
         video.muted = false;
         video.play().then(() => {
-          console.log('✅ Fullscreen video started after user interaction');
+          // console.log('✅ Fullscreen video started after user interaction');
         }).catch((error) => {
-          console.error('❌ Failed to play after interaction:', error);
+          // console.error('❌ Failed to play after interaction:', error);
         });
       }
     };
@@ -1458,9 +1462,9 @@ const { messages, form } = COPY;
           playButton.remove();
           video.muted = false;
           video.play().then(() => {
-            console.log('✅ Fullscreen video started after user interaction');
+            // console.log('✅ Fullscreen video started after user interaction');
           }).catch((error) => {
-            console.error('❌ Failed to play after interaction:', error);
+            // console.error('❌ Failed to play after interaction:', error);
           });
         }
       });
@@ -1484,31 +1488,31 @@ const { messages, form } = COPY;
       const savedTime = localStorage.getItem('savedVideoTime');
       if (savedTime) {
         const savedVideoTime = parseFloat(savedTime);
-        console.log('🎬 Setting fullscreen video time to:', savedVideoTime, 'seconds');
+        // console.log('🎬 Setting fullscreen video time to:', savedVideoTime, 'seconds');
         
         // Ждем, пока видео будет готово к воспроизведению
         if (fullscreenVideo.readyState >= 2) {
           // Видео готово, устанавливаем время сразу
           fullscreenVideo.currentTime = savedVideoTime;
-          console.log('✅ Fullscreen video ready, time set immediately to:', savedVideoTime);
+          // console.log('✅ Fullscreen video ready, time set immediately to:', savedVideoTime);
         } else {
           // Видео не готово, ждем события loadedmetadata
-          console.log('⏳ Fullscreen video not ready, waiting for loadedmetadata...');
+          // console.log('⏳ Fullscreen video not ready, waiting for loadedmetadata...');
           fullscreenVideo.addEventListener('loadedmetadata', () => {
             fullscreenVideo.currentTime = savedVideoTime;
-            console.log('✅ Fullscreen video metadata loaded, time set to:', savedVideoTime);
+            // console.log('✅ Fullscreen video metadata loaded, time set to:', savedVideoTime);
           }, { once: true });
         }
       } else {
-        console.log('🎬 No saved time found, starting from beginning');
+        // console.log('🎬 No saved time found, starting from beginning');
         // Если нет сохраненного времени, начинаем с начала
         if (fullscreenVideo.readyState >= 2) {
           fullscreenVideo.currentTime = 0;
-          console.log('✅ Fullscreen video ready, starting from beginning');
+          // console.log('✅ Fullscreen video ready, starting from beginning');
         } else {
           fullscreenVideo.addEventListener('loadedmetadata', () => {
             fullscreenVideo.currentTime = 0;
-            console.log('✅ Fullscreen video metadata loaded, starting from beginning');
+            // console.log('✅ Fullscreen video metadata loaded, starting from beginning');
           }, { once: true });
         }
       }
@@ -1517,17 +1521,17 @@ const { messages, form } = COPY;
       startAutoplayWithBypass(fullscreenVideo);
       
       // Настраиваем попап на определенной минуте для этого видео
-      console.log('🎬 Setting up popup for fullscreenVideo');
+      // console.log('🎬 Setting up popup for fullscreenVideo');
       if (window.setupVslTimePopup) {
-        console.log('🎬 Calling window.setupVslTimePopup(fullscreenVideo)...');
+        // console.log('🎬 Calling window.setupVslTimePopup(fullscreenVideo)...');
         window.setupVslTimePopup(fullscreenVideo);
       } else {
-        console.error('❌ window.setupVslTimePopup is not defined!');
+        // console.error('❌ window.setupVslTimePopup is not defined!');
       }
 
       // Открываем форму заказа когда видео закончилось
       fullscreenVideo.addEventListener('ended', function() {
-        console.log('🎬 Fullscreen video ended, showing order form');
+        // console.log('🎬 Fullscreen video ended, showing order form');
         if (window.showOrderFormModal) {
           window.showOrderFormModal();
         }
@@ -1538,13 +1542,13 @@ const { messages, form } = COPY;
         if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
           // Сохраняем время полноэкранного плеера
           localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
-          console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+          // console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
           
           // Также сохраняем время видео в чате если оно больше
           const chatVideo = document.getElementById('vslVideoInline');
           if (chatVideo && chatVideo.currentTime > fullscreenVideo.currentTime) {
             localStorage.setItem('savedVideoTime', chatVideo.currentTime.toString());
-            console.log('💾 Chat video time is later, saved chat time:', chatVideo.currentTime, 'seconds');
+            // console.log('💾 Chat video time is later, saved chat time:', chatVideo.currentTime, 'seconds');
           }
         }
       }, 5000); // Каждые 5 секунд
@@ -1562,13 +1566,13 @@ const { messages, form } = COPY;
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     const fullscreenVideo = document.getElementById('fullscreenVideo');
     
-    console.log('🔍 hideFullscreenPlayer called');
-    console.log('🔍 fullscreenPlayer found:', !!fullscreenPlayer);
-    console.log('🔍 fullscreenVideo found:', !!fullscreenVideo);
+    // console.log('🔍 hideFullscreenPlayer called');
+    // console.log('🔍 fullscreenPlayer found:', !!fullscreenPlayer);
+    // console.log('🔍 fullscreenVideo found:', !!fullscreenVideo);
     
     if (fullscreenPlayer && fullscreenVideo) {
-      console.log('🔍 fullscreenVideo.currentTime:', fullscreenVideo.currentTime);
-      console.log('🔍 fullscreenVideo.paused:', fullscreenVideo.paused);
+      // console.log('🔍 fullscreenVideo.currentTime:', fullscreenVideo.currentTime);
+      // console.log('🔍 fullscreenVideo.paused:', fullscreenVideo.paused);
       
       // Сохраняем время просмотра перед закрытием
       if (fullscreenVideo.currentTime > 0) {
@@ -1596,13 +1600,13 @@ const { messages, form } = COPY;
         }
         
         localStorage.setItem('savedVideoTime', maxTime.toString());
-        console.log('💾 Saved MAX video time from', maxSource, ':', maxTime, 'seconds');
+        // console.log('💾 Saved MAX video time from', maxSource, ':', maxTime, 'seconds');
         
         // Проверяем, что действительно сохранилось
         const savedTime = localStorage.getItem('savedVideoTime');
-        console.log('🔍 Verified saved time in localStorage:', savedTime);
+        // console.log('🔍 Verified saved time in localStorage:', savedTime);
       } else {
-        console.log('⚠️ Video time is 0, not saving');
+        // console.log('⚠️ Video time is 0, not saving');
       }
       
       fullscreenPlayer.style.display = 'none';
@@ -1612,13 +1616,13 @@ const { messages, form } = COPY;
 
   // Функция показа попапа на определенной минуте VSL в полноэкранном плеере
   function showFullscreenVslMidPopup() {
-    console.log('🎯 Showing fullscreen VSL mid popup');
+    // console.log('🎯 Showing fullscreen VSL mid popup');
     const popup = document.getElementById('fullscreenVslMidPopup');
-    console.log('🎯 Popup element found:', !!popup);
+    // console.log('🎯 Popup element found:', !!popup);
     if (popup) {
-      console.log('✅ Fullscreen popup element found, showing...');
-      console.log('🎯 Popup current display:', popup.style.display);
-      console.log('🎯 Popup current z-index:', popup.style.zIndex);
+      // console.log('✅ Fullscreen popup element found, showing...');
+      // console.log('🎯 Popup current display:', popup.style.display);
+      // console.log('🎯 Popup current z-index:', popup.style.zIndex);
       
       // Принудительно показываем попап
       popup.style.display = 'block';
@@ -1626,25 +1630,25 @@ const { messages, form } = COPY;
       popup.style.visibility = 'visible';
       popup.style.zIndex = '1000';
       
-      console.log('🎯 Popup display after change:', popup.style.display);
-      console.log('🎯 Popup z-index after change:', popup.style.zIndex);
-      console.log('✅ Fullscreen popup should now be visible');
+      // console.log('🎯 Popup display after change:', popup.style.display);
+      // console.log('🎯 Popup z-index after change:', popup.style.zIndex);
+      // console.log('✅ Fullscreen popup should now be visible');
       
       // Проверяем, что баннер тоже виден
       const banner = popup.querySelector('.fullscreen-vsl-mid-banner');
       if (banner) {
-        console.log('✅ Fullscreen banner element found');
+        // console.log('✅ Fullscreen banner element found');
         banner.style.zIndex = '1001';
-        console.log('🎯 Fullscreen banner z-index set to:', banner.style.zIndex);
+        // console.log('🎯 Fullscreen banner z-index set to:', banner.style.zIndex);
       } else {
-        console.error('❌ Fullscreen banner element not found!');
+        // console.error('❌ Fullscreen banner element not found!');
       }
     } else {
-      console.error('❌ Fullscreen popup element not found! fullscreenVslMidPopup does not exist in DOM');
+      // console.error('❌ Fullscreen popup element not found! fullscreenVslMidPopup does not exist in DOM');
       
       // Проверим все элементы с похожими ID
       const allElements = document.querySelectorAll('[id*="popup"]');
-      console.log('🎯 All elements with "popup" in ID:', Array.from(allElements).map(el => el.id));
+      // console.log('🎯 All elements with "popup" in ID:', Array.from(allElements).map(el => el.id));
     }
   }
 
@@ -1673,17 +1677,17 @@ const { messages, form } = COPY;
         !e.target.closest('.vsl-sound-btn') && 
         e.target.id !== 'vslMuteBtn' && 
         e.target.id !== 'vslPlayBtnSimple') {
-      console.log('🎬 VSL bubble clicked!');
+      // console.log('🎬 VSL bubble clicked!');
       e.preventDefault();
       e.stopPropagation();
       
       // Открываем ReturnPopup с VSL
-      console.log('🎬 Trying to show return popup');
-      console.log('🎬 window.showReturnPopup exists:', !!window.showReturnPopup);
+      // console.log('🎬 Trying to show return popup');
+      // console.log('🎬 window.showReturnPopup exists:', !!window.showReturnPopup);
       if (window.showReturnPopup) {
         window.showReturnPopup();
       } else {
-        console.error('❌ window.showReturnPopup is not defined!');
+        // console.error('❌ window.showReturnPopup is not defined!');
       }
     }
     
@@ -1716,7 +1720,7 @@ const { messages, form } = COPY;
         // Блокируем показ домонетки при клике вне видео
         e.stopPropagation();
         e.preventDefault();
-        console.log('🚫 Blocked domonetka form from showing on click outside video');
+        // console.log('🚫 Blocked domonetka form from showing on click outside video');
         return false;
       }
     }
@@ -1788,7 +1792,7 @@ const { messages, form } = COPY;
       // Запускаем видео с обходом блокировки
       startChatVslWithBypass(video);
     } else {
-      console.error('❌ Video element not found in startChatVsl');
+      // console.error('❌ Video element not found in startChatVsl');
     }
   }
 
@@ -1799,13 +1803,13 @@ const { messages, form } = COPY;
     const savedVideoTime = localStorage.getItem('savedVideoTime');
     
     if (hasVisitedBefore && savedVideoTime !== null) {
-      console.log('✅ Return visit detected, hasVisitedBefore:', hasVisitedBefore, 'savedVideoTime:', savedVideoTime);
-      console.log('🔍 All localStorage keys:', Object.keys(localStorage));
-      console.log('🔍 savedVideoTime value:', localStorage.getItem('savedVideoTime'));
+      // console.log('✅ Return visit detected, hasVisitedBefore:', hasVisitedBefore, 'savedVideoTime:', savedVideoTime);
+      // console.log('🔍 All localStorage keys:', Object.keys(localStorage));
+      // console.log('🔍 savedVideoTime value:', localStorage.getItem('savedVideoTime'));
       
       // Сначала открываем полноэкранный VSL с сохраненного времени
       setTimeout(function() {
-        console.log('🎬 Opening fullscreen VSL with saved time:', savedVideoTime);
+        // console.log('🎬 Opening fullscreen VSL with saved time:', savedVideoTime);
         if (window.showFullscreenPlayer) {
           window.showFullscreenPlayer();
         }
@@ -1813,22 +1817,22 @@ const { messages, form } = COPY;
       
       // Затем показываем попап с предложением продолжить просмотр
       setTimeout(function() {
-        console.log('🎬 Attempting to show return visit popup after 2 seconds');
+        // console.log('🎬 Attempting to show return visit popup after 2 seconds');
         // Ждем, пока все компоненты загрузятся
         let attempts = 0;
         const maxAttempts = 10;
         
         function tryShowPopup() {
           attempts++;
-          console.log('🎬 Attempt', attempts, 'to show return visit popup');
+          // console.log('🎬 Attempt', attempts, 'to show return visit popup');
           if (window.showReturnVisitPopup) {
-            console.log('✅ showReturnVisitPopup function found, calling it');
+            // console.log('✅ showReturnVisitPopup function found, calling it');
             window.showReturnVisitPopup();
           } else if (attempts < maxAttempts) {
-            console.log('⏳ showReturnVisitPopup not found, waiting 500ms...');
+            // console.log('⏳ showReturnVisitPopup not found, waiting 500ms...');
             setTimeout(tryShowPopup, 500);
           } else {
-            console.log('❌ Failed to find showReturnVisitPopup after', maxAttempts, 'attempts');
+            // console.log('❌ Failed to find showReturnVisitPopup after', maxAttempts, 'attempts');
           }
         }
         
@@ -1843,44 +1847,44 @@ const { messages, form } = COPY;
     setTimeout(function() {
       const popupVideo = document.getElementById('returnVslVideo');
       if (popupVideo) {
-        console.log('✅ Found returnVslVideo element, setting up popup');
-        console.log('Video id:', popupVideo.id);
-        console.log('Video src:', popupVideo.src);
-        console.log('Video currentTime:', popupVideo.currentTime);
-        console.log('Video readyState:', popupVideo.readyState);
-        console.log('Video paused:', popupVideo.paused);
-        console.log('Video duration:', popupVideo.duration);
+        // console.log('✅ Found returnVslVideo element, setting up popup');
+        // console.log('Video id:', popupVideo.id);
+        // console.log('Video src:', popupVideo.src);
+        // console.log('Video currentTime:', popupVideo.currentTime);
+        // console.log('Video readyState:', popupVideo.readyState);
+        // console.log('Video paused:', popupVideo.paused);
+        // console.log('Video duration:', popupVideo.duration);
         setupVslTimePopup(popupVideo);
       } else {
-        console.log('⚠️ returnVslVideo not found yet, will try again when popup opens');
+        // console.log('⚠️ returnVslVideo not found yet, will try again when popup opens');
       }
     }, 1000);
     
     // Проверяем все видео элементы на странице
     const allVideos = document.querySelectorAll('video');
-    console.log('📹 Found video elements:', allVideos.length);
+    // console.log('📹 Found video elements:', allVideos.length);
     allVideos.forEach((v, index) => {
-      console.log(`Video ${index + 1}:`, {
-        id: v.id,
-        src: v.src,
-        preload: v.preload,
-        autoplay: v.autoplay,
-        muted: v.muted,
-        currentTime: v.currentTime,
-        readyState: v.readyState,
-        paused: v.paused,
-        duration: v.duration
-      });
+      // console.log(`Video ${index + 1}:`, {
+      //   id: v.id,
+      //   src: v.src,
+      //   preload: v.preload,
+      //   autoplay: v.autoplay,
+      //   muted: v.muted,
+      //   currentTime: v.currentTime,
+      //   readyState: v.readyState,
+      //   paused: v.paused,
+      //   duration: v.duration
+      // });
     });
     
     // Дополнительная проверка через 3 секунды
     setTimeout(function() {
-      console.log('🔄 3 seconds later - checking vslVideoInline again:');
+      // console.log('🔄 3 seconds later - checking vslVideoInline again:');
       const videoAgain = document.getElementById('vslVideoInline');
       if (videoAgain) {
-        console.log('Video currentTime:', videoAgain.currentTime);
-        console.log('Video readyState:', videoAgain.readyState);
-        console.log('Video paused:', videoAgain.paused);
+        // console.log('Video currentTime:', videoAgain.currentTime);
+        // console.log('Video readyState:', videoAgain.readyState);
+        // console.log('Video paused:', videoAgain.paused);
       }
     }, 3000);
   });
@@ -1894,16 +1898,16 @@ const { messages, form } = COPY;
 
         // Функция для настройки попапа в диапазоне времени VSL
   function setupVslTimePopup(video) {
-    console.log('🎬 setupVslTimePopup called for video:', video.id);
-    console.log('🎬 Video readyState:', video.readyState);
-    console.log('🎬 Video duration:', video.duration);
-    console.log('🎬 Video paused:', video.paused);
+    // console.log('🎬 setupVslTimePopup called for video:', video.id);
+    // console.log('🎬 Video readyState:', video.readyState);
+    // console.log('🎬 Video duration:', video.duration);
+    // console.log('🎬 Video paused:', video.paused);
     
     // Проверяем, готово ли видео
     if (video.readyState < 1 || isNaN(video.duration)) {
-      console.log('🎬 Video not ready, waiting for metadata...');
+      // console.log('🎬 Video not ready, waiting for metadata...');
       video.addEventListener('loadedmetadata', function() {
-        console.log('🎬 Video metadata loaded, setting up popup now');
+        // console.log('🎬 Video metadata loaded, setting up popup now');
         setupVslTimePopupInternal(video);
       });
       return;
@@ -1924,7 +1928,7 @@ const { messages, form } = COPY;
     // Проверяем, что время сообщения действительно за 3 минуты до попапа
     const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд
     if (messageTime !== expectedMessageTime) {
-      console.warn('⚠️ Message time mismatch! Expected:', expectedMessageTime, 'Got:', messageTime);
+      // console.warn('⚠️ Message time mismatch! Expected:', expectedMessageTime, 'Got:', messageTime);
     }
     
 
@@ -1935,7 +1939,7 @@ const { messages, form } = COPY;
       
       // Показываем сообщение с предложением за 3 минуты до попапа
       if (!messageShown && currentTime >= messageTime) {
-        console.log('💬 Showing auto message at time:', Math.floor(currentTime));
+        // console.log('💬 Showing auto message at time:', Math.floor(currentTime));
         if (window.showAutoMessage) {
           window.showAutoMessage();
         }
@@ -1944,7 +1948,7 @@ const { messages, form } = COPY;
       
       // Показываем попап если время в диапазоне и попап еще не показывался
       if (!popupShown && currentTime >= startTime && currentTime <= endTime) {
-        console.log('🎯 Showing VSL popup at time:', Math.floor(currentTime));
+        // console.log('🎯 Showing VSL popup at time:', Math.floor(currentTime));
         showVslMidPopup();
         popupShown = true;
       }
@@ -1977,7 +1981,7 @@ const { messages, form } = COPY;
 
               // Открываем форму заказа когда видео закончилось
               video.addEventListener('ended', function() {
-                console.log('🎬 Video ended, showing order form');
+                // console.log('🎬 Video ended, showing order form');
                 if (window.showOrderFormModal) {
                   window.showOrderFormModal();
                 }
@@ -2003,7 +2007,7 @@ const { messages, form } = COPY;
 
   // Функция показа попапа на определенной минуте
   function showVslMidPopup() {
-    console.log('🎯 showVslMidPopup called');
+    // console.log('🎯 showVslMidPopup called');
     
     // Проверяем, какое видео воспроизводится
     const returnVideo = document.getElementById('returnVslVideo');
@@ -2016,38 +2020,38 @@ const { messages, form } = COPY;
     const returnVisitPopup = document.getElementById('returnVisitPopup');
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     
-    console.log('🎯 returnPopup display:', returnPopup ? returnPopup.style.display : 'not found');
-    console.log('🎯 returnVisitPopup display:', returnVisitPopup ? returnVisitPopup.style.display : 'not found');
-    console.log('🎯 returnVideo paused:', returnVideo ? returnVideo.paused : 'not found');
-    console.log('🎯 returnVisitVideo paused:', returnVisitVideo ? returnVisitVideo.paused : 'not found');
+    // console.log('🎯 returnPopup display:', returnPopup ? returnPopup.style.display : 'not found');
+    // console.log('🎯 returnVisitPopup display:', returnVisitPopup ? returnVisitPopup.style.display : 'not found');
+    // console.log('🎯 returnVideo paused:', returnVideo ? returnVideo.paused : 'not found');
+    // console.log('🎯 returnVisitVideo paused:', returnVisitVideo ? returnVisitVideo.paused : 'not found');
     
     if (returnPopup && returnPopup.style.display === 'flex' && returnVideo) {
       // Если открыт ReturnPopup
-      console.log('🎯 Showing popup in ReturnPopup');
+      // console.log('🎯 Showing popup in ReturnPopup');
       if (window.showReturnVslMidPopup) {
         window.showReturnVslMidPopup();
       } else {
-        console.error('❌ showReturnVslMidPopup is not defined!');
+        // console.error('❌ showReturnVslMidPopup is not defined!');
       }
     } else if (returnVisitPopup && returnVisitPopup.style.display === 'flex' && returnVisitVideo) {
       // Если открыт ReturnVisitPopup
-      console.log('🎯 Showing popup in ReturnVisitPopup');
+      // console.log('🎯 Showing popup in ReturnVisitPopup');
       if (window.showReturnVisitVslMidPopup) {
         window.showReturnVisitVslMidPopup();
       } else {
-        console.error('❌ showReturnVisitVslMidPopup is not defined!');
+        // console.error('❌ showReturnVisitVslMidPopup is not defined!');
       }
     } else if (fullscreenPlayer && fullscreenPlayer.style.display === 'flex' && fullscreenVideo) {
       // Если открыт полноэкранный плеер
-      console.log('🎯 Showing popup in fullscreen player');
+      // console.log('🎯 Showing popup in fullscreen player');
       if (window.showFullscreenVslMidPopup) {
         window.showFullscreenVslMidPopup();
       } else {
-        console.error('❌ showFullscreenVslMidPopup is not defined!');
+        // console.error('❌ showFullscreenVslMidPopup is not defined!');
       }
     } else if (chatVideo && !chatVideo.paused) {
       // Если воспроизводится видео в чате
-      console.log('🎯 Showing popup in chat');
+      // console.log('🎯 Showing popup in chat');
       const popup = document.getElementById('vslMidPopup');
       if (popup) {
         popup.style.display = 'block';
@@ -2061,7 +2065,7 @@ const { messages, form } = COPY;
         }
       }
     } else {
-      console.log('⚠️ No suitable popup found to show green banner');
+      // console.log('⚠️ No suitable popup found to show green banner');
     }
   }
 
@@ -2132,9 +2136,9 @@ const { messages, form } = COPY;
           try {
             // Логируем данные заявки (замена API)
             logLeadData(leadData, 'form_interaction');
-            console.log('Order form closed via Escape - data sent');
+            // console.log('Order form closed via Escape - data sent');
           } catch (error) {
-            console.error('Error sending order form escape data:', error);
+            // console.error('Error sending order form escape data:', error);
           }
         }
         
@@ -2161,9 +2165,9 @@ const { messages, form } = COPY;
           try {
             // Логируем данные заявки (замена API)
             logLeadData(leadData, 'form_interaction');
-            console.log('Call booking form closed via Escape - data sent');
+            // console.log('Call booking form closed via Escape - data sent');
           } catch (error) {
-            console.error('Error sending call booking escape data:', error);
+            // console.error('Error sending call booking escape data:', error);
           }
         }
         
@@ -2184,10 +2188,10 @@ const { messages, form } = COPY;
     // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
     video.muted = true;
     video.play().then(() => {
-      console.log('✅ Chat VSL started playing (muted)');
+      // console.log('✅ Chat VSL started playing (muted)');
       // Включаем звук сразу
       video.muted = false;
-      console.log('🔊 Chat VSL sound enabled immediately');
+      // console.log('🔊 Chat VSL sound enabled immediately');
       
       // Настраиваем обработчики кнопки после запуска видео
       setTimeout(() => {
@@ -2204,16 +2208,16 @@ const { messages, form } = COPY;
       // Добавляем обработчик времени для показа попапа на определенной минуте
       setupVslTimePopup(video);
     }).catch((error) => {
-      console.log('❌ Chat VSL muted autoplay failed:', error.name);
+      // console.log('❌ Chat VSL muted autoplay failed:', error.name);
       
       // Стратегия 2: Пробуем с задержкой
       setTimeout(() => {
         video.muted = true;
         video.play().then(() => {
-          console.log('✅ Chat VSL started playing (delayed muted)');
+          // console.log('✅ Chat VSL started playing (delayed muted)');
           // Включаем звук сразу
           video.muted = false;
-          console.log('🔊 Chat VSL sound enabled immediately (delayed)');
+          // console.log('🔊 Chat VSL sound enabled immediately (delayed)');
           
           // Настраиваем обработчики
           if (window.setupVslButtonHandlers) {
@@ -2221,7 +2225,7 @@ const { messages, form } = COPY;
           }
           setupVslTimePopup(video);
         }).catch((error2) => {
-          console.log('❌ Chat VSL delayed autoplay failed:', error2.name);
+          // console.log('❌ Chat VSL delayed autoplay failed:', error2.name);
           
           // Стратегия 3: Ждем взаимодействия пользователя
           setupChatVslUserInteraction(video);
@@ -2275,7 +2279,7 @@ const { messages, form } = COPY;
         playButton.remove();
         video.muted = false;
         video.play().then(() => {
-          console.log('✅ Chat VSL started after user interaction');
+          // console.log('✅ Chat VSL started after user interaction');
           
           // Настраиваем обработчики
           if (window.setupVslButtonHandlers) {
@@ -2283,7 +2287,7 @@ const { messages, form } = COPY;
           }
           setupVslTimePopup(video);
         }).catch((error) => {
-          console.error('❌ Failed to play chat VSL after interaction:', error);
+          // console.error('❌ Failed to play chat VSL after interaction:', error);
         });
       }
     };
@@ -2297,7 +2301,7 @@ const { messages, form } = COPY;
           playButton.remove();
           video.muted = false;
           video.play().then(() => {
-            console.log('✅ Chat VSL started after user interaction');
+            // console.log('✅ Chat VSL started after user interaction');
             
             // Настраиваем обработчики
             if (window.setupVslButtonHandlers) {
@@ -2305,7 +2309,7 @@ const { messages, form } = COPY;
             }
             setupVslTimePopup(video);
           }).catch((error) => {
-            console.error('❌ Failed to play chat VSL after interaction:', error);
+            // console.error('❌ Failed to play chat VSL after interaction:', error);
           });
         }
       });
@@ -2318,7 +2322,7 @@ const { messages, form } = COPY;
   function markUserInteraction() {
     if (!hasUserInteracted) {
       hasUserInteracted = true;
-      console.log('👆 User interaction detected - autoplay should work now');
+      // console.log('👆 User interaction detected - autoplay should work now');
       
       // Удаляем все обработчики после первого взаимодействия
       document.removeEventListener('click', markUserInteraction);
@@ -2409,6 +2413,63 @@ const { messages, form } = COPY;
     }
   });
 
+  // Агрессивная блокировка повторных загрузок изображений
+  if (!window.imageLoadingBlocked) {
+    window.imageLoadingBlocked = true;
+    window.loadedImageUrls = new Set();
+    
+    // Перехватываем все запросы на изображения
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      const url = args[0];
+      if (typeof url === 'string' && (url.includes('.png') || url.includes('.jpg') || url.includes('.jpeg') || url.includes('.svg'))) {
+        if (window.loadedImageUrls.has(url)) {
+          return Promise.resolve(new Response());
+        }
+        window.loadedImageUrls.add(url);
+      }
+      return originalFetch.apply(this, args);
+    };
+    
+    // Блокируем создание новых Image объектов с уже загруженными URL
+    const originalImage = window.Image;
+    window.Image = function() {
+      const img = new originalImage();
+      const originalSetSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src').set;
+      
+      Object.defineProperty(img, 'src', {
+        set: function(value) {
+          if (window.loadedImageUrls.has(value)) {
+            return;
+          }
+          window.loadedImageUrls.add(value);
+          originalSetSrc.call(this, value);
+        },
+        get: function() {
+          return this.getAttribute('src');
+        }
+      });
+      
+      return img;
+    };
+    
+    // Записываем все существующие изображения в кеш
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+      if (img.src) {
+        window.loadedImageUrls.add(img.src);
+      }
+      
+      img.addEventListener('load', function() {
+        this.style.opacity = '1';
+      });
+      
+      img.addEventListener('error', function() {
+        // Silent error handling
+      });
+    });
+  }
+
   // Export functions to window
   window.openPopup = openPopup;
   window.toggleVslSound = toggleVslSound;
@@ -2446,7 +2507,7 @@ const { messages, form } = COPY;
       // Перезапускаем видео с обходом блокировки
       startChatVslWithBypass(video);
       
-      console.log('🔄 Chat video restarted from beginning');
+      // console.log('🔄 Chat video restarted from beginning');
     }
   });
 
@@ -2476,13 +2537,13 @@ const { messages, form } = COPY;
     // Останавливаем видео в ReturnPopup
     if (returnVideo) {
       returnVideo.pause();
-      console.log('🛑 Stopped return video when returning to chat');
+      // console.log('🛑 Stopped return video when returning to chat');
     }
     
     // Останавливаем видео в ReturnVisitPopup
     if (returnVisitVideo) {
       returnVisitVideo.pause();
-      console.log('🛑 Stopped return visit video when returning to chat');
+      // console.log('🛑 Stopped return visit video when returning to chat');
     }
     
     // Закрываем попапы
@@ -2506,11 +2567,11 @@ const { messages, form } = COPY;
 
   // Функция для показа сообщения об успешном заказе в чате
   function showSuccessMessageInChat(customerName = '') {
-    console.log('🎉 Showing success message in chat for:', customerName);
+    // console.log('🎉 Showing success message in chat for:', customerName);
     
     const chatContainer = document.querySelector('.chat');
     if (!chatContainer) {
-      console.error('❌ Chat container not found');
+      // console.error('❌ Chat container not found');
       return;
     }
     
@@ -2520,7 +2581,7 @@ const { messages, form } = COPY;
     
     if (callTimeElement && callTimeElement.value) {
       const selectedTime = callTimeElement.value;
-      console.log('🎯 Selected call time:', selectedTime);
+      // console.log('🎯 Selected call time:', selectedTime);
       
       if (selectedTime === 'Прямо сейчас') {
         callTimeText = '1-2 минуты';
@@ -2533,7 +2594,7 @@ const { messages, form } = COPY;
       }
     }
     
-    console.log('🎯 Final call time text:', callTimeText);
+    // console.log('🎯 Final call time text:', callTimeText);
     
     // Создаем сообщение об успешном заказе
     const successMessage = document.createElement('div');
@@ -2553,7 +2614,7 @@ const { messages, form } = COPY;
     // Прокручиваем к новому сообщению
     setTimeout(() => {
       chatContainer.scrollTop = chatContainer.scrollHeight;
-      console.log('📜 Scrolled chat to show success message');
+      // console.log('📜 Scrolled chat to show success message');
     }, 100);
   }
 
@@ -2562,6 +2623,7 @@ const { messages, form } = COPY;
   window.showAutoMessage = showAutoMessage;
   window.showSuccessMessageInChat = showSuccessMessageInChat;
   window.savedFormData = savedFormData;
+  window.startGlobalTimers = startGlobalTimers;
 </script>
 
 <style>
@@ -3991,6 +4053,34 @@ const { messages, form } = COPY;
   #fullscreenVideo::-moz-media-controls-seek-back-button,
   #fullscreenVideo::-moz-media-controls-seek-forward-button {
     display: none !important;
+  }
+  
+  /* Агрессивное кеширование изображений */
+  img {
+    image-rendering: optimizeSpeed;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* Принудительное кеширование */
+    cache-control: max-age=31536000;
+    /* Предотвращаем перерисовку */
+    will-change: auto;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    /* Блокируем обновление */
+    pointer-events: none;
+  }
+  
+  /* Восстанавливаем события для интерактивных изображений */
+  .review-image img,
+  .product-image {
+    pointer-events: auto;
+  }
+  
+  /* Предотвращаем любые анимации изображений */
+  img, img:hover, img:focus, img:active {
+    transition: none !important;
+    animation: none !important;
+    transform: translateZ(0) !important;
   }
 
   .fullscreen-close-btn {

@@ -314,6 +314,10 @@ const { form, testimonials } = COPY;
       domonetkaForm.classList.add('show');
       // Запускаем таймеры только после показа формы
       startDomonetkaTimers();
+      // Также запускаем глобальные таймеры из Chat.astro
+      if (window.startGlobalTimers) {
+        window.startGlobalTimers();
+      }
       
       // Убеждаемся, что надпись видна
       const bottlesElement = document.getElementById('domonetkaBottles');

@@ -175,6 +175,7 @@ const { popup } = COPY;
   });
 
   // Настройки видео (перемотка разрешена)
+  const returnVisitVideo = document.getElementById('returnVisitVideo');
   if (returnVisitVideo) {
     // Отключаем только контекстное меню
     returnVisitVideo.addEventListener('contextmenu', (e) => {
@@ -183,7 +184,7 @@ const { popup } = COPY;
     });
     
     // Перемотка теперь разрешена - убираем все блокировки
-    console.log('✅ Video seeking enabled for returnVisitVideo');
+    // console.log('✅ Video seeking enabled for returnVisitVideo');
   }
 
   // Сохраняем время видео при попытке ухода со страницы
@@ -195,7 +196,8 @@ const { popup } = COPY;
 
   // Периодически сохраняем время видео каждые 10 секунд во время воспроизведения
   setInterval(() => {
-    if (returnVisitVideo && !returnVisitVideo.paused && returnVisitVideo.currentTime > 0) {
+    const video = document.getElementById('returnVisitVideo');
+    if (video && !video.paused && video.currentTime > 0) {
       saveVideoTime();
     }
   }, 10000); // Каждые 10 секунд
