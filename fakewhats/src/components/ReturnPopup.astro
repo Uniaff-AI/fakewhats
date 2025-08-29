@@ -9,7 +9,9 @@ const { popup } = COPY;
     <div class="vsl-container">
       <div class="vsl-overlay">
 
-        <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback noplaybackrate noplaypause"></video>
+        <div class="video-wrapper safari-no-controls-wrapper">
+          <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="none" class="safari-no-controls"></video>
+        </div>
         
         <!-- Виньетка для затемнения -->
         <div class="vsl-vignette"></div>
@@ -391,6 +393,14 @@ const { popup } = COPY;
 
   // Настройки видео (блокируем перемотку)
   if (returnVideo) {
+    // Добавляем controls только для десктопа
+    if (window.innerWidth > 768) {
+      returnVideo.controls = true;
+      returnVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback noplaybackrate noplaypause');
+    } else {
+      returnVideo.controls = false;
+    }
+    
     returnVideo.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       return false;
@@ -804,6 +814,24 @@ const { popup } = COPY;
     display: none !important;
   }
   
+  /* Блокировка взаимодействия с видео */
+  .safari-no-controls {
+    pointer-events: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  .safari-no-controls-wrapper {
+    pointer-events: auto !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
   /* Дополнительные правила для мобильных устройств */
   @media (max-width: 768px) {
     #returnVslVideo {
@@ -811,6 +839,7 @@ const { popup } = COPY;
       -webkit-appearance: none !important;
       -moz-appearance: none !important;
       appearance: none !important;
+      pointer-events: none !important;
     }
     
     #returnVslVideo::-webkit-media-controls,
@@ -825,6 +854,23 @@ const { popup } = COPY;
       position: absolute !important;
       left: -9999px !important;
       top: -9999px !important;
+    }
+    
+    .video-wrapper {
+      /* Дополнительная защита для мобильных */
+      overflow: hidden !important;
+      position: relative !important;
+    }
+    
+    .video-wrapper::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      z-index: 1 !important;
+      pointer-events: auto !important;
     }
   }
 </style>
