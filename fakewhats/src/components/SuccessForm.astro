@@ -1,0 +1,302 @@
+---
+import { siteConfig } from '../config/site-config';
+---
+
+<div id="successFormModal" class="pwa-modal" style="display: none;">
+  <div class="pwa-modal-backdrop" id="successFormBackdrop"></div>
+  <div class="pwa-modal-content">
+    <div class="pwa-modal-header">
+      <div class="pwa-modal-handle"></div>
+      <button class="pwa-modal-close" id="closeSuccessForm">✕</button>
+    </div>
+    
+    <div class="pwa-modal-body">
+      <!-- Success Icon -->
+      <div class="success-icon">
+        <div class="checkmark">✓</div>
+      </div>
+      
+      <!-- Success Message -->
+      <div class="success-message">
+        <h3 id="successName">ИМЯ заявка принята!</h3>
+      </div>
+      
+      <!-- Specialist Text -->
+      <div class="specialist-text">
+        <p>Ожидайте звонка нашего специалиста</p>
+      </div>
+      
+      <!-- Specialist Image -->
+      <div class="specialist-image">
+        <img src="/support.png" alt="Специалист поддержки" class="support-img" />
+      </div>
+      
+      <!-- Time Button -->
+      <button class="time-button">
+        1-2 минуты
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const successFormModal = document.getElementById('successFormModal');
+  const closeSuccessForm = document.getElementById('closeSuccessForm');
+  const successName = document.getElementById('successName');
+
+  function showSuccessForm(customerName = '') {
+    if (successFormModal) {
+      // Обновляем имя в сообщении
+      if (successName && customerName) {
+        successName.textContent = `${customerName} заявка принята!`;
+      }
+      
+      successFormModal.style.display = 'flex';
+      setTimeout(() => {
+        successFormModal.classList.add('show');
+      }, 10);
+    }
+  }
+
+  function hideSuccessForm() {
+    if (successFormModal) {
+      successFormModal.classList.remove('show');
+      setTimeout(() => {
+        successFormModal.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  // Обработчики событий
+  closeSuccessForm?.addEventListener('click', hideSuccessForm);
+  
+  // Обработчик клика на backdrop
+  const successFormBackdrop = document.getElementById('successFormBackdrop');
+  successFormBackdrop?.addEventListener('click', hideSuccessForm);
+
+  // Экспортируем функции
+  window.showSuccessForm = showSuccessForm;
+  window.hideSuccessForm = hideSuccessForm;
+</script>
+
+<style>
+  /* PWA Modal Styles - идентично форме заказа */
+  .pwa-modal {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .pwa-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .pwa-modal-content {
+    position: relative;
+    width: 100%;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    max-height: 85vh;
+    overflow: hidden;
+  }
+
+  .pwa-modal.show .pwa-modal-content {
+    transform: translateY(0);
+  }
+
+  .pwa-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .pwa-modal-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 0 auto;
+  }
+
+  .pwa-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .pwa-modal-close:hover {
+    background: #f0f0f0;
+  }
+
+  .pwa-modal-body {
+    padding: 30px 20px;
+    overflow-y: auto;
+    max-height: calc(85vh - 80px);
+    text-align: center;
+  }
+
+  .success-icon {
+    margin-bottom: 40px;
+  }
+
+  .checkmark {
+    font-size: 120px;
+    color: #4CAF50;
+    font-weight: 900;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+    line-height: 1;
+  }
+
+  .success-message {
+    margin-bottom: 30px;
+  }
+
+  .success-message h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .specialist-text {
+    margin-bottom: 30px;
+  }
+
+  .specialist-text p {
+    font-size: 18px;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .specialist-image {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .support-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  .time-button {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+  }
+
+  .time-button:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+  }
+
+  .time-button:active {
+    transform: translateY(0);
+  }
+
+  /* Мобильные стили - идентично форме заказа */
+  @media (max-width: 480px) {
+    .pwa-modal {
+      max-width: calc(100% - 40px);
+      left: 20px;
+      right: 20px;
+      transform: none;
+    }
+    
+    .pwa-modal-content {
+      border-radius: 16px 16px 0 0;
+    }
+    
+    .pwa-modal-body {
+      padding: 25px 16px;
+    }
+
+    .success-icon {
+      margin-bottom: 30px;
+    }
+
+    .success-message {
+      margin-bottom: 25px;
+    }
+
+    .success-message h3 {
+      font-size: 20px;
+    }
+
+    .specialist-text {
+      margin-bottom: 25px;
+    }
+
+    .specialist-text p {
+      font-size: 16px;
+    }
+
+    .specialist-image {
+      margin-bottom: 30px;
+    }
+
+    .checkmark {
+      font-size: 80px;
+    }
+
+    .support-img {
+      width: 100px;
+      height: 100px;
+    }
+
+    .time-button {
+      padding: 12px 30px;
+      font-size: 14px;
+    }
+  }
+
+  /* Стили для планшетов и десктопа */
+  @media (min-width: 500px) {
+    .pwa-modal {
+      max-width: 420px;
+    }
+  }
+</style>

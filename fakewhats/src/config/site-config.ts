@@ -415,7 +415,13 @@ export interface SiteConfig {
     vslButtonBlink: boolean;   // Мигание кнопки включения звука
     vslShowCloseButton: boolean; // Показывать крестик в плеере
     vslAutoOpenForm: boolean;  // Автоматически открывать форму при окончании видео
-
+  };
+  
+  // ===== НАСТРОЙКИ API =====
+  api: {
+    ktDomain: string;          // Домен для API (например, "uniaffshark.com")
+    ktCampaignId: number;      // ID кампании (например, 10314)
+    apiUrl: string;            // URL API для отправки данных
   };
 }
 
@@ -799,5 +805,12 @@ export const siteConfig: SiteConfig = {
     vslButtonBlink: true,                 // Мигание кнопки включения звука
     vslShowCloseButton: true,             // Показывать крестик в плеере
     vslAutoOpenForm: true,                // Автоматически открывать форму при окончании видео
+  },
+  
+  // ===== НАСТРОЙКИ API =====
+  api: {
+    ktDomain: "uniaffshark.com",          // Домен для API
+    ktCampaignId: 10314,                  // ID кампании
+    apiUrl: "https://api.pwa.uniaffcrm.com/v1/add_lead", // URL API для отправки данных
   },
 };

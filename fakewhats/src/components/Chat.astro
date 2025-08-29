@@ -666,7 +666,9 @@ const { messages, form } = COPY;
   async function sendPostback(extra={}) {
     const formData = new FormData(leadForm);
     const payload = {
-      name: formData.get('name') || '',
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: formData.get('name') || '',
       phone: formData.get('phone') || '',
       calltime: formData.get('calltime') || '',
       videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0,
@@ -678,7 +680,9 @@ const { messages, form } = COPY;
     // Логируем данные заявки в консоль (для статического сайта)
     console.log('[UROXEL Lead]', {
       serverTimestamp: new Date().toISOString(),
-      name: payload.name,
+      ktDomain: payload.ktDomain,
+      ktCampaignId: payload.ktCampaignId,
+      leadName: payload.leadName,
       phone: payload.phone,
       calltime: payload.calltime,
       reason: payload.reason,
@@ -692,11 +696,51 @@ const { messages, form } = COPY;
     console.log('📊 Данные заявки готовы для отправки в CRM:', payload);
   }
 
+  // Универсальная функция для отправки данных на API
+  async function sendLeadToAPI(leadData, action) {
+    const apiUrl = "https://api.pwa.uniaffcrm.com/v1/add_lead";
+    
+    // Подготавливаем данные для API
+    const apiData = {
+      ktDomain: leadData.ktDomain || "uniaffshark.com",
+      ktCampaignId: leadData.ktCampaignId || 10314,
+      leadName: leadData.leadName || leadData.name,
+      phone: leadData.phone,
+      calltime: leadData.calltime,
+    };
+    
+    try {
+      console.log(`🚀 Отправляем данные на API (${action}):`, apiData);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Данные успешно отправлены на API (${action}):`, result);
+        return { success: true, data: result };
+      } else {
+        console.error(`❌ Ошибка API (${action}):`, response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+      }
+    } catch (error) {
+      console.error(`❌ Ошибка отправки на API (${action}):`, error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Универсальная функция для логирования данных (замена API)
   function logLeadData(leadData, action) {
     console.log(`[UROXEL Lead - ${action}]`, {
       serverTimestamp: new Date().toISOString(),
-      name: leadData.name,
+      ktDomain: leadData.ktDomain || "uniaffshark.com",
+      ktCampaignId: leadData.ktCampaignId || 10314,
+      leadName: leadData.leadName || leadData.name,
       phone: leadData.phone,
       calltime: leadData.calltime,
       reason: leadData.reason || action,
@@ -765,17 +809,40 @@ const { messages, form } = COPY;
     const fullscreenVideo = document.getElementById('fullscreenVideo');
     
     if (document.hidden) {
-      // Сохраняем время основного видео в чате
+      // Сохраняем время основного видео в чате (только в savedChatVideoTime)
       if (video && !video.paused) {
         if (window.saveVideoTime) {
           window.saveVideoTime();
         }
       }
       
-      // Сохраняем время полноэкранного видео
+      // Сохраняем время полноэкранного видео (в savedVideoTime для попапа возврата)
       if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
-        localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
-        console.log('💾 Saved fullscreen video time on page hide:', fullscreenVideo.currentTime, 'seconds');
+        // Проверяем время всех плееров и сохраняем самое позднее
+        const chatVideo = document.getElementById('vslVideoInline');
+        const returnVideo = document.getElementById('returnVslVideo');
+        const returnVisitVideo = document.getElementById('returnVisitVideo');
+        
+        let maxTime = fullscreenVideo.currentTime;
+        let maxSource = 'fullscreen';
+        
+        if (chatVideo && chatVideo.currentTime > maxTime) {
+          maxTime = chatVideo.currentTime;
+          maxSource = 'chat';
+        }
+        
+        if (returnVideo && returnVideo.currentTime > maxTime) {
+          maxTime = returnVideo.currentTime;
+          maxSource = 'return';
+        }
+        
+        if (returnVisitVideo && returnVisitVideo.currentTime > maxTime) {
+          maxTime = returnVisitVideo.currentTime;
+          maxSource = 'returnVisit';
+        }
+        
+        localStorage.setItem('savedVideoTime', maxTime.toString());
+        console.log('💾 Saved MAX video time on page hide from', maxSource, ':', maxTime, 'seconds');
       }
     }
   });
@@ -808,9 +875,35 @@ const { messages, form } = COPY;
         savedChatVideoTime = vslVideoInline.currentTime;
         localStorage.setItem('savedChatVideoTime', savedChatVideoTime.toString());
         
+        // Проверяем время всех плееров и сохраняем самое позднее в savedVideoTime
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const returnVideo = document.getElementById('returnVslVideo');
+        const returnVisitVideo = document.getElementById('returnVisitVideo');
+        
+        let maxTime = vslVideoInline.currentTime;
+        let maxSource = 'chat';
+        
+        if (fullscreenVideo && fullscreenVideo.currentTime > maxTime) {
+          maxTime = fullscreenVideo.currentTime;
+          maxSource = 'fullscreen';
+        }
+        
+        if (returnVideo && returnVideo.currentTime > maxTime) {
+          maxTime = returnVideo.currentTime;
+          maxSource = 'return';
+        }
+        
+        if (returnVisitVideo && returnVisitVideo.currentTime > maxTime) {
+          maxTime = returnVisitVideo.currentTime;
+          maxSource = 'returnVisit';
+        }
+        
+        localStorage.setItem('savedVideoTime', maxTime.toString());
+        
         const minutes = Math.floor(savedChatVideoTime / 60);
         const seconds = Math.floor(savedChatVideoTime % 60);
         console.log(`💾 Saved chat video time: ${savedChatVideoTime} seconds (${minutes}:${seconds.toString().padStart(2, '0')})`);
+        console.log(`💾 Saved MAX video time from ${maxSource}: ${maxTime} seconds`);
       }
     }
     
@@ -937,8 +1030,11 @@ const { messages, form } = COPY;
     
     const formData = new FormData(orderLeadForm);
     const leadData = {
-      name: formData.get('name'),
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: formData.get('name'),
       phone: formData.get('phone'),
+      calltime: "Не выбрано",
       timestamp: new Date().toISOString(),
       reason: 'order_form',
       videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0,
@@ -952,7 +1048,10 @@ const { messages, form } = COPY;
       videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0
     };
     
-    // Логируем данные заявки (замена API)
+    // Отправляем данные на API
+    const apiResult = await sendLeadToAPI(leadData, 'order_form_submit');
+    
+    // Логируем данные заявки
     logLeadData(leadData, 'order_form_submit');
     console.log('Order form submitted successfully');
     
@@ -983,9 +1082,11 @@ const { messages, form } = COPY;
     console.log('Call time element:', callTimeElement);
     
     const leadData = {
-      name: savedFormData.name || '',
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: savedFormData.name || '',
       phone: savedFormData.phone || '',
-      callTime: callTime,
+      calltime: callTime,
       timestamp: new Date().toISOString(),
       reason: 'call_booking',
       videoWatchTime: savedFormData.videoWatchTime || 0,
@@ -994,7 +1095,10 @@ const { messages, form } = COPY;
     
     console.log('Call booking form submitted with data:', leadData);
     
-    // Логируем данные заявки (замена API)
+    // Отправляем данные на API
+    const apiResult = await sendLeadToAPI(leadData, 'call_booking_submit');
+    
+    // Логируем данные заявки
     logLeadData(leadData, 'call_booking_submit');
     
     // Скрываем форму бронирования
@@ -1005,6 +1109,10 @@ const { messages, form } = COPY;
         callBookingModal.style.display = 'none';
       }, 300);
     }
+    
+          // Показываем сообщение об успешном заказе в чате
+      showSuccessMessageInChat(savedFormData.name || '');
+    
     // Очищаем сохраненные данные
     savedFormData = {};
     console.log('Call booking form submitted successfully');
@@ -1061,16 +1169,21 @@ const { messages, form } = COPY;
   // Функция для автоматической отправки заявки без выбора времени
   async function sendAutoCallRequest() {
     const leadData = {
-      name: savedFormData.name || '',
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: savedFormData.name || '',
       phone: savedFormData.phone || '',
-      callTime: 'Не выбрано',
+      calltime: 'Не выбрано',
       timestamp: new Date().toISOString(),
       reason: 'auto_call_booking',
       videoWatchTime: savedFormData.videoWatchTime || 0,
       userAgent: navigator.userAgent
     };
     
-    // Логируем данные заявки (замена API)
+    // Отправляем данные на API
+    const apiResult = await sendLeadToAPI(leadData, 'call_booking_submit');
+    
+    // Логируем данные заявки
     logLeadData(leadData, 'call_booking_submit');
     console.log('Auto call request sent successfully');
   }
@@ -1079,9 +1192,11 @@ const { messages, form } = COPY;
     // Отправляем данные при закрытии формы заказа
     if (savedFormData.name && savedFormData.phone) {
       const leadData = {
-        name: savedFormData.name,
+        ktDomain: "uniaffshark.com",
+        ktCampaignId: 10314,
+        leadName: savedFormData.name,
         phone: savedFormData.phone,
-        callTime: 'Форма закрыта пользователем',
+        calltime: 'Форма закрыта пользователем',
         timestamp: new Date().toISOString(),
         reason: 'order_form_closed',
         videoWatchTime: savedFormData.videoWatchTime || 0,
@@ -1089,7 +1204,10 @@ const { messages, form } = COPY;
       };
       
       try {
-        // Логируем данные заявки (замена API)
+        // Отправляем данные на API
+        const apiResult = await sendLeadToAPI(leadData, 'form_interaction');
+        
+        // Логируем данные заявки
         logLeadData(leadData, 'form_interaction');
         console.log('Order form closed - data sent');
       } catch (error) {
@@ -1361,6 +1479,39 @@ const { messages, form } = COPY;
     if (fullscreenPlayer && fullscreenVideo) {
       fullscreenPlayer.style.display = 'flex';
       
+      // Устанавливаем сохраненное время видео
+      const savedTime = localStorage.getItem('savedVideoTime');
+      if (savedTime) {
+        const savedVideoTime = parseFloat(savedTime);
+        console.log('🎬 Setting fullscreen video time to:', savedVideoTime, 'seconds');
+        
+        // Ждем, пока видео будет готово к воспроизведению
+        if (fullscreenVideo.readyState >= 2) {
+          // Видео готово, устанавливаем время сразу
+          fullscreenVideo.currentTime = savedVideoTime;
+          console.log('✅ Fullscreen video ready, time set immediately to:', savedVideoTime);
+        } else {
+          // Видео не готово, ждем события loadedmetadata
+          console.log('⏳ Fullscreen video not ready, waiting for loadedmetadata...');
+          fullscreenVideo.addEventListener('loadedmetadata', () => {
+            fullscreenVideo.currentTime = savedVideoTime;
+            console.log('✅ Fullscreen video metadata loaded, time set to:', savedVideoTime);
+          }, { once: true });
+        }
+      } else {
+        console.log('🎬 No saved time found, starting from beginning');
+        // Если нет сохраненного времени, начинаем с начала
+        if (fullscreenVideo.readyState >= 2) {
+          fullscreenVideo.currentTime = 0;
+          console.log('✅ Fullscreen video ready, starting from beginning');
+        } else {
+          fullscreenVideo.addEventListener('loadedmetadata', () => {
+            fullscreenVideo.currentTime = 0;
+            console.log('✅ Fullscreen video metadata loaded, starting from beginning');
+          }, { once: true });
+        }
+      }
+      
       // Запускаем видео с обходом блокировки автоплея
       startAutoplayWithBypass(fullscreenVideo);
       
@@ -1381,13 +1532,21 @@ const { messages, form } = COPY;
         }
       });
 
-      // Периодически сохраняем время просмотра каждые 10 секунд
+      // Периодически сохраняем время просмотра каждые 5 секунд
       const fullscreenTimeInterval = setInterval(() => {
         if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
+          // Сохраняем время полноэкранного плеера
           localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
           console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+          
+          // Также сохраняем время видео в чате если оно больше
+          const chatVideo = document.getElementById('vslVideoInline');
+          if (chatVideo && chatVideo.currentTime > fullscreenVideo.currentTime) {
+            localStorage.setItem('savedVideoTime', chatVideo.currentTime.toString());
+            console.log('💾 Chat video time is later, saved chat time:', chatVideo.currentTime, 'seconds');
+          }
         }
-      }, 10000);
+      }, 5000); // Каждые 5 секунд
 
       // Очищаем интервал при закрытии плеера
       const originalHideFullscreenPlayer = hideFullscreenPlayer;
@@ -1412,8 +1571,31 @@ const { messages, form } = COPY;
       
       // Сохраняем время просмотра перед закрытием
       if (fullscreenVideo.currentTime > 0) {
-        localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
-        console.log('💾 Saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+        // Проверяем время всех плееров и сохраняем самое позднее
+        const chatVideo = document.getElementById('vslVideoInline');
+        const returnVideo = document.getElementById('returnVslVideo');
+        const returnVisitVideo = document.getElementById('returnVisitVideo');
+        
+        let maxTime = fullscreenVideo.currentTime;
+        let maxSource = 'fullscreen';
+        
+        if (chatVideo && chatVideo.currentTime > maxTime) {
+          maxTime = chatVideo.currentTime;
+          maxSource = 'chat';
+        }
+        
+        if (returnVideo && returnVideo.currentTime > maxTime) {
+          maxTime = returnVideo.currentTime;
+          maxSource = 'return';
+        }
+        
+        if (returnVisitVideo && returnVisitVideo.currentTime > maxTime) {
+          maxTime = returnVisitVideo.currentTime;
+          maxSource = 'returnVisit';
+        }
+        
+        localStorage.setItem('savedVideoTime', maxTime.toString());
+        console.log('💾 Saved MAX video time from', maxSource, ':', maxTime, 'seconds');
         
         // Проверяем, что действительно сохранилось
         const savedTime = localStorage.getItem('savedVideoTime');
@@ -1615,18 +1797,45 @@ const { messages, form } = COPY;
     const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     const savedVideoTime = localStorage.getItem('savedVideoTime');
     
-    if (hasVisitedBefore && savedVideoTime && savedVideoTime > 0) {
+    if (hasVisitedBefore && savedVideoTime !== null) {
+      console.log('✅ Return visit detected, hasVisitedBefore:', hasVisitedBefore, 'savedVideoTime:', savedVideoTime);
+      console.log('🔍 All localStorage keys:', Object.keys(localStorage));
+      console.log('🔍 savedVideoTime value:', localStorage.getItem('savedVideoTime'));
       
-      // Показываем попап с предложением продолжить просмотр
+      // Сначала открываем полноэкранный VSL с сохраненного времени
       setTimeout(function() {
-        if (window.showReturnVisitPopup) {
-          window.showReturnVisitPopup();
+        console.log('🎬 Opening fullscreen VSL with saved time:', savedVideoTime);
+        if (window.showFullscreenPlayer) {
+          window.showFullscreenPlayer();
         }
-      }, 2000); // Задержка 2 секунды
+      }, 1000); // Задержка 1 секунда для VSL
+      
+      // Затем показываем попап с предложением продолжить просмотр
+      setTimeout(function() {
+        console.log('🎬 Attempting to show return visit popup after 2 seconds');
+        // Ждем, пока все компоненты загрузятся
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        function tryShowPopup() {
+          attempts++;
+          console.log('🎬 Attempt', attempts, 'to show return visit popup');
+          if (window.showReturnVisitPopup) {
+            console.log('✅ showReturnVisitPopup function found, calling it');
+            window.showReturnVisitPopup();
+          } else if (attempts < maxAttempts) {
+            console.log('⏳ showReturnVisitPopup not found, waiting 500ms...');
+            setTimeout(tryShowPopup, 500);
+          } else {
+            console.log('❌ Failed to find showReturnVisitPopup after', maxAttempts, 'attempts');
+          }
+        }
+        
+        tryShowPopup();
+      }, 2000); // Задержка 2 секунды для попапа
     } else {
       // Первый визит - запоминаем
       localStorage.setItem('hasVisitedBefore', 'true');
-      console.log('✅ First visit, saved to localStorage');
     }
     
     // Ждем, пока ReturnPopup загрузится и создаст видео
@@ -2232,9 +2441,63 @@ const { messages, form } = COPY;
 
 
 
+  // Функция для показа сообщения об успешном заказе в чате
+  function showSuccessMessageInChat(customerName = '') {
+    console.log('🎉 Showing success message in chat for:', customerName);
+    
+    const chatContainer = document.querySelector('.chat');
+    if (!chatContainer) {
+      console.error('❌ Chat container not found');
+      return;
+    }
+    
+    // Получаем выбранное время звонка
+    const callTimeElement = document.getElementById('callTime');
+    let callTimeText = '1-2 минуты'; // по умолчанию
+    
+    if (callTimeElement && callTimeElement.value) {
+      const selectedTime = callTimeElement.value;
+      console.log('🎯 Selected call time:', selectedTime);
+      
+      if (selectedTime === 'Прямо сейчас') {
+        callTimeText = '1-2 минуты';
+      } else if (selectedTime === '5 минут') {
+        callTimeText = '5 минут';
+      } else if (selectedTime === '15 минут') {
+        callTimeText = '15 минут';
+      } else if (selectedTime === '30 минут') {
+        callTimeText = '30 минут';
+      }
+    }
+    
+    console.log('🎯 Final call time text:', callTimeText);
+    
+    // Создаем сообщение об успешном заказе
+    const successMessage = document.createElement('div');
+    successMessage.className = 'bubble success-message';
+    successMessage.innerHTML = `
+      <div class="specialist-image">
+        <img src="/support.png" alt="Специалист поддержки" class="support-img" style="width: 100% !important; height: auto !important; max-width: 100% !important; max-height: 330px !important;" />
+      </div>
+      <div class="success-content">
+        <span class="success-text">${customerName ? customerName + ' ' : ''}заявка принята! Ожидайте звонка специалиста через ${callTimeText}</span>
+      </div>
+    `;
+    
+    // Добавляем сообщение в чат
+    chatContainer.appendChild(successMessage);
+    
+    // Прокручиваем к новому сообщению
+    setTimeout(() => {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      console.log('📜 Scrolled chat to show success message');
+    }, 100);
+  }
+
   window.showVslMidPopup = showVslMidPopup;
   window.showVslCloseChoicePopup = showVslCloseChoicePopup;
   window.showAutoMessage = showAutoMessage;
+  window.showSuccessMessageInChat = showSuccessMessageInChat;
   window.savedFormData = savedFormData;
 </script>
 
@@ -2316,6 +2579,43 @@ const { messages, form } = COPY;
     color: #000;
     font-weight: 400;
     text-align: left;
+  }
+
+  /* Стили для сообщения об успешном заказе */
+  .bubble.success-message {
+    background: #fff;
+    border-left: 3px solid #4caf50;
+    padding: 8px 10px;
+    margin: 8px 0;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .specialist-image {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .bubble.success-message .support-img {
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 4px !important;
+    object-fit: cover !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    display: block !important;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+    max-height: 330px !important;
+  }
+
+  .success-content {
+    text-align: center;
+  }
+
+  .success-text {
+    color: #333;
+    font-size: 14px;
   }
 
   /* .bubble.problem {

@@ -56,6 +56,13 @@ const { popup } = COPY;
   const continueBtn = document.getElementById('continueWatching');
   const restartBtn = document.getElementById('textVersion');
 
+  console.log('🎬 ReturnPopup elements initialized:', {
+    returnPopup: !!returnPopup,
+    returnVideo: !!returnVideo,
+    continueBtn: !!continueBtn,
+    restartBtn: !!restartBtn
+  });
+
   // Загружаем сохраненное время видео из localStorage
   let savedVideoTime = 0;
   
@@ -70,12 +77,16 @@ const { popup } = COPY;
   loadSavedTime();
 
   function showReturnPopup() {
+    console.log('🎬 showReturnPopup called');
+    console.log('🎬 returnPopup element:', returnPopup);
+    
     // Загружаем актуальное время перед показом
     loadSavedTime();
     
     // Проверяем, не открыт ли основной VSL
     const mainPopup = document.getElementById('popup');
     if (mainPopup && mainPopup.style.display === 'flex') {
+      console.log('🎬 Main popup is open, returning');
       return;
     }
     
@@ -86,13 +97,20 @@ const { popup } = COPY;
     
     // Сначала показываем попап
     if (returnPopup) {
+      console.log('🎬 Showing returnPopup');
       returnPopup.style.display = 'flex';
       
       // ПОКАЗЫВАЕМ ТЕКСТОВЫЙ ОВЕРЛЕЙ С КНОПКАМИ ПРИ ОТКРЫТИИ ПОПАПА
       const textOverlay = returnPopup.querySelector('.vsl-text-overlay');
+      console.log('🎬 textOverlay element:', textOverlay);
       if (textOverlay) {
         textOverlay.style.display = 'flex';
+        console.log('🎬 textOverlay shown');
+      } else {
+        console.error('❌ textOverlay not found!');
       }
+    } else {
+      console.error('❌ returnPopup element not found!');
     }
     
     if (returnVideo) {
@@ -134,7 +152,32 @@ const { popup } = COPY;
   function saveVideoTime() {
     if (returnVideo) {
       savedVideoTime = returnVideo.currentTime;
-      localStorage.setItem('savedVideoTime', returnVideo.currentTime.toString());
+      
+      // Проверяем время всех плееров и сохраняем самое позднее
+      const chatVideo = document.getElementById('vslVideoInline');
+      const fullscreenVideo = document.getElementById('fullscreenVideo');
+      const returnVisitVideo = document.getElementById('returnVisitVideo');
+      
+      let maxTime = returnVideo.currentTime;
+      let maxSource = 'return';
+      
+      if (chatVideo && chatVideo.currentTime > maxTime) {
+        maxTime = chatVideo.currentTime;
+        maxSource = 'chat';
+      }
+      
+      if (fullscreenVideo && fullscreenVideo.currentTime > maxTime) {
+        maxTime = fullscreenVideo.currentTime;
+        maxSource = 'fullscreen';
+      }
+      
+      if (returnVisitVideo && returnVisitVideo.currentTime > maxTime) {
+        maxTime = returnVisitVideo.currentTime;
+        maxSource = 'returnVisit';
+      }
+      
+      localStorage.setItem('savedVideoTime', maxTime.toString());
+      console.log('💾 ReturnPopup: Saved MAX video time from', maxSource, ':', maxTime, 'seconds');
     }
   }
 

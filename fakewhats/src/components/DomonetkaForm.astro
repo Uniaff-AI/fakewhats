@@ -337,6 +337,44 @@ const { form, testimonials } = COPY;
     document.body.style.overflow = 'auto';
   }
 
+  // Универсальная функция для отправки данных на API
+  async function sendLeadToAPI(leadData, action) {
+    const apiUrl = "https://api.pwa.uniaffcrm.com/v1/add_lead";
+    
+    // Подготавливаем данные для API
+    const apiData = {
+      ktDomain: leadData.ktDomain || "uniaffshark.com",
+      ktCampaignId: leadData.ktCampaignId || 10314,
+      leadName: leadData.leadName || leadData.name,
+      phone: leadData.phone,
+      calltime: leadData.calltime,
+    };
+    
+    try {
+      console.log(`🚀 Отправляем данные на API (${action}):`, apiData);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Данные успешно отправлены на API (${action}):`, result);
+        return { success: true, data: result };
+      } else {
+        console.error(`❌ Ошибка API (${action}):`, response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+      }
+    } catch (error) {
+      console.error(`❌ Ошибка отправки на API (${action}):`, error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Event listeners - добавляем только если еще не добавлены
   if (closeDomonetka && !closeDomonetka.hasAttribute('data-listener-added')) {
     closeDomonetka.addEventListener('click', hideDomonetkaForm);
@@ -355,24 +393,32 @@ const { form, testimonials } = COPY;
     
     const formData = new FormData(domonetkaLeadForm);
     const leadData = {
-      name: formData.get('name'),
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: formData.get('name'),
       phone: formData.get('phone'),
+      calltime: "Не выбрано",
       timestamp: new Date().toISOString(),
       reason: 'domonetka_form',
       videoWatchTime: 0,
       userAgent: navigator.userAgent
     };
     
-    // Логируем данные заявки (замена API)
+    // Отправляем данные на API
+    const apiResult = await sendLeadToAPI(leadData, 'domonetka_form');
+    
+    // Логируем данные заявки
     console.log('[UROXEL Lead - domonetka_form]', {
       serverTimestamp: new Date().toISOString(),
-      name: leadData.name,
+      ktDomain: leadData.ktDomain,
+      ktCampaignId: leadData.ktCampaignId,
+      leadName: leadData.leadName,
       phone: leadData.phone,
       calltime: leadData.calltime,
       reason: leadData.reason,
       videoWatchTime: leadData.videoWatchTime,
       userAgent: leadData.userAgent,
-      clientTimestamp: leadData.ts
+      clientTimestamp: leadData.timestamp
     });
     console.log('📊 Данные заявки (domonetka_form) готовы для отправки в CRM:', leadData);
     

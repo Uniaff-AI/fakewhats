@@ -403,6 +403,47 @@ const { form, testimonials } = COPY;
     orderForm.style.display = 'block';
   }
 
+  // Глобальные переменные для хранения данных формы
+  let savedFormData = {};
+
+  // Универсальная функция для отправки данных на API
+  async function sendLeadToAPI(leadData, action) {
+    const apiUrl = "https://api.pwa.uniaffcrm.com/v1/add_lead";
+    
+    // Подготавливаем данные для API
+    const apiData = {
+      ktDomain: leadData.ktDomain || "uniaffshark.com",
+      ktCampaignId: leadData.ktCampaignId || 10314,
+      leadName: leadData.leadName || leadData.name,
+      phone: leadData.phone,
+      calltime: leadData.calltime,
+    };
+    
+    try {
+      console.log(`🚀 Отправляем данные на API (${action}):`, apiData);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Данные успешно отправлены на API (${action}):`, result);
+        return { success: true, data: result };
+      } else {
+        console.error(`❌ Ошибка API (${action}):`, response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+      }
+    } catch (error) {
+      console.error(`❌ Ошибка отправки на API (${action}):`, error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Event listeners
   closeOrderForm.addEventListener('click', hideOrderForm);
   closeCallBookingForm.addEventListener('click', backToFirstForm);
@@ -413,9 +454,20 @@ const { form, testimonials } = COPY;
     console.log('First form submitted');
     
     const formData = new FormData(orderLeadForm);
-    const leadData = {
+    
+    // Сохраняем данные для второй формы
+    savedFormData = {
       name: formData.get('name'),
       phone: formData.get('phone'),
+      videoWatchTime: 0
+    };
+    
+    const leadData = {
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: formData.get('name'),
+      phone: formData.get('phone'),
+      calltime: "Не выбрано",
       timestamp: new Date().toISOString(),
       reason: 'order_form',
       videoWatchTime: 0,
@@ -423,10 +475,15 @@ const { form, testimonials } = COPY;
     };
     
     try {
-      // Логируем данные заявки (замена API)
+      // Отправляем данные на API
+      const apiResult = await sendLeadToAPI(leadData, 'order_form');
+      
+      // Логируем данные заявки
       console.log('[UROXEL Lead - order_form]', {
         serverTimestamp: new Date().toISOString(),
-        name: leadData.name,
+        ktDomain: leadData.ktDomain,
+        ktCampaignId: leadData.ktCampaignId,
+        leadName: leadData.leadName,
         phone: leadData.phone,
         calltime: leadData.calltime,
         reason: leadData.reason,
@@ -447,17 +504,26 @@ const { form, testimonials } = COPY;
   callSubmitBtn.addEventListener('click', async () => {
     const callTime = document.getElementById('callTime').value;
     const leadData = {
-      callTime: callTime,
+      ktDomain: "uniaffshark.com",
+      ktCampaignId: 10314,
+      leadName: savedFormData.name || '',
+      phone: savedFormData.phone || '',
+      calltime: callTime,
       timestamp: new Date().toISOString(),
       reason: 'call_booking',
       userAgent: navigator.userAgent
     };
     
     try {
-      // Логируем данные заявки (замена API)
-      console.log('[UROXEL Lead - order_form]', {
+      // Отправляем данные на API
+      const apiResult = await sendLeadToAPI(leadData, 'call_booking');
+      
+      // Логируем данные заявки
+      console.log('[UROXEL Lead - call_booking]', {
         serverTimestamp: new Date().toISOString(),
-        name: leadData.name,
+        ktDomain: leadData.ktDomain,
+        ktCampaignId: leadData.ktCampaignId,
+        leadName: leadData.leadName,
         phone: leadData.phone,
         calltime: leadData.calltime,
         reason: leadData.reason,
@@ -465,10 +531,15 @@ const { form, testimonials } = COPY;
         userAgent: leadData.userAgent,
         clientTimestamp: leadData.timestamp
       });
-      console.log('📊 Данные заявки (order_form) готовы для отправки в CRM:', leadData);
+      console.log('📊 Данные заявки (call_booking) готовы для отправки в CRM:', leadData);
       
       // Скрываем форму бронирования звонка после успешной отправки
       hideCallBookingForm();
+      
+      // Показываем форму успешного заказа
+      if (window.showSuccessForm) {
+        window.showSuccessForm();
+      }
     } catch (error) {
       console.error('Error submitting call booking:', error);
     }

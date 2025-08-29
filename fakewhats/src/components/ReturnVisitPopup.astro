@@ -4,42 +4,20 @@ import { siteConfig } from '../config/site-config';
 const { popup } = COPY;
 ---
 
+<!-- Попап возврата с кнопками (без VSL) -->
 <div id="returnVisitPopup" class="return-visit-popup-backdrop" role="dialog" aria-modal="true" aria-label="Возврат к видео" style="display: none;">
   <div class="return-visit-popup">
-    <div class="vsl-container">
-      <div class="vsl-overlay">
-        <div class="vsl-vignette"></div>
-        <video id="returnVisitVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback"></video>
-        
-        <!-- Крестик для закрытия VSL -->
-        <button id="returnVisitVslCloseBtn" style="position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 20; font-size: 18px; pointer-events: auto;">✕</button>
-        
-
-        
-        <!-- Попап на определенной минуте VSL (скрыт изначально) -->
-        <div id="returnVisitVslMidPopup" class="return-visit-vsl-mid-popup" style="display: none;">
-          <!-- Зеленая плашка сверху -->
-          <div class="return-visit-vsl-mid-banner" onclick="showOrderFormModal();" style="cursor: pointer;">
-            <div class="return-visit-vsl-mid-vignette"></div>
-            <div>{siteConfig.texts.popups.vslMidPopup.title}</div>
-            <div style="font-size: 14px; margin-top: 5px;">{siteConfig.texts.popups.vslMidPopup.subtitle}</div>
-          </div>
-        </div>
-        
-        <!-- Текст поверх видео -->
-        <div class="vsl-text-overlay">
-          <div class="popup-text">
-            <h3>{siteConfig.texts.popups.returnPopup.title}</h3>
-            <p class="consequence">{siteConfig.texts.popups.returnPopup.consequence}</p>
-            <p class="solution">{siteConfig.texts.popups.returnPopup.solution}</p>
-            <p class="highlight">{siteConfig.texts.popups.returnPopup.highlight}</p>
-            <p class="urgency">{siteConfig.texts.popups.returnPopup.urgency}</p>
-          </div>
-          <div class="popup-buttons">
-            <button id="continueWatchingVisit" class="btn-primary">{siteConfig.texts.popups.returnPopup.continueButton}</button>
-            <button id="textVersionVisit" class="btn-secondary">{siteConfig.texts.buttons.restartVideo}</button>
-          </div>
-        </div>
+    <div class="vsl-text-overlay">
+      <div class="popup-text">
+        <h3>{siteConfig.texts.popups.returnPopup.title}</h3>
+        <p class="consequence">{siteConfig.texts.popups.returnPopup.consequence}</p>
+        <p class="solution">{siteConfig.texts.popups.returnPopup.solution}</p>
+        <p class="highlight">{siteConfig.texts.popups.returnPopup.highlight}</p>
+        <p class="urgency">{siteConfig.texts.popups.returnPopup.urgency}</p>
+      </div>
+      <div class="popup-buttons">
+        <button id="continueWatchingVisit" class="btn-primary">{siteConfig.texts.popups.returnPopup.continueButton}</button>
+        <button id="textVersionVisit" class="btn-secondary">{siteConfig.texts.buttons.restartVideo}</button>
       </div>
     </div>
   </div>
@@ -47,117 +25,57 @@ const { popup } = COPY;
 
 <script>
   const returnVisitPopup = document.getElementById('returnVisitPopup');
-  const returnVisitVideo = document.getElementById('returnVisitVideo');
   const continueVisitBtn = document.getElementById('continueWatchingVisit');
   const restartVisitBtn = document.getElementById('textVersionVisit');
+
+
 
   // Загружаем сохраненное время видео из localStorage
   let savedVideoTime = 0;
   const savedTimeFromStorage = localStorage.getItem('savedVideoTime');
-  if (savedTimeFromStorage) {
+  if (savedTimeFromStorage !== null) {
     savedVideoTime = parseFloat(savedTimeFromStorage);
+    console.log('🎬 ReturnVisitPopup: Loaded saved video time:', savedVideoTime, 'seconds');
+  } else {
+    console.log('🎬 ReturnVisitPopup: No saved video time found');
   }
 
   function showReturnVisitPopup() {
+    console.log('🎬 showReturnVisitPopup called - showing popup only');
+    
+    if (!returnVisitPopup) {
+      console.log('❌ returnVisitPopup element not found');
+      return;
+    }
+    
+    console.log('✅ Showing return visit popup');
     returnVisitPopup.style.display = 'flex';
-    
-    // ПОКАЗЫВАЕМ ТЕКСТОВЫЙ ОВЕРЛЕЙ С КНОПКАМИ ПРИ ОТКРЫТИИ ПОПАПА
-    const textOverlay = returnVisitPopup.querySelector('.vsl-text-overlay');
-    if (textOverlay) {
-      textOverlay.style.display = 'flex';
-    }
-    
-    // ПОКАЗЫВАЕМ ВИНЬЕТКУ ПРИ ОТКРЫТИИ ПОПАПА
-    const vignette = returnVisitPopup.querySelector('.vsl-vignette');
-    if (vignette) {
-      vignette.style.display = 'block';
-    }
-    
-    if (returnVisitVideo) {
-      // Устанавливаем время видео с сохраненного момента
-      returnVisitVideo.currentTime = savedVideoTime;
-      
-      // Запускаем автовоспроизведение с обходом блокировки
-      startAutoplayWithBypass(returnVisitVideo);
-      
-      // Настраиваем попап на определенной минуте для этого видео
-      console.log('🎬 Setting up popup for returnVisitVideo');
-      if (window.setupVslTimePopup) {
-        console.log('🎬 Calling window.setupVslTimePopup(returnVisitVideo)...');
-        window.setupVslTimePopup(returnVisitVideo);
-      } else {
-        console.error('❌ window.setupVslTimePopup is not defined!');
-      }
-
-      // Открываем форму заказа когда видео закончилось
-      returnVisitVideo.addEventListener('ended', function() {
-        console.log('🎬 Return visit video ended, showing order form');
-        if (window.showOrderFormModal) {
-          window.showOrderFormModal();
-        }
-      });
-    }
   }
 
   function hideReturnVisitPopup() {
-    // Сохраняем текущее время видео перед закрытием
-    if (returnVisitVideo) {
-      saveVideoTime();
-    }
-    
+    console.log('🎬 Hiding return visit popup');
     returnVisitPopup.style.display = 'none';
-    if (returnVisitVideo) {
-      returnVisitVideo.pause();
-    }
   }
 
 
 
-  function saveVideoTime() {
-    if (returnVisitVideo && returnVisitVideo.currentTime > 0) {
-      const currentTime = returnVisitVideo.currentTime;
-      localStorage.setItem('savedVideoTime', currentTime.toString());
-      
-      const minutes = Math.floor(currentTime / 60);
-      const seconds = Math.floor(currentTime % 60);
-    }
-  }
+
 
   // Функция показа попапа на определенной минуте VSL
   function showReturnVisitVslMidPopup() {
-    console.log('🎯 Showing return visit VSL mid popup');
     const popup = document.getElementById('returnVisitVslMidPopup');
-    console.log('🎯 Popup element found:', !!popup);
     if (popup) {
-      console.log('✅ Return visit popup element found, showing...');
-      console.log('🎯 Popup current display:', popup.style.display);
-      console.log('🎯 Popup current z-index:', popup.style.zIndex);
-      
       // Принудительно показываем попап
       popup.style.display = 'block';
       popup.style.opacity = '1';
       popup.style.visibility = 'visible';
       popup.style.zIndex = '1000';
       
-      console.log('🎯 Popup display after change:', popup.style.display);
-      console.log('🎯 Popup z-index after change:', popup.style.zIndex);
-      console.log('✅ Return visit popup should now be visible');
-      
       // Проверяем, что баннер тоже виден
       const banner = popup.querySelector('.return-visit-vsl-mid-banner');
       if (banner) {
-        console.log('✅ Return visit banner element found');
         banner.style.zIndex = '1001';
-        console.log('🎯 Return visit banner z-index set to:', banner.style.zIndex);
-      } else {
-        console.error('❌ Return visit banner element not found!');
       }
-    } else {
-      console.error('❌ Return visit popup element not found! returnVisitVslMidPopup does not exist in DOM');
-      
-      // Проверим все элементы с похожими ID
-      const allElements = document.querySelectorAll('[id*="popup"]');
-      console.log('🎯 All elements with "popup" in ID:', Array.from(allElements).map(el => el.id));
     }
   }
 
@@ -174,206 +92,86 @@ const { popup } = COPY;
 
 
 
-  // Обработчик для крестика в ReturnVisitPopup
-  const returnVisitVslCloseBtn = document.getElementById('returnVisitVslCloseBtn');
-  returnVisitVslCloseBtn?.addEventListener('click', () => {
-    // Показываем попап выбора
-    if (window.showVslCloseChoicePopup) {
-      window.showVslCloseChoicePopup();
-    }
-  });
 
-  // Функция для обхода блокировки автовоспроизведения
-  function startAutoplayWithBypass(video) {
-    if (!video) return;
-    
-    // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
-    video.muted = true;
-    video.play().then(() => {
-      console.log('✅ Return visit video started playing (muted)');
-      // Включаем звук сразу
-      video.muted = false;
-      console.log('🔊 Sound enabled immediately');
-    }).catch((error) => {
-      console.log('❌ Muted autoplay failed:', error.name);
-      
-      // Стратегия 2: Пробуем с задержкой
-      setTimeout(() => {
-        video.muted = true;
-        video.play().then(() => {
-          console.log('✅ Return visit video started playing (delayed muted)');
-          // Включаем звук сразу
-          video.muted = false;
-          console.log('🔊 Sound enabled immediately (delayed)');
-        }).catch((error2) => {
-          console.log('❌ Delayed autoplay failed:', error2.name);
-          
-          // Стратегия 3: Ждем взаимодействия пользователя
-          setupUserInteractionAutoplay(video);
-        });
-      }, 500);
-    });
-  }
 
-  // Функция для запуска видео после взаимодействия пользователя
-  function setupUserInteractionAutoplay(video) {
-    let hasUserInteracted = false;
-    
-    // Создаем невидимую кнопку воспроизведения
-    const playButton = document.createElement('div');
-    playButton.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      cursor: pointer;
-      z-index: 1000;
-    `;
-    playButton.innerHTML = `
-      <div style="
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 20px 40px;
-        border-radius: 10px;
-        font-size: 18px;
-        text-align: center;
-        pointer-events: none;
-      ">
-        ▶️ Нажмите для воспроизведения
-      </div>
-    `;
-    
-    playButton.onclick = () => {
-      if (!hasUserInteracted) {
-        hasUserInteracted = true;
-        playButton.remove();
-        video.muted = false;
-        video.play().then(() => {
-          console.log('✅ Return visit video started after user interaction');
-        }).catch((error) => {
-          console.error('❌ Failed to play after interaction:', error);
-        });
-      }
-    };
-    
-    // Добавляем обработчики для различных типов взаимодействия
-    const interactionEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
-    interactionEvents.forEach(event => {
-      playButton.addEventListener(event, () => {
-        if (!hasUserInteracted) {
-          hasUserInteracted = true;
-          playButton.remove();
-          video.muted = false;
-          video.play().then(() => {
-            console.log('✅ Return visit video started after user interaction');
-          }).catch((error) => {
-            console.error('❌ Failed to play after interaction:', error);
-          });
-        }
-      });
-    });
-    
-    returnVisitPopup.appendChild(playButton);
-  }
+
 
   // Экспортируем функции для использования в других компонентах
   window.showReturnVisitPopup = showReturnVisitPopup;
   window.hideReturnVisitPopup = hideReturnVisitPopup;
-  window.saveVideoTime = saveVideoTime;
-  window.showReturnVisitVslMidPopup = showReturnVisitVslMidPopup;
   window.showOrderFormModal = showOrderFormModal;
 
 
 
   continueVisitBtn?.addEventListener('click', () => {
-    // Сохраняем время перед скрытием элементов
-    if (returnVisitVideo) {
-      saveVideoTime();
-    }
+    console.log('🎬 Continue watching button clicked');
     
-    // Скрываем надписи, кнопки и виньетку
-    const textOverlay = document.querySelector('#returnVisitPopup .vsl-text-overlay');
-    const vignette = document.querySelector('#returnVisitPopup .vsl-vignette');
+    // Скрываем попап
+    hideReturnVisitPopup();
     
-    if (textOverlay) {
-      textOverlay.style.display = 'none';
-    }
-    if (vignette) {
-      vignette.style.display = 'none';
-    }
-    
-    // Убираем курсор pointer с видео и возобновляем воспроизведение
-    if (returnVisitVideo) {
-      returnVisitVideo.style.cursor = 'default';
-      
-      // Возобновляем воспроизведение видео
-      if (returnVisitVideo.paused) {
-        returnVisitVideo.play().then(() => {
-          console.log('▶️ Return visit video resumed from pause');
-        }).catch((error) => {
-          console.log('❌ Failed to resume return visit video:', error.name);
-          // Если автоплей заблокирован, используем обход
-          startAutoplayWithBypass(returnVisitVideo);
-        });
-      }
+    // Запускаем полноэкранный VSL с сохраненного времени
+    if (window.showFullscreenPlayer) {
+      window.showFullscreenPlayer();
     }
   });
 
   restartVisitBtn?.addEventListener('click', () => {
-    if (returnVisitVideo) {
-      // Сбрасываем время видео на начало
-      returnVisitVideo.currentTime = 0;
-      
-      // Очищаем сохраненное время
-      savedVideoTime = 0;
-      localStorage.removeItem('savedVideoTime');
-      
-      // Запускаем воспроизведение с начала используя обход блокировки
-      startAutoplayWithBypass(returnVisitVideo);
-      
-      // Настраиваем попап на определенной минуте для видео, которое начинается с начала
-      if (window.setupVslTimePopup) {
-        window.setupVslTimePopup(returnVisitVideo);
-      }
+    console.log('🎬 Restart video button clicked');
+    
+    // Очищаем сохраненное время
+    localStorage.removeItem('savedVideoTime');
+    
+    // Сбрасываем время в полноэкранном VSL
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    if (fullscreenVideo) {
+      fullscreenVideo.currentTime = 0;
+      console.log('🎬 Reset fullscreen video time to 0');
     }
     
-    // Скрываем надписи, кнопки и виньетку (как при клике на "Продолжить")
-    const textOverlay = document.querySelector('#returnVisitPopup .vsl-text-overlay');
-    const vignette = document.querySelector('#returnVisitPopup .vsl-vignette');
+    // Скрываем попап
+    hideReturnVisitPopup();
     
-    if (textOverlay) {
-      textOverlay.style.display = 'none';
-    }
-    if (vignette) {
-      vignette.style.display = 'none';
-    }
-    
-    // Убираем курсор pointer с видео
-    if (returnVisitVideo) {
-      returnVisitVideo.style.cursor = 'default';
+    // Запускаем полноэкранный VSL с начала
+    if (window.showFullscreenPlayer) {
+      window.showFullscreenPlayer();
     }
   });
 
   // Обработчик клика на фон попапа
   returnVisitPopup?.addEventListener('click', (e) => {
-    if (e.target === returnVisitPopup) {
+    console.log('🎬 Click detected on popup, target:', e.target, 'currentTarget:', e.currentTarget);
+    
+    // Проверяем, что клик был по фону (не по кнопкам или тексту)
+    if (e.target === returnVisitPopup || e.target.classList.contains('return-visit-popup')) {
+      console.log('🎬 Clicked on popup backdrop, showing domonetka');
       hideReturnVisitPopup();
+      
       // Показываем домонетку при закрытии попапа
       if (window.showDomonetkaForm) {
         window.showDomonetkaForm();
       }
+    } else {
+      console.log('🎬 Click was on child element, not backdrop');
     }
   });
 
-  // Обработчик клика на видео
-  returnVisitVideo?.addEventListener('click', () => {
-    // Просто сохраняем время, НЕ показываем домонетку
+  // Обработчик клика на контейнер попапа
+  const returnVisitPopupContainer = returnVisitPopup?.querySelector('.return-visit-popup');
+  returnVisitPopupContainer?.addEventListener('click', (e) => {
+    console.log('🎬 Click detected on popup container, target:', e.target);
+    
+    // Проверяем, что клик был по контейнеру (не по кнопкам или тексту)
+    if (e.target === returnVisitPopupContainer || e.target.classList.contains('vsl-text-overlay')) {
+      console.log('🎬 Clicked on popup container, showing domonetka');
+      hideReturnVisitPopup();
+      
+      // Показываем домонетку при закрытии попапа
+      if (window.showDomonetkaForm) {
+        window.showDomonetkaForm();
+      }
+    } else {
+      console.log('🎬 Click was on child element of container, not container itself');
+    }
   });
 
   // Настройки видео (перемотка разрешена)
@@ -411,7 +209,7 @@ const { popup } = COPY;
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 1001; /* Выше чем fullscreen-player (z-index: 1000) */
   }
 
   .return-visit-popup {
