@@ -852,9 +852,10 @@ const { form, testimonials } = COPY;
   @media (max-width: 768px) {
     .domonetka-form {
       width: 100%; /* Занимаем всю ширину экрана */
-      max-width: 420px; /* Ограничиваем ширину как у контейнера чата */
-      left: 50%; /* Центрируем */
-      transform: translateX(-50%); /* Центрируем */
+      max-width: 100%; /* На мобильных занимаем всю ширину */
+      left: 0; /* Убираем центрирование */
+      right: 0; /* Растягиваем на всю ширину */
+      transform: none; /* Убираем трансформацию */
     }
     
     .domonetka-container {
@@ -903,16 +904,20 @@ const { form, testimonials } = COPY;
 
   /* Дополнительные стили для очень маленьких экранов */
   @media (max-width: 480px) {
-    .domonetka-form {
-      width: 100%;
-      max-width: 100%;
-      left: 0;
-      right: 0;
+    .form-content {
+      padding: 12px; /* Еще меньше отступы на очень маленьких экранах */
     }
     
-    .domonetka-container {
-      width: 100%;
-      margin: 0;
+    .form-bubble {
+      padding: 10px;
+    }
+    
+    .form-title-main {
+      font-size: 13px;
+    }
+    
+    .product-image {
+      max-width: 150px;
     }
   }
 

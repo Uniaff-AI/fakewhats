@@ -562,8 +562,10 @@ const { form, testimonials } = COPY;
   .order-form {
     position: fixed;
     top: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
+    max-width: 420px; /* Ограничиваем ширину как у контейнера чата */
     height: 100vh; /* Используем viewport height */
     background: #e5ddd5;
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="%23ffffff" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
@@ -573,18 +575,42 @@ const { form, testimonials } = COPY;
     box-sizing: border-box; /* Включаем padding в общую высоту */
   }
 
-  /* Мобильные стили для формы заказа */
-  @media (max-width: 768px) {
-    .order-form {
-      padding: 10px; /* Уменьшаем отступы на мобильных */
-      height: 100vh; /* Полная высота viewport */
-    }
-  }
-
   .form-container {
     max-width: 420px; /* Приводим к единому стандарту как у чата */
     margin: 0 auto;
     background: transparent;
+  }
+
+  /* Мобильные стили для формы заказа */
+  @media (max-width: 768px) {
+    .order-form {
+      width: 100%; /* Занимаем всю ширину экрана */
+      max-width: 100%; /* На мобильных занимаем всю ширину */
+      left: 0; /* Убираем центрирование */
+      right: 0; /* Растягиваем на всю ширину */
+      transform: none; /* Убираем трансформацию */
+      padding: 0; /* Убираем все отступы на мобильных */
+      height: 100vh; /* Полная высота viewport */
+    }
+    
+    .form-container {
+      max-width: 100%; /* На мобильных занимаем всю ширину */
+      margin: 0; /* Убираем центрирование */
+      width: 100%; /* Принудительно устанавливаем ширину 100% */
+    }
+    
+    .form-card {
+      margin: 0; /* Убираем отступы карточки */
+      border-radius: 0; /* Убираем скругление углов на мобильных */
+    }
+    
+    .form-content {
+      padding: 12px; /* Уменьшаем внутренние отступы */
+    }
+    
+    .whatsapp-header {
+      border-radius: 0; /* Убираем скругление заголовка */
+    }
   }
 
   .chat-label {

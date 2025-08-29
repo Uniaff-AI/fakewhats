@@ -81,6 +81,14 @@ import { siteConfig } from '../config/site-config';
     formReturnPopup?.addEventListener('click', (e) => {
       if (e.target === formReturnPopup) {
         hideFormReturnPopup();
+        
+        // Закрываем форму заказа перед показом домонетки
+        const orderFormModal = document.getElementById('orderFormModal');
+        if (orderFormModal) {
+          orderFormModal.style.display = 'none';
+          orderFormModal.classList.remove('show');
+        }
+        
         // Показываем домонетку (пятая стадия)
         if (window.showDomonetkaForm) {
           window.showDomonetkaForm();
