@@ -201,6 +201,7 @@ export interface SiteConfig {
       problemMessage: string;  // Сообщение о проблеме
       encryptionMessage: string; // Сообщение о шифровании
       vslTitle: string;        // Заголовок VSL видео
+      successMessage: string;  // Сообщение об успешном заказе
     };
     
     // Тексты кнопок
@@ -268,7 +269,8 @@ export interface SiteConfig {
       };
       // Попап выбора при закрытии VSL
       vslCloseChoicePopup: {
-        title: string;         // "Что вы хотите сделать?"
+        title: string;         // "Стой!"
+        subtitle: string;      // "Через 60 сек — метод, меняющий весь подход к лечению слабой эрекции!"
         continueButton: string; // "Продолжить смотреть"
         returnToChatButton: string; // "Вернуться в чат"
       };
@@ -590,6 +592,7 @@ export const siteConfig: SiteConfig = {
       problemMessage: "ВАША СЛАБАЯ ЭРЕКЦИЯ ТЕПЕРЬ **АНОНИМНО** ИЗЛЕЧИМА ЗА 24 ЧАСА! СКОРЕЕ СМОТРИТЕ ВИДЕО НИЖЕ!",
       encryptionMessage: "Сообщения и звонки зашифрованы сквозным шифрованием",
       vslTitle: "Спасение вашей эрекции",
+      successMessage: "заявка принята! Ожидайте звонка специалиста через",
     },
     
     // Тексты кнопок
@@ -658,7 +661,8 @@ export const siteConfig: SiteConfig = {
       },
       // Попап выбора при закрытии VSL
       vslCloseChoicePopup: {
-        title: "Что вы хотите сделать?",
+        title: "Стой!",
+        subtitle: "Через 60 сек — метод, меняющий весь подход к лечению слабой эрекции!",
         continueButton: "Продолжить смотреть",
         returnToChatButton: "Вернуться в Чат",
       },

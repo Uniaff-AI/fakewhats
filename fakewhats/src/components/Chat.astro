@@ -113,6 +113,7 @@ const { messages, form } = COPY;
     <div id="vslCloseChoicePopup" class="vsl-close-choice-popup" style="display: none;">
       <div class="vsl-close-choice-content">
         <h3>{siteConfig.texts.popups.vslCloseChoicePopup.title}</h3>
+        <p class="vsl-close-choice-subtitle">{siteConfig.texts.popups.vslCloseChoicePopup.subtitle}</p>
         <div class="vsl-close-choice-buttons">
           <button id="continueWatchingChoice" class="btn-primary">{siteConfig.texts.popups.vslCloseChoicePopup.continueButton}</button>
           <button id="returnToChatChoice" class="btn-secondary">{siteConfig.texts.popups.vslCloseChoicePopup.returnToChatButton}</button>
@@ -510,7 +511,7 @@ const { messages, form } = COPY;
 <!-- Полноэкранный плеер для кнопки включить звук -->
 <div id="fullscreenPlayer" class="fullscreen-player" style="display: none;">
   <div class="fullscreen-player-content">
-    <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback"></video>
+    <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback noplaybackrate noplaypause"></video>
     <button id="fullscreenCloseBtn" class="fullscreen-close-btn" style="z-index: 1010;">✕</button>
     
     <!-- Попап на определенной минуте VSL (скрыт изначально) -->
@@ -2337,6 +2338,7 @@ const { messages, form } = COPY;
   document.addEventListener('DOMContentLoaded', function() {
     const fullscreenCloseBtn = document.getElementById('fullscreenCloseBtn');
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
     
     if (fullscreenCloseBtn) {
       fullscreenCloseBtn.addEventListener('click', function() {
@@ -2350,6 +2352,58 @@ const { messages, form } = COPY;
       fullscreenPlayer.addEventListener('click', function(e) {
         if (e.target === fullscreenPlayer) {
           hideFullscreenPlayer();
+        }
+      });
+    }
+    
+    // Блокируем перемотку в полноэкранном плеере
+    if (fullscreenVideo) {
+      let lastValidTime = 0;
+      let isUserSeeking = false;
+      
+      fullscreenVideo.addEventListener('seeking', function(e) {
+        if (isUserSeeking) {
+          e.preventDefault();
+          fullscreenVideo.currentTime = lastValidTime;
+          return false;
+        }
+      });
+      
+      fullscreenVideo.addEventListener('seeked', function(e) {
+        if (isUserSeeking) {
+          e.preventDefault();
+          fullscreenVideo.currentTime = lastValidTime;
+          isUserSeeking = false;
+          return false;
+        }
+      });
+      
+      fullscreenVideo.addEventListener('timeupdate', function() {
+        // Обновляем последнее валидное время только если это не пользовательская перемотка
+        if (!isUserSeeking) {
+          lastValidTime = fullscreenVideo.currentTime;
+        }
+      });
+      
+      // Блокируем клики на timeline
+      fullscreenVideo.addEventListener('click', function(e) {
+        const rect = fullscreenVideo.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        
+        // Если клик в области timeline (нижняя часть видео)
+        if (clickY > rect.height * 0.8) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      });
+      
+      // Блокируем клавиши перемотки
+      fullscreenVideo.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          return false;
         }
       });
     }
@@ -2489,7 +2543,7 @@ const { messages, form } = COPY;
         <img src="/support.png" alt="Специалист поддержки" class="support-img" style="width: 100% !important; height: auto !important; max-width: 100% !important; max-height: 330px !important;" />
       </div>
       <div class="success-content">
-        <span class="success-text">${customerName ? customerName + ' ' : ''}заявка принята! Ожидайте звонка специалиста через ${callTimeText}</span>
+        <span class="success-text">${customerName ? customerName + ' ' : ''}${siteConfig.texts.chatMessages.successMessage} ${callTimeText}</span>
       </div>
     `;
     
@@ -3832,9 +3886,17 @@ const { messages, form } = COPY;
   }
 
   .vsl-close-choice-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #d32f2f;
+  }
+
+  .vsl-close-choice-subtitle {
     margin: 0 0 20px 0;
-    font-size: 18px;
+    font-size: 16px;
     color: #333;
+    line-height: 1.4;
   }
 
   .vsl-close-choice-buttons {
@@ -3907,6 +3969,28 @@ const { messages, form } = COPY;
     height: 100%;
     object-fit: contain;
     background: #000;
+  }
+  
+  /* Скрываем элементы управления видео */
+  #fullscreenVideo::-webkit-media-controls-play-button,
+  #fullscreenVideo::-webkit-media-controls-pause-button,
+  #fullscreenVideo::-webkit-media-controls-timeline,
+  #fullscreenVideo::-webkit-media-controls-current-time-display,
+  #fullscreenVideo::-webkit-media-controls-time-remaining-display,
+  #fullscreenVideo::-webkit-media-controls-seek-back-button,
+  #fullscreenVideo::-webkit-media-controls-seek-forward-button {
+    display: none !important;
+  }
+  
+  /* Скрываем элементы управления для Firefox */
+  #fullscreenVideo::-moz-media-controls-play-button,
+  #fullscreenVideo::-moz-media-controls-pause-button,
+  #fullscreenVideo::-moz-media-controls-timeline,
+  #fullscreenVideo::-moz-media-controls-current-time-display,
+  #fullscreenVideo::-moz-media-controls-time-remaining-display,
+  #fullscreenVideo::-moz-media-controls-seek-back-button,
+  #fullscreenVideo::-moz-media-controls-seek-forward-button {
+    display: none !important;
   }
 
   .fullscreen-close-btn {

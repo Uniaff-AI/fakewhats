@@ -9,7 +9,7 @@ const { popup } = COPY;
     <div class="vsl-container">
       <div class="vsl-overlay">
 
-        <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback"></video>
+        <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} controls playsinline preload="none" controlsList="nodownload nofullscreen noremoteplayback noplaybackrate noplaypause"></video>
         
         <!-- Виньетка для затемнения -->
         <div class="vsl-vignette"></div>
@@ -389,11 +389,61 @@ const { popup } = COPY;
     // Домонетка показывается только при попытке закрыть попап (клик на фон)
   });
 
-  // Настройки видео (перемотка разрешена)
+  // Настройки видео (блокируем перемотку)
   if (returnVideo) {
     returnVideo.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       return false;
+    });
+    
+    let lastValidTime = 0;
+    let isUserSeeking = false;
+    
+    // Блокируем перемотку
+    returnVideo.addEventListener('seeking', function(e) {
+      if (isUserSeeking) {
+        e.preventDefault();
+        returnVideo.currentTime = lastValidTime;
+        return false;
+      }
+    });
+    
+    returnVideo.addEventListener('seeked', function(e) {
+      if (isUserSeeking) {
+        e.preventDefault();
+        returnVideo.currentTime = lastValidTime;
+        isUserSeeking = false;
+        return false;
+      }
+    });
+    
+    returnVideo.addEventListener('timeupdate', function() {
+      // Обновляем последнее валидное время только если это не пользовательская перемотка
+      if (!isUserSeeking) {
+        lastValidTime = returnVideo.currentTime;
+      }
+    });
+    
+    // Блокируем клики на timeline
+    returnVideo.addEventListener('click', function(e) {
+      const rect = returnVideo.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      // Если клик в области timeline (нижняя часть видео)
+      if (clickY > rect.height * 0.8) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    });
+    
+    // Блокируем клавиши перемотки
+    returnVideo.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        return false;
+      }
     });
   }
 
@@ -668,8 +718,25 @@ const { popup } = COPY;
     z-index: 1;
   }
 
-  /* Элементы управления видео теперь видны */
-  video {
-    /* Стили для видимых элементов управления */
+  /* Скрываем элементы управления видео */
+  #returnVslVideo::-webkit-media-controls-play-button,
+  #returnVslVideo::-webkit-media-controls-pause-button,
+  #returnVslVideo::-webkit-media-controls-timeline,
+  #returnVslVideo::-webkit-media-controls-current-time-display,
+  #returnVslVideo::-webkit-media-controls-time-remaining-display,
+  #returnVslVideo::-webkit-media-controls-seek-back-button,
+  #returnVslVideo::-webkit-media-controls-seek-forward-button {
+    display: none !important;
+  }
+  
+  /* Скрываем элементы управления для Firefox */
+  #returnVslVideo::-moz-media-controls-play-button,
+  #returnVslVideo::-moz-media-controls-pause-button,
+  #returnVslVideo::-moz-media-controls-timeline,
+  #returnVslVideo::-moz-media-controls-current-time-display,
+  #returnVslVideo::-moz-media-controls-time-remaining-display,
+  #returnVslVideo::-moz-media-controls-seek-back-button,
+  #returnVslVideo::-moz-media-controls-seek-forward-button {
+    display: none !important;
   }
 </style>
