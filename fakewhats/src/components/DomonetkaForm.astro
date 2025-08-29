@@ -231,7 +231,7 @@ const { form, testimonials } = COPY;
     domonetkaBottlesLeft = Math.max(0, domonetkaBottlesLeft - decrease);
     
     // Обновляем текст
-    bottlesElement.textContent = `Осталось банок: ${domonetkaBottlesLeft}/${domonetkaTotalBottles}`;
+    bottlesElement.textContent = `Frascos restantes: ${domonetkaBottlesLeft}/${domonetkaTotalBottles}`;
     console.log('Updated bottles:', domonetkaBottlesLeft);
     
     // Устанавливаем следующий интервал - каждые 4-5 секунд
@@ -253,7 +253,7 @@ const { form, testimonials } = COPY;
       timerElement.textContent = '04:19';
     }
     if (bottlesElement) {
-      bottlesElement.textContent = `Осталось банок: ${domonetkaBottlesLeft}/${domonetkaTotalBottles}`;
+      bottlesElement.textContent = `Frascos restantes: ${domonetkaBottlesLeft}/${domonetkaTotalBottles}`;
       console.log('Reset bottles to:', domonetkaBottlesLeft);
     }
   }

@@ -18,22 +18,22 @@ import { siteConfig } from '../config/site-config';
       
       <!-- Success Message -->
       <div class="success-message">
-        <h3 id="successName">ИМЯ заявка принята!</h3>
+        <h3 id="successName">¡NOMBRE solicitud aceptada!</h3>
       </div>
       
       <!-- Specialist Text -->
       <div class="specialist-text">
-        <p>Ожидайте звонка нашего специалиста</p>
+        <p>Espera la llamada de nuestro especialista</p>
       </div>
       
       <!-- Specialist Image -->
       <div class="specialist-image">
-        <img src="/support.png" alt="Специалист поддержки" class="support-img" />
+        <img src="/support.png" alt="Especialista de soporte" class="support-img" />
       </div>
       
       <!-- Time Button -->
       <button class="time-button">
-        1-2 минуты
+        1-2 minutos
       </button>
     </div>
   </div>
@@ -48,7 +48,7 @@ import { siteConfig } from '../config/site-config';
     if (successFormModal) {
       // Обновляем имя в сообщении
       if (successName && customerName) {
-        successName.textContent = `${customerName} заявка принята!`;
+        successName.textContent = `¡${customerName} solicitud aceptada!`;
       }
       
       successFormModal.style.display = 'flex';

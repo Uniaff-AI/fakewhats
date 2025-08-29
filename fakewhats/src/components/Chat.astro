@@ -76,7 +76,7 @@ const { messages, form } = COPY;
       </div>
       <div class="discount-content">
         <div class="discount-text">
-          <p><strong>{siteConfig.texts.banners.exclusiveOffer}</strong> Именно для вас доступна</p>
+          <p><strong>{siteConfig.texts.banners.exclusiveOffer}</strong> Disponible específicamente para ti</p>
           <p>{siteConfig.texts.banners.actionPrice} {siteConfig.productName}!</p>
           <p>{siteConfig.texts.banners.leaveRequest}</p>
         </div>
@@ -95,7 +95,7 @@ const { messages, form } = COPY;
           <img src={siteConfig.images.chatImages.productImage} alt={siteConfig.productName} loading="lazy" />
         </div>
         <div class="message-text">
-          <p><strong>{siteConfig.texts.banners.exclusiveOffer}</strong> Именно для вас доступна</p>
+          <p><strong>{siteConfig.texts.banners.exclusiveOffer}</strong> Disponible específicamente para ti</p>
           <p>{siteConfig.texts.banners.actionPrice} {siteConfig.productName}!</p>
           <p>{siteConfig.texts.banners.leaveRequest}</p>
         </div>
@@ -139,7 +139,7 @@ const { messages, form } = COPY;
       <div class="pwa-modal-body">
         <!-- Form Header -->
         <div class="form-header">
-          <h2 class="form-title">Официальная форма заказа UROXEL</h2>
+          <h2 class="form-title">Formulario oficial de pedido UROXEL</h2>
         </div>
 
         <!-- Product Image -->
@@ -455,10 +455,10 @@ const { messages, form } = COPY;
 
         <div class="time-selection">
           <select id="callTime" class="time-dropdown">
-            <option value="Прямо сейчас">Прямо сейчас</option>
-            <option value="5 минут">5 минут</option>
-            <option value="15 минут">15 минут</option>
-            <option value="30 минут">30 минут</option>
+            <option value="Ahora mismo">Ahora mismo</option>
+            <option value="5 minutos">5 minutos</option>
+            <option value="15 minutos">15 minutos</option>
+            <option value="30 minutos">30 minutos</option>
           </select>
         </div>
 
@@ -478,7 +478,7 @@ const { messages, form } = COPY;
       </svg>
     </button>
     <div class="input-field-container">
-      <input type="text" class="chat-input-field" placeholder="Сообщение" />
+      <input type="text" class="chat-input-field" placeholder="Mensaje" />
       <button class="emoji-btn">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M15.5 11c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0C9.33 11 10 10.33 10 9.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
@@ -2626,14 +2626,14 @@ const { messages, form } = COPY;
       const selectedTime = callTimeElement.value;
       // console.log('🎯 Selected call time:', selectedTime);
       
-      if (selectedTime === 'Прямо сейчас') {
-        callTimeText = '1-2 минуты';
-      } else if (selectedTime === '5 минут') {
-        callTimeText = '5 минут';
-      } else if (selectedTime === '15 минут') {
-        callTimeText = '15 минут';
-      } else if (selectedTime === '30 минут') {
-        callTimeText = '30 минут';
+      if (selectedTime === 'Ahora mismo') {
+        callTimeText = '1-2 minutos';
+      } else if (selectedTime === '5 minutos') {
+        callTimeText = '5 minutos';
+      } else if (selectedTime === '15 minutos') {
+        callTimeText = '15 minutos';
+      } else if (selectedTime === '30 minutos') {
+        callTimeText = '30 minutos';
       }
     }
     
@@ -2647,7 +2647,7 @@ const { messages, form } = COPY;
         <img src="/support.png" alt="Специалист поддержки" class="support-img" style="width: 100% !important; height: auto !important; max-width: 100% !important; max-height: 330px !important;" />
       </div>
       <div class="success-content">
-        <span class="success-text">${customerName ? customerName + ' ' : ''}${siteConfig.texts.chatMessages.successMessage} ${callTimeText}</span>
+        <span class="success-text">${customerName ? customerName + ' ' : ''}¡solicitud aceptada! Espera la llamada del especialista en ${callTimeText}</span>
       </div>
     `;
     

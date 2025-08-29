@@ -454,9 +454,9 @@ export const siteConfig: SiteConfig = {
   
   // Цены и скидки
   pricing: {
-    originalPrice: "5980 ₽",               // Оригинальная цена
-    discountedPrice: "2990 ₽",             // Цена со скидкой
-    currency: "₽",                         // Валюта
+    originalPrice: "1390 MXN",               // Оригинальная цена
+    discountedPrice: "590 MXN",             // Цена со скидкой
+    currency: "MXN",                         // Валюта
     discountPercentage: "50%",             // Процент скидки
   },
   
@@ -471,40 +471,40 @@ export const siteConfig: SiteConfig = {
   // Отзывы с фотографиями
   reviews: {
     feedback1: {
-      name: "Антон, 77",
+      name: "Antonio, 58",
       image: "/feedback_1.png",
-      rating: 1,                           // 1 звезда
-      text: "Счастливое утро ",
+      rating: 5,                           // 1 звезда
+      text: "Feliz mañana-mañana con UROXEL",
     },
     feedback2: {
-      name: "Карлос, 45",
+      name: "Carlos, 45",
       image: "/feedback_2.png", 
       rating: 5,                           // 5 звезд
-      text: "Всегда теперь ношу с собой и никто не догадывается, что у меня проблемы с потенцией были",
+      text: "Ahora siempre lo llevo conmigo y nadie se da cuenta de que tenía problemas de potencia",
     },
     feedback3: {
-      name: "Амалия, 53",
+      name: "Amalia, 53",
       image: "/feedback_3.png",
       rating: 5,
-      text: "Всегда ношу для мужа 1 баночку в сумке",
+      text: "Siempre llevo 1 frasco en la bolsa para mi esposo",
     },
     feedback4: {
-      name: "Алонсо, 51",
+      name: "Alonso, 51",
       image: "/feedback_4.png",
       rating: 5,
-      text: "Всё пришло быстро и хорошая анонимная упавка! Очень нравится и удобно",
+      text: "¡Todo llegó rápido y con buen empaque anónimo! Me gusta mucho y es cómodo",
     },
     feedback5: {
-      name: "Густаво, 51",
+      name: "Gustavo, 51",
       image: "/feedback_5.png",
       rating: 5,
-      text: "Всё идёт по плану, даже в дороге UROXEL со мной!",
+      text: "¡Todo va según el plan, incluso en el camino UROXEL está conmigo!",
     },
     feedback6: {
-      name: "Игнасио, 68",
+      name: "Ignacio, 68",
       image: "/feedback_6.png",
       rating: 5,
-      text: "3 день приёма - член стоит каждое утро - приятные эффект",
+      text: "Día 3 de toma - el pene se mantiene firme cada mañana - efecto agradable",
     },
   },
   
@@ -574,97 +574,97 @@ export const siteConfig: SiteConfig = {
   texts: {
     // Заголовки страниц и форм
     headers: {
-      chatHeader: "ФОРМА Chat - You",      // Заголовок чата
-      chatLabel: "Chat - You",             // Лейбл чата
-      formHeader: "Официальная форма заказа UROXEL", // Заголовок формы
-      domonetkaHeader: "Специальное предложение", // Заголовок домонетки
-      bookCallTitle: "ЗАБРОНИРУЙТЕ",       // Заголовок бронирования
-      bookCallSubtitle: "Выберите время для обратного звонка", // Подзаголовок
-      managedBy: "Managed by LaLueur. Learn more", // Футер
+      chatHeader: "FORMULARIO Chat - Tú",      // Заголовок чата
+      chatLabel: "Chat - Tú",             // Лейбл чата
+      formHeader: "Formulario oficial de pedido UROXEL", // Заголовок формы
+      domonetkaHeader: "Oferta especial", // Заголовок домонетки
+      bookCallTitle: "RESERVA",       // Заголовок бронирования
+      bookCallSubtitle: "Selecciona la hora para la llamada de vuelta", // Подзаголовок
+      managedBy: "Gestionado por LaLueur. Saber más", // Футер
     },
     
     // Сообщения в чате
     chatMessages: {
-      welcomeMessage: "Привет! 👋 Я помогу тебе с заказом UROXEL. Это революционное средство для улучшения мужского здоровья.",
-      productMessage: "Вот информация о продукте:",
-      autoMessage: "UROXEL - это инновационное средство для улучшения мужского здоровья. Клинически доказанная эффективность, натуральный состав, быстрый результат.",
-      urgentMessage: "СРОЧНОЕ СООБЩЕНИЕ ДЛЯ ВСЕХ МУЖЧИН МЕКСИКИ.",
-      problemMessage: "ВАША СЛАБАЯ ЭРЕКЦИЯ ТЕПЕРЬ **АНОНИМНО** ИЗЛЕЧИМА ЗА 24 ЧАСА! СКОРЕЕ СМОТРИТЕ ВИДЕО НИЖЕ!",
-      encryptionMessage: "Сообщения и звонки зашифрованы сквозным шифрованием",
-      vslTitle: "Спасение вашей эрекции",
-      successMessage: "заявка принята! Ожидайте звонка специалиста через",
+      welcomeMessage: "¡Hola! 👋 Te ayudo con tu pedido de UROXEL. Es un producto revolucionario para mejorar la salud masculina.",
+      productMessage: "Aquí tienes información sobre el producto:",
+      autoMessage: "UROXEL es un producto innovador para mejorar la salud masculina. Eficacia clínicamente probada, composición natural, resultado rápido.",
+      urgentMessage: "MENSAJE URGENTE PARA TODOS LOS HOMBRES DE MÉXICO.",
+      problemMessage: "¡TU DÉBIL ERECCIÓN AHORA ES **ANÓNIMAMENTE** CURABLE EN 24 HORAS! ¡MIRA EL VIDEO DE ABAJO RÁPIDAMENTE!",
+      encryptionMessage: "Los mensajes y llamadas están cifrados de extremo a extremo",
+      vslTitle: "Salvación de tu erección",
+      successMessage: "¡solicitud aceptada! Espera la llamada del especialista en",
     },
     
     // Тексты кнопок
     buttons: {
-      orderNow: "Заказать сейчас",
-      getSpecialOffer: "Получить спец предложение",
-      getWithoutDiscount: "Получить UROXEL без скидки",
-      callRightNow: "Позвонить ПРЯМО СЕЙЧАС",
-      goBack: "Вернутся назад",
-      continueWatching: "Продолжить смотреть видео",
-      fillForm: "Заполнить анкету",
-      orderCall: "Заказать звонок",
-      bookCall: "Забронировать звонок",
-      getOffer: "Получить предложение",
-      backToOrder: "Back",                 // Кнопка "Назад"
+      orderNow: "Pedir ahora",
+      getSpecialOffer: "Obtener oferta especial",
+      getWithoutDiscount: "Obtener UROXEL sin descuento",
+      callRightNow: "Llamar AHORA MISMO",
+      goBack: "Volver atrás",
+      continueWatching: "Continuar viendo el video",
+      fillForm: "Llenar formulario",
+      orderCall: "Solicitar llamada",
+      bookCall: "Reservar llamada",
+      getOffer: "Obtener oferta",
+      backToOrder: "Atrás",                 // Кнопка "Назад"
       closeForm: "✕",                      // Кнопка закрытия
       // Новые кнопки
-      enableSound: "Включить звук",
-      saveErection: "спасение вашей эрекции",
-      continueWatchingChoice: "Продолжить смотреть",
-      returnToChat: "Вернуться в чат",
-      restartVideo: "Начать просмотр сначала",
+      enableSound: "Activar sonido",
+      saveErection: "salvación de tu erección",
+      continueWatchingChoice: "Continuar viendo",
+      returnToChat: "Volver al chat",
+      restartVideo: "Comenzar a ver desde el principio",
     },
     
     // Тексты попапов
     popups: {
       // Попап при клике на VSL в чате
       returnPopup: {
-        title: "Слабая эрекция?",
-        subtitle: "Прямой путь к импотенции! Но мы знаем решение ОНО ПРЯМО В ЭТОМ ВИДЕО Спаси свою эрекцию за 24 часа!!",
-        continueButton: "Продолжить смотреть видео",
-        textVersionButton: "Перейти на текстовый вариант",
+        title: "¿Erección débil?",
+        subtitle: "¡Camino directo a la impotencia! Pero conocemos la solución ESTÁ JUSTO EN ESTE VIDEO ¡Salva tu erección en 24 horas!!",
+        continueButton: "Continuar viendo el video",
+        textVersionButton: "Ir a la versión de texto",
         // Детальные тексты для попапа возврата
-        consequence: "Прямой путь к импотенции!",
-        solution: "Но мы знаем решение",
-        highlight: "ОНО ПРЯМО В ЭТОМ ВИДЕО",
-        urgency: "Спаси свою эрекцию за 24 часа!!",
+        consequence: "¡Camino directo a la impotencia!",
+        solution: "Pero conocemos la solución",
+        highlight: "ESTÁ JUSTO EN ESTE VIDEO",
+        urgency: "¡Salva tu erección en 24 horas!!",
       },
       // Попап при попытке выйти со страницы
       vslExitPopup: {
-        bannerText: "ВАМ ДОСТУПНО ЭКСКЛЮЗИВНОЕ ПРЕДЛОЖЕНИЕ ОСТАВЬТЕ ЗАЯВКУ ПРЯМО СЕЙЧАС! ВРЕМЯ ОГРАНИЧЕНО!",
-        continueButton: "Продолжить смотреть видео",
-        fillFormButton: "Заполнить анкету",
+        bannerText: "¡TIENES DISPONIBLE UNA OFERTA EXCLUSIVA DEJA TU SOLICITUD AHORA MISMO! ¡TIEMPO LIMITADO!",
+        continueButton: "Continuar viendo el video",
+        fillFormButton: "Llenar formulario",
       },
       // Попап при попытке закрыть форму заказа
       formReturnPopup: {
-        title: "Не уходите без заказа!",
-        consequence: "Вы можете потерять специальное предложение",
-        solution: "Выберите удобный для вас вариант",
-        specialOfferButton: "Получить спец предложение",
-        withoutDiscountButton: "Получить UROXEL без скидки",
+        title: "¡No te vayas sin pedir!",
+        consequence: "Puedes perder la oferta especial",
+        solution: "Elige la opción que te convenga",
+        specialOfferButton: "Obtener oferta especial",
+        withoutDiscountButton: "Obtener UROXEL sin descuento",
       },
       // Попап выбора времени звонка
       timeSelectionPopup: {
-        title: "Не уходите без выбора времени!",
-        consequence: "Мы можем позвонить вам прямо сейчас",
-        solution: "Или выберите удобное время",
-        highlight: "ЗВОНОК БЕСПЛАТНЫЙ И КОНФИДЕНЦИАЛЬНЫЙ",
-        callNowButton: "Позвонить ПРЯМО СЕЙЧАС",
-        goBackButton: "Вернутся назад",
+        title: "¡No te vayas sin elegir hora!",
+        consequence: "Podemos llamarte ahora mismo",
+        solution: "O elige una hora conveniente",
+        highlight: "LLAMADA GRATUITA Y CONFIDENCIAL",
+        callNowButton: "Llamar AHORA MISMO",
+        goBackButton: "Volver atrás",
       },
       // Попап на определенной минуте VSL
       vslMidPopup: {
-        title: "ВАМ ДОСТУПНО ЭКСКЛЮЗИВНОЕ ПРЕДЛОЖЕНИЕ",
-        subtitle: "ОСТАВЬТЕ ЗАЯВКУ ПРЯМО СЕЙЧАС! ВРЕМЯ ОГРАНИЧЕНО!",
+        title: "TIENES DISPONIBLE UNA OFERTA EXCLUSIVA",
+        subtitle: "¡DEJA TU SOLICITUD AHORA MISMO! ¡TIEMPO LIMITADO!",
       },
       // Попап выбора при закрытии VSL
       vslCloseChoicePopup: {
-        title: "Стой!",
-        subtitle: "Через 60 сек — метод, меняющий весь подход к лечению слабой эрекции!",
-        continueButton: "Продолжить смотреть",
-        returnToChatButton: "Вернуться в Чат",
+        title: "¡Espera!",
+        subtitle: "En 60 segundos — método que cambia todo el enfoque del tratamiento de la erección débil!",
+        continueButton: "Continuar viendo",
+        returnToChatButton: "Volver al Chat",
       },
     },
     
@@ -672,110 +672,110 @@ export const siteConfig: SiteConfig = {
     forms: {
       // Основная форма заказа
       orderForm: {
-        title: "Официальная форма заказа UROXEL",
-        namePlaceholder: "Ваше имя",       // Лейбл и плейсхолдер для имени
-        phonePlaceholder: "Ваш телефон",   // Лейбл и плейсхолдер для телефона
-        submitButton: "Заказать UROXEL",
-        disclaimer: "Отзывы мужчин, которые уже попробовали UROXEL и получили результат. Результаты могут отличаться в зависимости от индивидуальных особенностей организма.",
+        title: "Formulario oficial de pedido UROXEL",
+        namePlaceholder: "Tu nombre",       // Лейбл и плейсхолдер для имени
+        phonePlaceholder: "Tu teléfono",   // Лейбл и плейсхолдер для телефона
+        submitButton: "Pedir UROXEL",
+        disclaimer: "Testimonios de hombres que ya probaron UROXEL y obtuvieron resultados. Los resultados pueden variar según las características individuales del organismo.",
       },
       // Форма бронирования звонка
       callBookingForm: {
-        title: "Выберите время звонка",
-        timeOptions: ["Прямо сейчас", "5 минут", "15 минут", "30 минут"], // Варианты времени
-        submitButton: "Забронировать звонок",
-        backButton: "Back",
+        title: "Elige la hora de la llamada",
+        timeOptions: ["Ahora mismo", "5 minutos", "15 minutos", "30 minutos"], // Варианты времени
+        submitButton: "Reservar llamada",
+        backButton: "Atrás",
       },
       // Форма домонетки (специальное предложение)
       domonetkaForm: {
-        title: "Специальное предложение",
-        namePlaceholder: "Ваше имя",
-        phonePlaceholder: "Ваш телефон",
-        submitButton: "Получить предложение",
-        disclaimer: "Ограниченное предложение. Количество товара ограничено.",
+        title: "Oferta especial",
+        namePlaceholder: "Tu nombre",
+        phonePlaceholder: "Tu teléfono",
+        submitButton: "Obtener oferta",
+        disclaimer: "Oferta limitada. Cantidad de producto limitada.",
         // Результаты и преимущества
-        resultsTitle: "Что получаете уже через 2-3 недели*",
-        resultsDisclaimer: "Результаты научно доказаны IMSS. Перед приёмом ознакомьтесь с планом приёма.",
+        resultsTitle: "Lo que obtienes en 2-3 semanas*",
+        resultsDisclaimer: "Los resultados están científicamente probados por IMSS. Antes de tomar, familiarízate con el plan de toma.",
         // Карточки результатов
         resultCard1: {
-          title: "Крепкая эрекция до 4 часов подряд",
-          description: "Экстракты (EGCG) поддерживают прилив крови к члену.",
+          title: "Erección firme hasta 4 horas seguidas",
+          description: "Los extractos (EGCG) mantienen el flujo de sangre al pene.",
         },
         resultCard2: {
-          title: "Больше энергии в постели - у вас больше не будет отдышки",
-          description: "Сбалансированные адаптогены помогают устойчивости к утомлению.",
+          title: "Más energía en la cama - ya no tendrás falta de aliento",
+          description: "Los adaptógenos balanceados ayudan a la resistencia a la fatiga.",
         },
         resultCard3: {
-          title: "Поддержка восстановления простаты",
-          description: "Комбинация полифенолов и минералов для ежедневного тонуса простаты.",
+          title: "Apoyo para la recuperación de la próstata",
+          description: "Combinación de polifenoles y minerales para el tono diario de la próstata.",
         },
         resultCard4: {
-          title: "Комфорт давления",
-          description: "Мягкие растительные компоненты для бережной кровяного давления.",
+          title: "Comodidad de presión",
+          description: "Componentes vegetales suaves para el cuidado de la presión arterial.",
         },
         // Карточки преимуществ
         benefitCard1: {
-          title: "Прозрачный состав",
-          description: "Без химии, виагры, ГМО. Только то, что нужно — в грамотной дозировке.",
+          title: "Composición transparente",
+          description: "Sin química, viagra, OGM. Solo lo que necesitas — en dosis inteligente.",
         },
         benefitCard2: {
-          title: "Удобно и просто",
-          description: "1-2 капсулы в день. Без сложных схем.",
+          title: "Cómodo y simple",
+          description: "1-2 cápsulas al día. Sin esquemas complicados.",
         },
         benefitCard3: {
-          title: "Без риска: гарантия возврата 14 дней",
-          description: "Если продукт не подойдёт — вернём деньги. Без вопросов.",
+          title: "Sin riesgo: garantía de devolución 14 días",
+          description: "Si el producto no te conviene — devolvemos el dinero. Sin preguntas.",
         },
         // Научная секция
-        scienceTitle: "Что говорит наука",
-        scienceIntro: "Ниже — обзор исследований по уникальным компонентам UROXEL.",
-        evidenceTag: "Научно доказано",
+        scienceTitle: "Lo que dice la ciencia",
+        scienceIntro: "A continuación — revisión de investigaciones sobre los componentes únicos de UROXEL.",
+        evidenceTag: "Científicamente probado",
         // Ингредиенты
         ingredient1: {
           name: "Curcuma",
-          description: "Поддержка регенерации простаты, увеличение прилива крови к половому члену.",
+          description: "Apoyo a la regeneración de la próstata, aumento del flujo de sangre al pene.",
         },
         ingredient2: {
           name: "Arginina",
-          description: "Стимулирует постоянную циркуляцию крови и уберегает от повторных воспалений простаты.",
+          description: "Estimula la circulación constante de sangre y protege de inflamaciones repetidas de la próstata.",
         },
         ingredient3: {
           name: "Jengibre",
-          description: "Связан с энергетическим обменом крови внутри полового члена.",
+          description: "Relacionado con el intercambio energético de sangre dentro del pene.",
         },
         // Отзывы и безопасность
-        reviewsTitle: "Отзывы",
-        reviewsSubtitle: "Реальные истории клиентов*:",
-        reviewsNote: "Полную информацию вы можете получить после оставления заявки.",
+        reviewsTitle: "Testimonios",
+        reviewsSubtitle: "Historias reales de clientes*:",
+        reviewsNote: "Puedes obtener información completa después de dejar tu solicitud.",
         // Отзывы клиентов
         review1: {
           name: "Juan, 54:",
-          text: "«Перестал принимать виагру – давление нормализовалось и член стоит каждое утро и вечер!»",
+          text: "«Dejé de tomar viagra – la presión se normalizó y el pene se mantiene firme cada mañana y noche!»",
         },
         review2: {
           name: "Alex, 61:",
-          text: "«Бодрость в постели - жена довольна, а я стал сексуальным монстров!»",
+          text: "«Vigor en la cama - mi esposa está contenta, ¡y yo me convertí en un monstruo sexual!»",
         },
         review3: {
           name: "Emiliano, 49:",
-          text: "«Удобный приём и анонимность, жена подумала что я вставил железную пластину в член.»",
+          text: "«Toma conveniente y anonimato, mi esposa pensó que me puse una placa de hierro en el pene.»",
         },
         // Безопасность
-        safetyTitle: "Безопасность и прозрачность",
-        safetyItem1: "Сертифицированное производство (GMP)",
-        safetyItem2: "Прозрачный состав на упаковке",
-        safetyItem3: "Проверка партии по QR-коду",
+        safetyTitle: "Seguridad y transparencia",
+        safetyItem1: "Producción certificada (GMP)",
+        safetyItem2: "Composición transparente en el empaque",
+        safetyItem3: "Verificación del lote por código QR",
       },
     },
     
     // Тексты баннеров и плашек
     banners: {
-      specialOffer: "СПЕЦИАЛЬНОЕ ПРЕДЛОЖЕНИЕ",
-      limitedTime: "ВРЕМЯ ОГРАНИЧЕНО!",
-      bottlesLeft: "Осталось банок",      // Текст счетчика банок
-      exclusiveOffer: "ЭКСКЛЮЗИВНО!",
-      actionPrice: "акционная цена на продукцию",
-      leaveRequest: "Оставьте заявку по кнопке ниже!",
-      reviewsBanner: "Отзывы мужчин, которые уже вернули крепкую эрекцию и спасли свою простату",
+      specialOffer: "OFERTA ESPECIAL",
+      limitedTime: "¡TIEMPO LIMITADO!",
+      bottlesLeft: "Frascos restantes",      // Текст счетчика банок
+      exclusiveOffer: "¡EXCLUSIVO!",
+      actionPrice: "precio promocional del producto",
+      leaveRequest: "¡Deja tu solicitud con el botón de abajo!",
+      reviewsBanner: "Testimonios de hombres que ya recuperaron una erección firme y salvaron su próstata",
     },
   },
   
@@ -789,12 +789,12 @@ export const siteConfig: SiteConfig = {
   
   // Юридические тексты и дисклеймеры
   legal: {
-    specialPriceDisclaimer: "Специальная цена действует ограниченное количество времени.",
-    timerDisclaimer: "Таймер указывает оставшееся время до конца акции.",
-    mexicoOnly: "Акция применима только для жителей Мексики.",
-    consultationDisclaimer: "Полная консультация происходит во обратного звонка нашего специалиста.",
-    resultsDisclaimer: "Отзывы мужчин, которые уже попробовали UROXEL и получили результат. Результаты могут отличаться в зависимости от индивидуальных особенностей организма.",
-    limitedOffer: "Ограниченное предложение. Количество товара ограничено.",
+    specialPriceDisclaimer: "El precio especial es válido por tiempo limitado.",
+    timerDisclaimer: "El temporizador indica el tiempo restante hasta el final de la promoción.",
+    mexicoOnly: "La promoción se aplica solo a residentes de México.",
+    consultationDisclaimer: "La consulta completa ocurre durante la llamada de vuelta de nuestro especialista.",
+    resultsDisclaimer: "Testimonios de hombres que ya probaron UROXEL y obtuvieron resultados. Los resultados pueden variar según las características individuales del organismo.",
+    limitedOffer: "Oferta limitada. Cantidad de producto limitada.",
   },
   
   // ===== НАСТРОЙКИ ФУНКЦИОНАЛЬНОСТИ =====
