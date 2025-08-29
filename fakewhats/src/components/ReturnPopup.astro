@@ -438,6 +438,39 @@ const { popup } = COPY;
       }
     });
     
+    // Блокируем touch события для мобильных устройств
+    returnVideo.addEventListener('touchstart', function(e) {
+      const rect = returnVideo.getBoundingClientRect();
+      const touch = e.touches[0];
+      const touchY = touch.clientY - rect.top;
+      
+      // Если касание в области timeline (нижняя часть видео)
+      if (touchY > rect.height * 0.8) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    });
+    
+    returnVideo.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    });
+    
+    returnVideo.addEventListener('touchend', function(e) {
+      const rect = returnVideo.getBoundingClientRect();
+      const touch = e.changedTouches[0];
+      const touchY = touch.clientY - rect.top;
+      
+      // Если касание в области timeline (нижняя часть видео)
+      if (touchY > rect.height * 0.8) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    });
+    
     // Блокируем клавиши перемотки
     returnVideo.addEventListener('keydown', function(e) {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
@@ -738,5 +771,60 @@ const { popup } = COPY;
   #returnVslVideo::-moz-media-controls-seek-back-button,
   #returnVslVideo::-moz-media-controls-seek-forward-button {
     display: none !important;
+  }
+  
+  /* Агрессивное скрытие элементов управления для мобильных браузеров */
+  #returnVslVideo::-webkit-media-controls,
+  #returnVslVideo::-webkit-media-controls-panel,
+  #returnVslVideo::-webkit-media-controls-play-button,
+  #returnVslVideo::-webkit-media-controls-pause-button,
+  #returnVslVideo::-webkit-media-controls-timeline,
+  #returnVslVideo::-webkit-media-controls-current-time-display,
+  #returnVslVideo::-webkit-media-controls-time-remaining-display,
+  #returnVslVideo::-webkit-media-controls-seek-back-button,
+  #returnVslVideo::-webkit-media-controls-seek-forward-button,
+  #returnVslVideo::-webkit-media-controls-volume-slider,
+  #returnVslVideo::-webkit-media-controls-mute-button,
+  #returnVslVideo::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  
+  /* Дополнительные правила для iOS Safari */
+  #returnVslVideo::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+  }
+  
+  /* Скрываем все элементы управления видео */
+  #returnVslVideo::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+  
+  /* Дополнительные правила для мобильных устройств */
+  @media (max-width: 768px) {
+    #returnVslVideo {
+      /* Принудительно скрываем все элементы управления на мобильных */
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+      appearance: none !important;
+    }
+    
+    #returnVslVideo::-webkit-media-controls,
+    #returnVslVideo::-webkit-media-controls-panel,
+    #returnVslVideo::-webkit-media-controls-enclosure {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+      top: -9999px !important;
+    }
   }
 </style>
