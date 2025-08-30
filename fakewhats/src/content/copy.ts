@@ -1,7 +1,7 @@
 export const COPY = {
   app: {
     title: 'Chat – UROXEL',
-    description: 'Simulación de WhatsApp con VSL y formulario de solicitud para leads de UROXEL.'
+    description: 'Los mensajes y las llamadas están cifrados de principio a fin. Nadie fuera de este chat, ni siquiera WhatsApp, puede leerlos ni escucharlos.'
   },
   header: {
     contactName: 'UROXEL',
