@@ -7,9 +7,9 @@ import { siteConfig } from '../config/site-config';
   <div class="vsl-container">
     <!-- VSL Video Section -->
     <div class="vsl-video-section">
-              <!-- <video id="vslExitVideo" src={siteConfig.images.videos.chatVsl} controls preload="none" class="vsl-video">
+              <video id="vslExitVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" class="vsl-video" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5">
           Your browser does not support the video tag.
-        </video> -->
+        </video>
       
       <!-- Vignette -->
       <div class="vsl-vignette"></div>
@@ -117,9 +117,9 @@ import { siteConfig } from '../config/site-config';
     if (vslExitPopup && vslExitPopup.style.display === 'flex' && vslExitVideo && vslExitVideo.paused) {
       vslExitVideo.muted = false;
       vslExitVideo.play().then(() => {
-        console.log('VSL Exit video forced to play');
+        // console.log('VSL Exit video forced to play');
       }).catch(e => {
-        console.log('VSL Exit force play failed:', e);
+        // console.log('VSL Exit force play failed:', e);
       });
     }
   }
@@ -189,9 +189,9 @@ import { siteConfig } from '../config/site-config';
         // Проверяем, не приостановлено ли видео, и возобновляем если нужно
         if (vslExitVideo.paused) {
           vslExitVideo.play().then(() => {
-            console.log('▶️ VSL exit video resumed from pause');
+            // console.log('▶️ VSL exit video resumed from pause');
           }).catch((error) => {
-            console.log('❌ Failed to resume VSL exit video:', error.name);
+            // console.log('❌ Failed to resume VSL exit video:', error.name);
             // Если автоплей заблокирован, используем обход
             startAutoplayWithBypass(vslExitVideo);
           });
@@ -241,32 +241,87 @@ import { siteConfig } from '../config/site-config';
   function startAutoplayWithBypass(video) {
     if (!video) return;
     
+    // Очищаем предыдущие обработчики ошибок
+    video.removeEventListener('error', handleVideoError);
+    video.removeEventListener('stalled', handleVideoStalled);
+    video.removeEventListener('waiting', handleVideoWaiting);
+    
+    // Добавляем обработчики для исправления зависания
+    video.addEventListener('error', handleVideoError);
+    video.addEventListener('stalled', handleVideoStalled);
+    video.addEventListener('waiting', handleVideoWaiting);
+    
     // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
     video.muted = true;
     video.play().then(() => {
-      console.log('✅ VSL Exit video started playing (muted)');
+      // console.log('✅ VSL Exit video started playing (muted)');
       // Включаем звук сразу
       video.muted = false;
-      console.log('🔊 Sound enabled immediately');
+      // console.log('🔊 Sound enabled immediately');
     }).catch((error) => {
-      console.log('❌ Muted autoplay failed:', error.name);
+      // console.log('❌ Muted autoplay failed:', error.name);
       
       // Стратегия 2: Пробуем с задержкой
       setTimeout(() => {
         video.muted = true;
         video.play().then(() => {
-          console.log('✅ VSL Exit video started playing (delayed muted)');
+          // console.log('✅ VSL Exit video started playing (delayed muted)');
           // Включаем звук сразу
           video.muted = false;
-          console.log('🔊 Sound enabled immediately (delayed)');
+          // console.log('🔊 Sound enabled immediately (delayed)');
         }).catch((error2) => {
-          console.log('❌ Delayed autoplay failed:', error2.name);
+          // console.log('❌ Delayed autoplay failed:', error2.name);
           
           // Стратегия 3: Ждем взаимодействия пользователя
           setupUserInteractionAutoplay(video);
         });
       }, 500);
     });
+  }
+
+  // Обработчик ошибок видео для исправления зависания
+  function handleVideoError(e) {
+    const video = e.target;
+    // console.log('🚨 VSL Exit video error detected:', e);
+    
+    // Пробуем перезагрузить видео
+    setTimeout(() => {
+      if (video && video.readyState === 0) {
+        video.load();
+        // console.log('🔄 VSL Exit video reloaded after error');
+      }
+    }, 1000);
+  }
+
+  // Обработчик зависания видео
+  function handleVideoStalled(e) {
+    const video = e.target;
+    // console.log('⏸️ VSL Exit video stalled, attempting recovery...');
+    
+    // Пробуем восстановить воспроизведение
+    setTimeout(() => {
+      if (video && video.paused && video.readyState >= 2) {
+        video.play().catch(() => {
+          // Если не удалось, перезагружаем
+          video.load();
+          // console.log('🔄 VSL Exit video reloaded after stall');
+        });
+      }
+    }, 2000);
+  }
+
+  // Обработчик ожидания данных
+  function handleVideoWaiting(e) {
+    const video = e.target;
+    // console.log('⏳ VSL Exit video waiting for data...');
+    
+    // Даем время на загрузку, затем проверяем
+    setTimeout(() => {
+      if (video && video.readyState < 2) {
+        // console.log('🔄 VSL Exit video stuck waiting, reloading...');
+        video.load();
+      }
+    }, 5000);
   }
 
   // Функция для запуска видео после взаимодействия пользователя
@@ -309,9 +364,9 @@ import { siteConfig } from '../config/site-config';
         playButton.remove();
         video.muted = false;
         video.play().then(() => {
-          console.log('✅ VSL Exit video started after user interaction');
+          // console.log('✅ VSL Exit video started after user interaction');
         }).catch((error) => {
-          console.error('❌ Failed to play after interaction:', error);
+          // console.error('❌ Failed to play after interaction:', error);
         });
       }
     };
@@ -325,9 +380,9 @@ import { siteConfig } from '../config/site-config';
           playButton.remove();
           video.muted = false;
           video.play().then(() => {
-            console.log('✅ VSL Exit video started after user interaction');
+            // console.log('✅ VSL Exit video started after user interaction');
           }).catch((error) => {
-            console.error('❌ Failed to play after interaction:', error);
+            // console.error('❌ Failed to play after interaction:', error);
           });
         }
       });

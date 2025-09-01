@@ -32,7 +32,7 @@ const { messages, form } = COPY;
     <div class="bubble vsl-bubble">
       <div class="vsl-card">
         <div class="vsl-thumb">
-                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
+                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
           <div class="vsl-overlay">
             <!-- Зеленая мигающая кнопка включения звука -->
             <div class="vsl-sound-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
@@ -512,7 +512,7 @@ const { messages, form } = COPY;
 <div id="fullscreenPlayer" class="fullscreen-player" style="display: none;">
   <div class="fullscreen-player-content">
     <div class="video-wrapper safari-no-controls-wrapper">
-      <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="none" class="safari-no-controls"></video>
+      <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" class="safari-no-controls" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
     </div>
     <button id="fullscreenCloseBtn" class="fullscreen-close-btn" style="z-index: 1010;">✕</button>
     
@@ -930,6 +930,46 @@ const { messages, form } = COPY;
         // console.log('⏰ Restored chat video time to:', savedChatVideoTime);
       }
     });
+
+    // Специальная обработка для iOS Safari
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      // console.log('🍎 iOS device detected, applying special handling');
+      
+      // Обработчик для восстановления видео после блокировки экрана
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && vslVideoInline.paused && vslVideoInline.currentTime > 0) {
+          // console.log('📱 Device unlocked, attempting to resume video');
+          setTimeout(() => {
+            vslVideoInline.play().catch(() => {
+              // console.log('⚠️ Could not auto-resume on iOS unlock');
+            });
+          }, 500);
+        }
+      });
+      
+      // Обработчик для восстановления после потери фокуса
+      window.addEventListener('focus', () => {
+        if (vslVideoInline.paused && vslVideoInline.currentTime > 0) {
+          // console.log('📱 Window focused, attempting to resume video');
+          setTimeout(() => {
+            vslVideoInline.play().catch(() => {
+              // console.log('⚠️ Could not auto-resume on iOS focus');
+            });
+          }, 300);
+        }
+      });
+      
+      // Обработчик для принудительного восстановления при проблемах
+      vslVideoInline.addEventListener('stalled', () => {
+        // console.log('⏸️ iOS video stalled, attempting recovery...');
+        setTimeout(() => {
+          if (vslVideoInline.readyState < 2) {
+            vslVideoInline.load();
+            // console.log('🔄 iOS video reloaded after stall');
+          }
+        }, 2000);
+      });
+    }
 
   }
 
@@ -1380,6 +1420,16 @@ const { messages, form } = COPY;
   function startAutoplayWithBypass(video) {
     if (!video) return;
     
+    // Очищаем предыдущие обработчики ошибок
+    video.removeEventListener('error', handleVideoError);
+    video.removeEventListener('stalled', handleVideoStalled);
+    video.removeEventListener('waiting', handleVideoWaiting);
+    
+    // Добавляем обработчики для исправления зависания
+    video.addEventListener('error', handleVideoError);
+    video.addEventListener('stalled', handleVideoStalled);
+    video.addEventListener('waiting', handleVideoWaiting);
+    
     // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
     video.muted = true;
     video.play().then(() => {
@@ -1406,6 +1456,51 @@ const { messages, form } = COPY;
         });
       }, 500);
     });
+  }
+
+  // Обработчик ошибок видео для исправления зависания
+  function handleVideoError(e) {
+    const video = e.target;
+    // console.log('🚨 Video error detected:', e);
+    
+    // Пробуем перезагрузить видео
+    setTimeout(() => {
+      if (video && video.readyState === 0) {
+        video.load();
+        // console.log('🔄 Video reloaded after error');
+      }
+    }, 1000);
+  }
+
+  // Обработчик зависания видео
+  function handleVideoStalled(e) {
+    const video = e.target;
+    // console.log('⏸️ Video stalled, attempting recovery...');
+    
+    // Пробуем восстановить воспроизведение
+    setTimeout(() => {
+      if (video && video.paused && video.readyState >= 2) {
+        video.play().catch(() => {
+          // Если не удалось, перезагружаем
+          video.load();
+          // console.log('🔄 Video reloaded after stall');
+        });
+      }
+    }, 2000);
+  }
+
+  // Обработчик ожидания данных
+  function handleVideoWaiting(e) {
+    const video = e.target;
+    // console.log('⏳ Video waiting for data...');
+    
+    // Даем время на загрузку, затем проверяем
+    setTimeout(() => {
+      if (video && video.readyState < 2) {
+        // console.log('🔄 Video stuck waiting, reloading...');
+        video.load();
+      }
+    }, 5000);
   }
 
   // Функция для запуска видео после взаимодействия пользователя
@@ -1478,6 +1573,126 @@ const { messages, form } = COPY;
     }
   }
 
+  // Функция для принудительного восстановления видео
+  function forceVideoRecovery(video) {
+    if (!video) return;
+    
+    // console.log('🔄 Force video recovery initiated');
+    
+    // Сохраняем текущее время
+    const currentTime = video.currentTime;
+    const wasPaused = video.paused;
+    
+    // Перезагружаем видео
+    video.load();
+    
+    // Восстанавливаем время и состояние
+    video.addEventListener('loadedmetadata', () => {
+      if (currentTime > 0) {
+        video.currentTime = currentTime;
+        // console.log('⏰ Restored video time to:', currentTime);
+      }
+      
+      // Восстанавливаем воспроизведение если было
+      if (!wasPaused) {
+        setTimeout(() => {
+          video.play().catch(() => {
+            // console.log('⚠️ Could not auto-resume after recovery');
+          });
+        }, 100);
+      }
+    }, { once: true });
+  }
+
+  // Функция для мониторинга состояния видео
+  function setupVideoHealthMonitoring(video) {
+    if (!video) return;
+    
+    let lastProgressTime = 0;
+    let stuckCounter = 0;
+    let healthCheckInterval;
+    
+    // Проверяем здоровье видео каждые 10 секунд
+    healthCheckInterval = setInterval(() => {
+      if (!video || video.ended) {
+        clearInterval(healthCheckInterval);
+        return;
+      }
+      
+      const currentTime = video.currentTime;
+      const isPlaying = !video.paused;
+      
+      // Проверяем, не зависло ли видео
+      if (isPlaying && currentTime === lastProgressTime) {
+        stuckCounter++;
+        // console.log(`⚠️ Video might be stuck (${stuckCounter}/3 checks)`);
+        
+        if (stuckCounter >= 3) {
+          // console.log('🚨 Video confirmed stuck, attempting recovery...');
+          forceVideoRecovery(video);
+          stuckCounter = 0;
+        }
+      } else {
+        stuckCounter = 0;
+      }
+      
+      lastProgressTime = currentTime;
+    }, 10000);
+    
+    // Возвращаем функцию для очистки
+    return () => clearInterval(healthCheckInterval);
+  }
+
+  // Глобальная функция для восстановления всех видео
+  window.recoverAllVideos = function() {
+    // console.log('🔄 Global video recovery initiated');
+    
+    const videos = [
+      document.getElementById('vslVideoInline'),
+      document.getElementById('fullscreenVideo'),
+      document.getElementById('returnVslVideo'),
+      document.getElementById('returnVisitVideo')
+    ].filter(Boolean);
+    
+    videos.forEach(video => {
+      if (video && video.readyState < 2) {
+        // console.log('🔄 Recovering video:', video.id);
+        forceVideoRecovery(video);
+      }
+    });
+  };
+
+  // Автоматическое восстановление видео каждые 2 минуты
+  setInterval(() => {
+    if (document.visibilityState === 'visible') {
+      window.recoverAllVideos();
+    }
+  }, 120000); // 2 минуты
+
+  // Обработчик для принудительного восстановления при проблемах с памятью
+  window.addEventListener('beforeunload', () => {
+    // Очищаем все таймеры и интервалы
+    const highestTimeoutId = setTimeout(";");
+    for (let i = 0; i < highestTimeoutId; i++) {
+      clearTimeout(i);
+    }
+    
+    const highestIntervalId = setInterval(";");
+    for (let i = 0; i < highestIntervalId; i++) {
+      clearInterval(i);
+    }
+  });
+
+  // Обработчик для восстановления после возврата на страницу
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      // console.log('📱 Page became visible, checking video health...');
+      setTimeout(() => {
+        window.recoverAllVideos();
+      }, 1000);
+    }
+  });
+
   // Функции для управления полноэкранным плеером
   function showFullscreenPlayer() {
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
@@ -1522,6 +1737,49 @@ const { messages, form } = COPY;
       // Запускаем видео с обходом блокировки автоплея
       startAutoplayWithBypass(fullscreenVideo);
       
+      // Запускаем мониторинг здоровья видео
+      const cleanupHealthMonitoring = setupVideoHealthMonitoring(fullscreenVideo);
+      
+      // Специальная обработка для iOS Safari
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        // console.log('🍎 iOS device detected for fullscreen video');
+        
+        // Обработчик для восстановления видео после блокировки экрана
+        const iosVisibilityHandler = () => {
+          if (!document.hidden && fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
+            // console.log('📱 iOS device unlocked, attempting to resume fullscreen video');
+            setTimeout(() => {
+              fullscreenVideo.play().catch(() => {
+                // console.log('⚠️ Could not auto-resume fullscreen video on iOS unlock');
+              });
+            }, 500);
+          }
+        };
+        
+        // Обработчик для восстановления после потери фокуса
+        const iosFocusHandler = () => {
+          if (fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
+            // console.log('📱 iOS window focused, attempting to resume fullscreen video');
+            setTimeout(() => {
+              fullscreenVideo.play().catch(() => {
+                // console.log('⚠️ Could not auto-resume fullscreen video on iOS focus');
+              });
+            }, 300);
+          }
+        };
+        
+        document.addEventListener('visibilitychange', iosVisibilityHandler);
+        window.addEventListener('focus', iosFocusHandler);
+        
+        // Сохраняем обработчики для очистки
+        const originalCleanup = cleanupHealthMonitoring;
+        cleanupHealthMonitoring = () => {
+          if (originalCleanup) originalCleanup();
+          document.removeEventListener('visibilitychange', iosVisibilityHandler);
+          window.removeEventListener('focus', iosFocusHandler);
+        };
+      }
+      
       // Настраиваем попап на определенной минуте для этого видео
       // console.log('🎬 Setting up popup for fullscreenVideo');
       if (window.setupVslTimePopup) {
@@ -1559,6 +1817,9 @@ const { messages, form } = COPY;
       const originalHideFullscreenPlayer = hideFullscreenPlayer;
       hideFullscreenPlayer = function() {
         clearInterval(fullscreenTimeInterval);
+        if (cleanupHealthMonitoring) {
+          cleanupHealthMonitoring();
+        }
         originalHideFullscreenPlayer();
       };
     }
