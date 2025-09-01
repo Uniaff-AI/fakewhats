@@ -3874,7 +3874,6 @@ const { messages, form } = COPY;
     }
     
     .pwa-modal-content {
-      border-radius: 0 !important;
       width: 100% !important;
     }
     
@@ -4332,12 +4331,7 @@ const { messages, form } = COPY;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   }
 
-  .vsl-sound-btn:hover {
-    animation: none;
-  }
-
   .vsl-sound-btn:hover .sound-btn-content {
-    animation: none;
     background: #45a049;
     transform: scale(1.05);
     box-shadow: 0 6px 16px rgba(76, 175, 80, 0.6);
@@ -4603,10 +4597,8 @@ const { messages, form } = COPY;
     pointer-events: auto;
   }
   
-  /* Предотвращаем любые анимации изображений */
+  /* Оптимизация изображений без отключения анимаций */
   img, img:hover, img:focus, img:active {
-    transition: none !important;
-    animation: none !important;
     transform: translateZ(0) !important;
   }
 

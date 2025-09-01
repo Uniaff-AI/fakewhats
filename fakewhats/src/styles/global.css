@@ -60,7 +60,6 @@ body {
 @media (max-width: 768px) {
   .container {
     height: 100vh; /* Полная высота на мобильных */
-    border-radius: 0; /* Убираем скругления на мобильных */
     margin: 0 !important; /* Убираем все отступы */
     max-width: 100% !important; /* Занимаем всю ширину */
     width: 100% !important; /* Принудительно устанавливаем ширину 100% */

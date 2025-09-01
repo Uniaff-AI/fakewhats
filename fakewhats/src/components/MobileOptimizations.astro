@@ -53,7 +53,7 @@
         // Отключаем предзагрузку на мобильных для экономии трафика
         video.setAttribute('preload', 'metadata');
         
-        // Устанавливаем низкое качество на мобильных устройствах
+        // Устанавливаем оптимальное качество на мобильных устройствах
         if (video.videoWidth > 0) {
           const aspectRatio = video.videoWidth / video.videoHeight;
           if (aspectRatio > 1.5) { // Широкоформатное видео
@@ -77,29 +77,6 @@
       });
     }
     
-    // Функция для оптимизации CSS анимаций
-    function optimizeAnimations() {
-      // Отключаем сложные анимации на мобильных устройствах
-      const style = document.createElement('style');
-      style.textContent = `
-        @media (max-width: 768px) {
-          * {
-            transition: none !important;
-            animation: none !important;
-            transform: none !important;
-          }
-          
-          .vsl-overlay,
-          .vsl-vignette,
-          .vsl-text-overlay {
-            transition: none !important;
-            animation: none !important;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
     // Функция для мониторинга производительности
     function monitorPerformance() {
       let frameCount = 0;
@@ -112,24 +89,11 @@
         if (currentTime - lastTime >= 1000) {
           const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
           
-          // Если FPS падает ниже 30, применяем дополнительные оптимизации
-          if (fps < 30) {
-            // console.log('⚠️ Low FPS detected:', fps, 'applying additional optimizations...');
+          // Если FPS падает ниже 20, применяем только необходимые оптимизации
+          if (fps < 20) {
+            // console.log('⚠️ Very low FPS detected:', fps, 'applying minimal optimizations...');
             
-            // Отключаем все анимации
-            const style = document.createElement('style');
-            style.textContent = `
-              * {
-                transition: none !important;
-                animation: none !important;
-                transform: none !important;
-                box-shadow: none !important;
-                filter: none !important;
-              }
-            `;
-            document.head.appendChild(style);
-            
-            // Очищаем память
+            // Только очищаем память, не трогаем визуал
             cleanupMemory();
           }
           
@@ -202,7 +166,6 @@
       
       optimizeVideos();
       optimizeImages();
-      optimizeAnimations();
       optimizeEvents();
       optimizeStorage();
       optimizeNetwork();
