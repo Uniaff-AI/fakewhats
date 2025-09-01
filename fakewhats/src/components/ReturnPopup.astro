@@ -9,8 +9,8 @@ const { popup } = COPY;
     <div class="vsl-container">
       <div class="vsl-overlay">
 
-        <div class="video-wrapper safari-no-controls-wrapper">
-          <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" class="safari-no-controls" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="false" x5-video-orientation="portraint"></video>
+        <div class="video-wrapper">
+          <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="false" x5-video-orientation="portraint"></video>
         </div>
         
         <!-- Виньетка для затемнения -->
@@ -641,103 +641,18 @@ const { popup } = COPY;
     // Домонетка показывается только при попытке закрыть попап (клик на фон)
   });
 
-  // Настройки видео (блокируем перемотку)
+  // Настройки видео (перемотка разрешена)
   if (returnVideo) {
-    // Добавляем controls только для десктопа
-    if (window.innerWidth > 768) {
-      returnVideo.controls = true;
-      returnVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback noplaybackrate noplaypause');
-    } else {
-      returnVideo.controls = false;
-    }
+    // Добавляем controls для всех устройств
+    returnVideo.controls = true;
+    returnVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
     
     returnVideo.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       return false;
     });
     
-    let lastValidTime = 0;
-    let isUserSeeking = false;
-    
-    // Блокируем перемотку
-    returnVideo.addEventListener('seeking', function(e) {
-      if (isUserSeeking) {
-        e.preventDefault();
-        returnVideo.currentTime = lastValidTime;
-        return false;
-      }
-    });
-    
-    returnVideo.addEventListener('seeked', function(e) {
-      if (isUserSeeking) {
-        e.preventDefault();
-        returnVideo.currentTime = lastValidTime;
-        isUserSeeking = false;
-        return false;
-      }
-    });
-    
-    returnVideo.addEventListener('timeupdate', function() {
-      // Обновляем последнее валидное время только если это не пользовательская перемотка
-      if (!isUserSeeking) {
-        lastValidTime = returnVideo.currentTime;
-      }
-    });
-    
-    // Блокируем клики на timeline
-    returnVideo.addEventListener('click', function(e) {
-      const rect = returnVideo.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
-      
-      // Если клик в области timeline (нижняя часть видео)
-      if (clickY > rect.height * 0.8) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    });
-    
-    // Блокируем touch события для мобильных устройств
-    returnVideo.addEventListener('touchstart', function(e) {
-      const rect = returnVideo.getBoundingClientRect();
-      const touch = e.touches[0];
-      const touchY = touch.clientY - rect.top;
-      
-      // Если касание в области timeline (нижняя часть видео)
-      if (touchY > rect.height * 0.8) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    });
-    
-    returnVideo.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    });
-    
-    returnVideo.addEventListener('touchend', function(e) {
-      const rect = returnVideo.getBoundingClientRect();
-      const touch = e.changedTouches[0];
-      const touchY = touch.clientY - rect.top;
-      
-      // Если касание в области timeline (нижняя часть видео)
-      if (touchY > rect.height * 0.8) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    });
-    
-    // Блокируем клавиши перемотки
-    returnVideo.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
-        e.preventDefault();
-        return false;
-      }
-    });
+    // console.log('✅ Video seeking enabled for returnVideo');
   }
 
   // Сохраняем время видео при попытке ухода со страницы
@@ -1011,71 +926,34 @@ const { popup } = COPY;
     z-index: 1;
   }
 
-  /* Скрываем элементы управления видео */
-  #returnVslVideo::-webkit-media-controls-play-button,
-  #returnVslVideo::-webkit-media-controls-pause-button,
+  /* Показываем элементы управления видео для перемотки */
   #returnVslVideo::-webkit-media-controls-timeline,
-  #returnVslVideo::-webkit-media-controls-current-time-display,
-  #returnVslVideo::-webkit-media-controls-time-remaining-display,
   #returnVslVideo::-webkit-media-controls-seek-back-button,
   #returnVslVideo::-webkit-media-controls-seek-forward-button {
-    display: none !important;
+    display: block !important;
   }
   
-  /* Скрываем элементы управления для Firefox */
-  #returnVslVideo::-moz-media-controls-play-button,
-  #returnVslVideo::-moz-media-controls-pause-button,
+  /* Показываем элементы управления для Firefox */
   #returnVslVideo::-moz-media-controls-timeline,
-  #returnVslVideo::-moz-media-controls-current-time-display,
-  #returnVslVideo::-moz-media-controls-time-remaining-display,
   #returnVslVideo::-moz-media-controls-seek-back-button,
   #returnVslVideo::-moz-media-controls-seek-forward-button {
-    display: none !important;
+    display: block !important;
   }
   
-  /* Агрессивное скрытие элементов управления для мобильных браузеров */
-  #returnVslVideo::-webkit-media-controls,
-  #returnVslVideo::-webkit-media-controls-panel,
-  #returnVslVideo::-webkit-media-controls-play-button,
-  #returnVslVideo::-webkit-media-controls-pause-button,
+  /* Показываем timeline и кнопки перемотки для мобильных браузеров */
   #returnVslVideo::-webkit-media-controls-timeline,
-  #returnVslVideo::-webkit-media-controls-current-time-display,
-  #returnVslVideo::-webkit-media-controls-time-remaining-display,
   #returnVslVideo::-webkit-media-controls-seek-back-button,
-  #returnVslVideo::-webkit-media-controls-seek-forward-button,
-  #returnVslVideo::-webkit-media-controls-volume-slider,
-  #returnVslVideo::-webkit-media-controls-mute-button,
-  #returnVslVideo::-webkit-media-controls-fullscreen-button {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
+  #returnVslVideo::-webkit-media-controls-seek-forward-button {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    width: auto !important;
+    height: auto !important;
   }
   
-  /* Дополнительные правила для iOS Safari */
-  #returnVslVideo::-webkit-media-controls-overlay-play-button {
-    display: none !important;
-  }
-  
-  /* Скрываем все элементы управления видео */
-  #returnVslVideo::-webkit-media-controls-enclosure {
-    display: none !important;
-  }
-  
-  /* Блокировка взаимодействия с видео */
-  .safari-no-controls {
-    pointer-events: none !important;
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
-    -webkit-touch-callout: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-  
-  .safari-no-controls-wrapper {
+  /* Разрешаем взаимодействие с видео */
+  .video-wrapper {
     pointer-events: auto !important;
     position: relative !important;
     width: 100% !important;
@@ -1085,42 +963,24 @@ const { popup } = COPY;
   /* Дополнительные правила для мобильных устройств */
   @media (max-width: 768px) {
     #returnVslVideo {
-      /* Принудительно скрываем все элементы управления на мобильных */
-      -webkit-appearance: none !important;
-      -moz-appearance: none !important;
-      appearance: none !important;
-      pointer-events: none !important;
+      /* Разрешаем взаимодействие с видео на мобильных */
+      pointer-events: auto !important;
     }
     
-    #returnVslVideo::-webkit-media-controls,
-    #returnVslVideo::-webkit-media-controls-panel,
-    #returnVslVideo::-webkit-media-controls-enclosure {
-      display: none !important;
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      height: 0 !important;
-      position: absolute !important;
-      left: -9999px !important;
-      top: -9999px !important;
+    /* Показываем timeline и кнопки перемотки на мобильных */
+    #returnVslVideo::-webkit-media-controls-timeline,
+    #returnVslVideo::-webkit-media-controls-seek-back-button,
+    #returnVslVideo::-webkit-media-controls-seek-forward-button {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
     }
     
     .video-wrapper {
-      /* Дополнительная защита для мобильных */
-      overflow: hidden !important;
+      /* Разрешаем взаимодействие с видео */
+      overflow: visible !important;
       position: relative !important;
-    }
-    
-    .video-wrapper::before {
-      content: '' !important;
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      z-index: 1 !important;
-      pointer-events: auto !important;
     }
   }
 </style>

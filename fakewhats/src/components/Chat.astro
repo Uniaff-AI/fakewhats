@@ -32,7 +32,7 @@ const { messages, form } = COPY;
     <div class="bubble vsl-bubble">
       <div class="vsl-card">
         <div class="vsl-thumb">
-                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
+                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
           <div class="vsl-overlay">
             <!-- Зеленая мигающая кнопка включения звука -->
             <div class="vsl-sound-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
@@ -511,9 +511,9 @@ const { messages, form } = COPY;
 <!-- Полноэкранный плеер для кнопки включить звук -->
 <div id="fullscreenPlayer" class="fullscreen-player" style="display: none;">
   <div class="fullscreen-player-content">
-    <div class="video-wrapper safari-no-controls-wrapper">
-      <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" class="safari-no-controls" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
-    </div>
+            <div class="video-wrapper">
+          <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
+        </div>
     <button id="fullscreenCloseBtn" class="fullscreen-close-btn" style="z-index: 1010;">✕</button>
     
     <!-- Попап на определенной минуте VSL (скрыт изначально) -->
@@ -569,6 +569,8 @@ const { messages, form } = COPY;
   let postbackTimeoutId;
   let videoStartTime = 0;
   let hasShownForm = false;
+  
+  // Флаги больше не нужны - используется единая система
 
   function toggleVslSound() {
     const video = document.getElementById('vslVideoInline');
@@ -1818,6 +1820,10 @@ const { messages, form } = COPY;
       
       fullscreenPlayer.style.display = 'flex';
       
+      // Принудительно включаем элементы управления
+      fullscreenVideo.controls = true;
+      fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+      
       // Устанавливаем сохраненное время видео
       const savedTime = localStorage.getItem('savedVideoTime');
       if (savedTime) {
@@ -1856,6 +1862,8 @@ const { messages, form } = COPY;
       
       // Запускаем мониторинг здоровья видео
       const cleanupHealthMonitoring = setupVideoHealthMonitoring(fullscreenVideo);
+      
+      // Попап и сообщение показываются через обычную систему setupVslTimePopup
       
       // Создаем функцию очистки для этого экземпляра
       fullscreenPlayerCleanup = () => {
@@ -1909,13 +1917,9 @@ const { messages, form } = COPY;
         };
       }
       
-      // Настраиваем попап на определенной минуте для этого видео
-      // console.log('🎬 Setting up popup for fullscreenVideo');
+      // Настраиваем попап на определенной минуте для полноэкранного плеера
       if (window.setupVslTimePopup) {
-        // console.log('🎬 Calling window.setupVslTimePopup(fullscreenVideo)...');
         window.setupVslTimePopup(fullscreenVideo);
-      } else {
-        // console.error('❌ window.setupVslTimePopup is not defined!');
       }
 
       // Открываем форму заказа когда видео закончилось
@@ -1938,6 +1942,8 @@ const { messages, form } = COPY;
     if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
       localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
       // console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+      
+      // Сообщение и попап теперь показываются через обычную систему setupVslTimePopup
       
       // Проверяем, не нужно ли показать попап
       const chatVideo = document.getElementById('vslVideoInline');
@@ -2004,6 +2010,10 @@ const { messages, form } = COPY;
       fullscreenPlayer.style.display = 'none';
       fullscreenVideo.pause();
       
+      // Попап скрывается автоматически через обычную систему
+      
+      // Флаг сообщения больше не нужен
+      
       // Сбрасываем флаг iOS обработчиков
       iosHandlersAdded = false;
     }
@@ -2020,6 +2030,7 @@ const { messages, form } = COPY;
       // console.log('🎯 Popup current z-index:', popup.style.zIndex);
       
       // Принудительно показываем попап
+      popup.classList.add('show');
       popup.style.display = 'block';
       popup.style.opacity = '1';
       popup.style.visibility = 'visible';
@@ -2316,12 +2327,12 @@ const { messages, form } = COPY;
     let messageShown = false;
     
     // Читаем значения из data-атрибутов или используем значения из конфигурации
-    const startTime = parseInt(video.dataset.popupStart) || 893;
+    const startTime = parseInt(video.dataset.popupStart) || 773; // Изменили с 893 на 773
     const endTime = parseInt(video.dataset.popupEnd) || 1100;
-    const messageTime = 713; // За 3 минуты до попапа (893 - 180 = 713)
+    const messageTime = 593; // За 3 минуты до попапа (773 - 180 = 593)
     
     // Проверяем, что время сообщения действительно за 3 минуты до попапа
-    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд
+    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд (773 - 180 = 593)
     if (messageTime !== expectedMessageTime) {
       // console.warn('⚠️ Message time mismatch! Expected:', expectedMessageTime, 'Got:', messageTime);
     }
@@ -2755,97 +2766,13 @@ const { messages, form } = COPY;
       });
     }
     
-    // Блокируем перемотку в полноэкранном плеере
+    // Разрешаем перемотку в полноэкранном плеере
     if (fullscreenVideo) {
-      // Добавляем controls только для десктопа
-      if (window.innerWidth > 768) {
-        fullscreenVideo.controls = true;
-        fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback noplaybackrate noplaypause');
-      } else {
-        fullscreenVideo.controls = false;
-      }
+      // Добавляем controls для всех устройств
+      fullscreenVideo.controls = true;
+      fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
       
-      let lastValidTime = 0;
-      let isUserSeeking = false;
-      
-      fullscreenVideo.addEventListener('seeking', function(e) {
-        if (isUserSeeking) {
-          e.preventDefault();
-          fullscreenVideo.currentTime = lastValidTime;
-          return false;
-        }
-      });
-      
-      fullscreenVideo.addEventListener('seeked', function(e) {
-        if (isUserSeeking) {
-          e.preventDefault();
-          fullscreenVideo.currentTime = lastValidTime;
-          isUserSeeking = false;
-          return false;
-        }
-      });
-      
-      fullscreenVideo.addEventListener('timeupdate', function() {
-        // Обновляем последнее валидное время только если это не пользовательская перемотка
-        if (!isUserSeeking) {
-          lastValidTime = fullscreenVideo.currentTime;
-        }
-      });
-      
-      // Блокируем клики на timeline
-      fullscreenVideo.addEventListener('click', function(e) {
-        const rect = fullscreenVideo.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-        
-        // Если клик в области timeline (нижняя часть видео)
-        if (clickY > rect.height * 0.8) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      });
-      
-      // Блокируем touch события для мобильных устройств
-      fullscreenVideo.addEventListener('touchstart', function(e) {
-        const rect = fullscreenVideo.getBoundingClientRect();
-        const touch = e.touches[0];
-        const touchY = touch.clientY - rect.top;
-        
-        // Если касание в области timeline (нижняя часть видео)
-        if (touchY > rect.height * 0.8) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      });
-      
-      fullscreenVideo.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      });
-      
-      fullscreenVideo.addEventListener('touchend', function(e) {
-        const rect = fullscreenVideo.getBoundingClientRect();
-        const touch = e.changedTouches[0];
-        const touchY = touch.clientY - rect.top;
-        
-        // Если касание в области timeline (нижняя часть видео)
-        if (touchY > rect.height * 0.8) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      });
-      
-      // Блокируем клавиши перемотки
-      fullscreenVideo.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
-          e.preventDefault();
-          return false;
-        }
-      });
+      // console.log('✅ Video seeking enabled for fullscreenVideo');
     }
   });
 
@@ -4463,31 +4390,7 @@ const { messages, form } = COPY;
     background: #000;
   }
   
-  /* Скрываем элементы управления видео */
-  #fullscreenVideo::-webkit-media-controls-play-button,
-  #fullscreenVideo::-webkit-media-controls-pause-button,
-  #fullscreenVideo::-webkit-media-controls-timeline,
-  #fullscreenVideo::-webkit-media-controls-current-time-display,
-  #fullscreenVideo::-webkit-media-controls-time-remaining-display,
-  #fullscreenVideo::-webkit-media-controls-seek-back-button,
-  #fullscreenVideo::-webkit-media-controls-seek-forward-button {
-    display: none !important;
-  }
-  
-  /* Скрываем элементы управления для Firefox */
-  #fullscreenVideo::-moz-media-controls-play-button,
-  #fullscreenVideo::-moz-media-controls-pause-button,
-  #fullscreenVideo::-moz-media-controls-timeline,
-  #fullscreenVideo::-moz-media-controls-current-time-display,
-  #fullscreenVideo::-moz-media-controls-time-remaining-display,
-  #fullscreenVideo::-moz-media-controls-seek-back-button,
-  #fullscreenVideo::-moz-media-controls-seek-forward-button {
-    display: none !important;
-  }
-  
-  /* Агрессивное скрытие элементов управления для мобильных браузеров */
-  #fullscreenVideo::-webkit-media-controls,
-  #fullscreenVideo::-webkit-media-controls-panel,
+  /* Показываем все элементы управления видео */
   #fullscreenVideo::-webkit-media-controls-play-button,
   #fullscreenVideo::-webkit-media-controls-pause-button,
   #fullscreenVideo::-webkit-media-controls-timeline,
@@ -4496,14 +4399,33 @@ const { messages, form } = COPY;
   #fullscreenVideo::-webkit-media-controls-seek-back-button,
   #fullscreenVideo::-webkit-media-controls-seek-forward-button,
   #fullscreenVideo::-webkit-media-controls-volume-slider,
-  #fullscreenVideo::-webkit-media-controls-mute-button,
-  #fullscreenVideo::-webkit-media-controls-fullscreen-button {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
+  #fullscreenVideo::-webkit-media-controls-mute-button {
+    display: block !important;
+  }
+  
+  /* Показываем элементы управления для Firefox */
+  #fullscreenVideo::-moz-media-controls-play-button,
+  #fullscreenVideo::-moz-media-controls-pause-button,
+  #fullscreenVideo::-moz-media-controls-timeline,
+  #fullscreenVideo::-moz-media-controls-current-time-display,
+  #fullscreenVideo::-moz-media-controls-time-remaining-display,
+  #fullscreenVideo::-moz-media-controls-seek-back-button,
+  #fullscreenVideo::-moz-media-controls-seek-forward-button,
+  #fullscreenVideo::-moz-media-controls-volume-slider,
+  #fullscreenVideo::-moz-media-controls-mute-button {
+    display: block !important;
+  }
+  
+  /* Показываем элементы управления для перемотки на мобильных браузерах */
+  #fullscreenVideo::-webkit-media-controls-timeline,
+  #fullscreenVideo::-webkit-media-controls-seek-back-button,
+  #fullscreenVideo::-webkit-media-controls-seek-forward-button {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    width: auto !important;
+    height: auto !important;
   }
   
   /* Дополнительные правила для iOS Safari */
@@ -4511,23 +4433,13 @@ const { messages, form } = COPY;
     display: none !important;
   }
   
-  /* Скрываем все элементы управления видео */
+  /* Показываем элементы управления видео */
   #fullscreenVideo::-webkit-media-controls-enclosure {
-    display: none !important;
+    display: block !important;
   }
   
-  /* Блокировка взаимодействия с видео */
-  .safari-no-controls {
-    pointer-events: none !important;
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
-    -webkit-touch-callout: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-  
-  .safari-no-controls-wrapper {
+  /* Разрешаем взаимодействие с видео */
+  .video-wrapper {
     pointer-events: auto !important;
     position: relative !important;
     width: 100% !important;
@@ -4537,42 +4449,30 @@ const { messages, form } = COPY;
   /* Дополнительные правила для мобильных устройств */
   @media (max-width: 768px) {
     #fullscreenVideo {
-      /* Принудительно скрываем все элементы управления на мобильных */
-      -webkit-appearance: none !important;
-      -moz-appearance: none !important;
-      appearance: none !important;
-      pointer-events: none !important;
+      /* Разрешаем взаимодействие с видео на мобильных */
+      pointer-events: auto !important;
     }
     
-    #fullscreenVideo::-webkit-media-controls,
-    #fullscreenVideo::-webkit-media-controls-panel,
-    #fullscreenVideo::-webkit-media-controls-enclosure {
-      display: none !important;
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      height: 0 !important;
-      position: absolute !important;
-      left: -9999px !important;
-      top: -9999px !important;
+    /* Показываем все элементы управления на мобильных */
+    #fullscreenVideo::-webkit-media-controls-play-button,
+    #fullscreenVideo::-webkit-media-controls-pause-button,
+    #fullscreenVideo::-webkit-media-controls-timeline,
+    #fullscreenVideo::-webkit-media-controls-current-time-display,
+    #fullscreenVideo::-webkit-media-controls-time-remaining-display,
+    #fullscreenVideo::-webkit-media-controls-seek-back-button,
+    #fullscreenVideo::-webkit-media-controls-seek-forward-button,
+    #fullscreenVideo::-webkit-media-controls-volume-slider,
+    #fullscreenVideo::-webkit-media-controls-mute-button {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
     }
     
     .video-wrapper {
-      /* Дополнительная защита для мобильных */
-      overflow: hidden !important;
+      /* Разрешаем взаимодействие с видео */
+      overflow: visible !important;
       position: relative !important;
-    }
-    
-    .video-wrapper::before {
-      content: '' !important;
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      z-index: 1 !important;
-      pointer-events: auto !important;
     }
   }
   
@@ -4642,9 +4542,19 @@ const { messages, form } = COPY;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10;
+    z-index: 1000;
     pointer-events: none; /* Позволяет кликать через попап на видео */
     background: transparent; /* Убираем затемнение видео */
+    display: none; /* По умолчанию скрыт */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .fullscreen-vsl-mid-popup.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
   .fullscreen-vsl-mid-banner {
