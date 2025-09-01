@@ -1,0 +1,148 @@
+/* Оптимизации для мобильных устройств */
+
+/* Принудительное аппаратное ускорение для видео */
+.vsl-video,
+#fullscreenVideo,
+#returnVslVideo,
+#returnVisitVideo {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  -ms-perspective: 1000;
+  perspective: 1000;
+}
+
+/* Оптимизация для мобильных устройств */
+@media (max-width: 768px) {
+  /* Уменьшаем качество видео на мобильных для лучшей производительности */
+  .vsl-video,
+  #fullscreenVideo,
+  #returnVslVideo,
+  #returnVisitVideo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+  
+  /* Отключаем сложные анимации на мобильных */
+  .vsl-overlay,
+  .vsl-vignette,
+  .vsl-text-overlay {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  /* Упрощаем тени для лучшей производительности */
+  .vsl-card,
+  .fullscreen-player,
+  .return-popup,
+  .return-visit-popup {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+  
+  /* Оптимизация для устройств с низким разрешением */
+  @media (-webkit-max-device-pixel-ratio: 1.5) {
+    .vsl-video,
+    #fullscreenVideo,
+    #returnVslVideo,
+    #returnVisitVideo {
+      image-rendering: pixelated;
+    }
+  }
+}
+
+/* Дополнительные оптимизации для очень старых мобильных устройств */
+@media (max-width: 480px) {
+  /* Отключаем все ненужные эффекты */
+  * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Упрощаем видео контейнеры */
+  .vsl-thumb,
+  .vsl-card,
+  .fullscreen-player-content {
+    background: #000 !important;
+    border: none !important;
+  }
+}
+
+/* Оптимизация для устройств с ограниченной памятью */
+@media (max-device-memory: 2gb) {
+  /* Принудительно уменьшаем качество видео */
+  .vsl-video,
+  #fullscreenVideo,
+  #returnVslVideo,
+  #returnVisitVideo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+  }
+  
+  /* Отключаем все анимации */
+  * {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* Специальные оптимизации для iOS */
+@supports (-webkit-touch-callout: none) {
+  .vsl-video,
+  #fullscreenVideo,
+  #returnVslVideo,
+  #returnVisitVideo {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  /* Отключаем инерцию прокрутки на iOS */
+  .chat,
+  .fullscreen-player {
+    -webkit-overflow-scrolling: auto;
+  }
+}
+
+/* Оптимизация для Android */
+@supports (-webkit-appearance: none) and (not (overflow: -webkit-marquee)) {
+  .vsl-video,
+  #fullscreenVideo,
+  #returnVslVideo,
+  #returnVisitVideo {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* Принудительное отключение всех эффектов на устройствах с низкой производительностью */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* Оптимизация для устройств с высоким DPI */
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .vsl-video,
+  #fullscreenVideo,
+  #returnVslVideo,
+  #returnVisitVideo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+  }
+}

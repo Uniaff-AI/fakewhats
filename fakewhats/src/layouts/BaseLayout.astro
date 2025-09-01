@@ -1,6 +1,7 @@
 ---
 import { COPY } from '../content/copy';
 import '../styles/global.css';
+import '../styles/mobile-optimizations.css';
 ---
 <!DOCTYPE html>
 <html lang="ru">
@@ -17,6 +18,12 @@ import '../styles/global.css';
   </head>
   <body>
     <slot />
+    
+    <!-- Подключаем оптимизации для мобильных устройств -->
+    <script>
+      // Импортируем компонент с оптимизациями
+      import('../components/MobileOptimizations.astro');
+    </script>
     
 
     

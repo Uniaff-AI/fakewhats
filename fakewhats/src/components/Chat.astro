@@ -847,14 +847,35 @@ const { messages, form } = COPY;
         localStorage.setItem('savedVideoTime', maxTime.toString());
         // console.log('💾 Saved MAX video time on page hide from', maxSource, ':', maxTime, 'seconds');
       }
+      
+      // Очищаем ресурсы для экономии памяти на мобильных устройствах
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        // Принудительно очищаем кеш видео на мобильных устройствах
+        if (video) {
+          video.removeAttribute('src');
+          video.load();
+        }
+        if (fullscreenVideo) {
+          fullscreenVideo.removeAttribute('src');
+          fullscreenVideo.load();
+        }
+      }
     }
   });
 
   // Настройки видео (перемотка разрешена)
   const vslVideoInline = document.getElementById('vslVideoInline');
   if (vslVideoInline) {
+    // Очищаем предыдущие обработчики для предотвращения дублирования
+    const newVslVideoInline = vslVideoInline.cloneNode(true);
+    vslVideoInline.parentNode.replaceChild(newVslVideoInline, vslVideoInline);
+    
+    // Получаем новый элемент
+    const cleanVslVideoInline = document.getElementById('vslVideoInline');
+    
     // Отключаем только контекстное меню
-    vslVideoInline.addEventListener('contextmenu', (e) => {
+    cleanVslVideoInline.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       return false;
     });
@@ -874,8 +895,8 @@ const { messages, form } = COPY;
     
     // Функция сохранения времени просмотра
     function saveChatVideoTime() {
-      if (vslVideoInline && vslVideoInline.currentTime > 0) {
-        savedChatVideoTime = vslVideoInline.currentTime;
+      if (cleanVslVideoInline && cleanVslVideoInline.currentTime > 0) {
+        savedChatVideoTime = cleanVslVideoInline.currentTime;
         localStorage.setItem('savedChatVideoTime', savedChatVideoTime.toString());
         
         // Проверяем время всех плееров и сохраняем самое позднее в savedVideoTime
@@ -883,7 +904,7 @@ const { messages, form } = COPY;
         const returnVideo = document.getElementById('returnVslVideo');
         const returnVisitVideo = document.getElementById('returnVisitVideo');
         
-        let maxTime = vslVideoInline.currentTime;
+        let maxTime = cleanVslVideoInline.currentTime;
         let maxSource = 'chat';
         
         if (fullscreenVideo && fullscreenVideo.currentTime > maxTime) {
@@ -911,22 +932,22 @@ const { messages, form } = COPY;
     }
     
     // Сохраняем время каждые 5 секунд во время воспроизведения
-    setInterval(() => {
-      if (vslVideoInline && !vslVideoInline.paused && vslVideoInline.currentTime > 0) {
+    const chatTimeInterval = setInterval(() => {
+      if (cleanVslVideoInline && !cleanVslVideoInline.paused && cleanVslVideoInline.currentTime > 0) {
         saveChatVideoTime();
       }
     }, 5000); // Каждые 5 секунд
     
     // Сохраняем время при паузе
-    vslVideoInline.addEventListener('pause', saveChatVideoTime);
+    cleanVslVideoInline.addEventListener('pause', saveChatVideoTime);
     
     // Сохраняем время при закрытии страницы
     window.addEventListener('beforeunload', saveChatVideoTime);
     
     // Устанавливаем сохраненное время при загрузке видео
-    vslVideoInline.addEventListener('loadeddata', () => {
+    cleanVslVideoInline.addEventListener('loadeddata', () => {
       if (savedChatVideoTime > 0) {
-        vslVideoInline.currentTime = savedChatVideoTime;
+        cleanVslVideoInline.currentTime = savedChatVideoTime;
         // console.log('⏰ Restored chat video time to:', savedChatVideoTime);
       }
     });
@@ -936,38 +957,53 @@ const { messages, form } = COPY;
       // console.log('🍎 iOS device detected, applying special handling');
       
       // Обработчик для восстановления видео после блокировки экрана
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && vslVideoInline.paused && vslVideoInline.currentTime > 0) {
+      const iosVisibilityHandler = () => {
+        if (!document.hidden && cleanVslVideoInline.paused && cleanVslVideoInline.currentTime > 0) {
           // console.log('📱 Device unlocked, attempting to resume video');
           setTimeout(() => {
-            vslVideoInline.play().catch(() => {
+            cleanVslVideoInline.play().catch(() => {
               // console.log('⚠️ Could not auto-resume on iOS unlock');
             });
           }, 500);
         }
-      });
+      };
       
       // Обработчик для восстановления после потери фокуса
-      window.addEventListener('focus', () => {
-        if (vslVideoInline.paused && vslVideoInline.currentTime > 0) {
+      const iosFocusHandler = () => {
+        if (cleanVslVideoInline.paused && cleanVslVideoInline.currentTime > 0) {
           // console.log('📱 Window focused, attempting to resume video');
           setTimeout(() => {
-            vslVideoInline.play().catch(() => {
+            cleanVslVideoInline.play().catch(() => {
               // console.log('⚠️ Could not auto-resume on iOS focus');
             });
           }, 300);
         }
-      });
+      };
+      
+      document.addEventListener('visibilitychange', iosVisibilityHandler);
+      window.addEventListener('focus', iosFocusHandler);
       
       // Обработчик для принудительного восстановления при проблемах
-      vslVideoInline.addEventListener('stalled', () => {
+      cleanVslVideoInline.addEventListener('stalled', () => {
         // console.log('⏸️ iOS video stalled, attempting recovery...');
         setTimeout(() => {
-          if (vslVideoInline.readyState < 2) {
-            vslVideoInline.load();
+          if (cleanVslVideoInline.readyState < 2) {
+            cleanVslVideoInline.load();
             // console.log('🔄 iOS video reloaded after stall');
           }
         }, 2000);
+      });
+      
+      // Очистка iOS обработчиков при закрытии страницы
+      window.addEventListener('beforeunload', () => {
+        document.removeEventListener('visibilitychange', iosVisibilityHandler);
+        window.removeEventListener('focus', iosFocusHandler);
+        clearInterval(chatTimeInterval);
+      });
+    } else {
+      // Очистка интервала для не-iOS устройств
+      window.addEventListener('beforeunload', () => {
+        clearInterval(chatTimeInterval);
       });
     }
 
@@ -1430,32 +1466,57 @@ const { messages, form } = COPY;
     video.addEventListener('stalled', handleVideoStalled);
     video.addEventListener('waiting', handleVideoWaiting);
     
-    // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
-    video.muted = true;
-    video.play().then(() => {
-      // console.log('✅ Fullscreen video started playing (muted)');
-      // Включаем звук сразу
-      video.muted = false;
-      // console.log('🔊 Sound enabled immediately');
-    }).catch((error) => {
-      // console.log('❌ Muted autoplay failed:', error.name);
+    // Проверяем, мобильное ли устройство
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // На мобильных устройствах используем более мягкий подход
+      video.muted = true;
+      video.playsInline = true;
       
-      // Стратегия 2: Пробуем с задержкой
+      // Небольшая задержка для стабилизации
       setTimeout(() => {
-        video.muted = true;
         video.play().then(() => {
-          // console.log('✅ Fullscreen video started playing (delayed muted)');
-          // Включаем звук сразу
-          video.muted = false;
-          // console.log('🔊 Sound enabled immediately (delayed)');
-        }).catch((error2) => {
-          // console.log('❌ Delayed autoplay failed:', error2.name);
-          
-          // Стратегия 3: Ждем взаимодействия пользователя
+          // console.log('✅ Mobile video started playing (muted)');
+          // Включаем звук с небольшой задержкой
+          setTimeout(() => {
+            video.muted = false;
+            // console.log('🔊 Mobile video sound enabled');
+          }, 1000);
+        }).catch((error) => {
+          // console.log('❌ Mobile autoplay failed:', error.name);
+          // На мобильных устройствах просто ждем взаимодействия
           setupUserInteractionAutoplay(video);
         });
-      }, 500);
-    });
+      }, 300);
+    } else {
+      // На десктопе используем стандартную стратегию
+      video.muted = true;
+      video.play().then(() => {
+        // console.log('✅ Desktop video started playing (muted)');
+        // Включаем звук сразу
+        video.muted = false;
+        // console.log('🔊 Sound enabled immediately');
+      }).catch((error) => {
+        // console.log('❌ Desktop autoplay failed:', error.name);
+        
+        // Стратегия 2: Пробуем с задержкой
+        setTimeout(() => {
+          video.muted = true;
+          video.play().then(() => {
+            // console.log('✅ Desktop video started playing (delayed muted)');
+            // Включаем звук сразу
+            video.muted = false;
+            // console.log('🔊 Sound enabled immediately (delayed)');
+          }).catch((error2) => {
+            // console.log('❌ Delayed autoplay failed:', error2.name);
+            
+            // Стратегия 3: Ждем взаимодействия пользователя
+            setupUserInteractionAutoplay(video);
+          });
+        }, 500);
+      });
+    }
   }
 
   // Обработчик ошибок видео для исправления зависания
@@ -1611,8 +1672,12 @@ const { messages, form } = COPY;
     let lastProgressTime = 0;
     let stuckCounter = 0;
     let healthCheckInterval;
+    let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    // Проверяем здоровье видео каждые 10 секунд
+    // На мобильных устройствах проверяем реже, чтобы не нагружать устройство
+    const checkInterval = isMobile ? 15000 : 10000;
+    
+    // Проверяем здоровье видео
     healthCheckInterval = setInterval(() => {
       if (!video || video.ended) {
         clearInterval(healthCheckInterval);
@@ -1629,7 +1694,14 @@ const { messages, form } = COPY;
         
         if (stuckCounter >= 3) {
           // console.log('🚨 Video confirmed stuck, attempting recovery...');
-          forceVideoRecovery(video);
+          // На мобильных устройствах используем более мягкое восстановление
+          if (isMobile) {
+            // Просто перезагружаем видео без принудительного восстановления
+            video.load();
+            // console.log('🔄 Mobile video reloaded after stall');
+          } else {
+            forceVideoRecovery(video);
+          }
           stuckCounter = 0;
         }
       } else {
@@ -1637,7 +1709,7 @@ const { messages, form } = COPY;
       }
       
       lastProgressTime = currentTime;
-    }, 10000);
+    }, checkInterval);
     
     // Возвращаем функцию для очистки
     return () => clearInterval(healthCheckInterval);
@@ -1657,7 +1729,14 @@ const { messages, form } = COPY;
     videos.forEach(video => {
       if (video && video.readyState < 2) {
         // console.log('🔄 Recovering video:', video.id);
-        forceVideoRecovery(video);
+        // На мобильных устройствах используем более мягкое восстановление
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+          video.load();
+          // console.log('🔄 Mobile video reloaded:', video.id);
+        } else {
+          forceVideoRecovery(video);
+        }
       }
     });
   };
@@ -1668,6 +1747,28 @@ const { messages, form } = COPY;
       window.recoverAllVideos();
     }
   }, 120000); // 2 минуты
+  
+  // Очистка ресурсов при загрузке страницы для предотвращения накопления
+  window.addEventListener('load', () => {
+    // Сбрасываем все флаги и очищаем ресурсы
+    if (fullscreenPlayerCleanup) {
+      fullscreenPlayerCleanup();
+      fullscreenPlayerCleanup = null;
+    }
+    iosHandlersAdded = false;
+    
+    // Очищаем localStorage от старых данных если они слишком старые
+    const savedTime = localStorage.getItem('savedVideoTime');
+    if (savedTime) {
+      const savedTimeNum = parseFloat(savedTime);
+      // Если сохраненное время больше 10 минут, сбрасываем его
+      if (savedTimeNum > 600) {
+        localStorage.removeItem('savedVideoTime');
+        localStorage.removeItem('savedChatVideoTime');
+        // console.log('🧹 Cleared old video time data');
+      }
+    }
+  });
 
   // Обработчик для принудительного восстановления при проблемах с памятью
   window.addEventListener('beforeunload', () => {
@@ -1690,15 +1791,31 @@ const { messages, form } = COPY;
       setTimeout(() => {
         window.recoverAllVideos();
       }, 1000);
+    } else {
+      // При скрытии страницы очищаем ресурсы для экономии памяти
+      if (fullscreenPlayerCleanup) {
+        fullscreenPlayerCleanup();
+        fullscreenPlayerCleanup = null;
+      }
+      iosHandlersAdded = false;
     }
   });
 
   // Функции для управления полноэкранным плеером
+  let fullscreenPlayerCleanup = null; // Глобальная переменная для очистки
+  let iosHandlersAdded = false; // Флаг для предотвращения дублирования iOS обработчиков
+  
   function showFullscreenPlayer() {
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     const fullscreenVideo = document.getElementById('fullscreenVideo');
     
     if (fullscreenPlayer && fullscreenVideo) {
+      // Очищаем предыдущие ресурсы перед открытием
+      if (fullscreenPlayerCleanup) {
+        fullscreenPlayerCleanup();
+        fullscreenPlayerCleanup = null;
+      }
+      
       fullscreenPlayer.style.display = 'flex';
       
       // Устанавливаем сохраненное время видео
@@ -1740,9 +1857,20 @@ const { messages, form } = COPY;
       // Запускаем мониторинг здоровья видео
       const cleanupHealthMonitoring = setupVideoHealthMonitoring(fullscreenVideo);
       
-      // Специальная обработка для iOS Safari
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      // Создаем функцию очистки для этого экземпляра
+      fullscreenPlayerCleanup = () => {
+        if (cleanupHealthMonitoring) {
+          cleanupHealthMonitoring();
+        }
+        // Очищаем все обработчики событий
+        fullscreenVideo.removeEventListener('ended', handleFullscreenVideoEnded);
+        fullscreenVideo.removeEventListener('timeupdate', handleFullscreenVideoTimeUpdate);
+      };
+      
+      // Специальная обработка для iOS Safari (только один раз)
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !iosHandlersAdded) {
         // console.log('🍎 iOS device detected for fullscreen video');
+        iosHandlersAdded = true;
         
         // Обработчик для восстановления видео после блокировки экрана
         const iosVisibilityHandler = () => {
@@ -1771,12 +1899,13 @@ const { messages, form } = COPY;
         document.addEventListener('visibilitychange', iosVisibilityHandler);
         window.addEventListener('focus', iosFocusHandler);
         
-        // Сохраняем обработчики для очистки
-        const originalCleanup = cleanupHealthMonitoring;
-        cleanupHealthMonitoring = () => {
+        // Добавляем очистку iOS обработчиков в общую функцию очистки
+        const originalCleanup = fullscreenPlayerCleanup;
+        fullscreenPlayerCleanup = () => {
           if (originalCleanup) originalCleanup();
           document.removeEventListener('visibilitychange', iosVisibilityHandler);
           window.removeEventListener('focus', iosFocusHandler);
+          iosHandlersAdded = false;
         };
       }
       
@@ -1790,38 +1919,32 @@ const { messages, form } = COPY;
       }
 
       // Открываем форму заказа когда видео закончилось
-      fullscreenVideo.addEventListener('ended', function() {
-        // console.log('🎬 Fullscreen video ended, showing order form');
-        if (window.showOrderFormModal) {
-          window.showOrderFormModal();
-        }
-      });
+      fullscreenVideo.addEventListener('ended', handleFullscreenVideoEnded);
 
       // Периодически сохраняем время просмотра каждые 5 секунд
-      const fullscreenTimeInterval = setInterval(() => {
-        if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
-          // Сохраняем время полноэкранного плеера
-          localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
-          // console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
-          
-          // Также сохраняем время видео в чате если оно больше
-          const chatVideo = document.getElementById('vslVideoInline');
-          if (chatVideo && chatVideo.currentTime > fullscreenVideo.currentTime) {
-            localStorage.setItem('savedVideoTime', chatVideo.currentTime.toString());
-            // console.log('💾 Chat video time is later, saved chat time:', chatVideo.currentTime, 'seconds');
-          }
-        }
-      }, 5000); // Каждые 5 секунд
-
-      // Очищаем интервал при закрытии плеера
-      const originalHideFullscreenPlayer = hideFullscreenPlayer;
-      hideFullscreenPlayer = function() {
-        clearInterval(fullscreenTimeInterval);
-        if (cleanupHealthMonitoring) {
-          cleanupHealthMonitoring();
-        }
-        originalHideFullscreenPlayer();
-      };
+      fullscreenVideo.addEventListener('timeupdate', handleFullscreenVideoTimeUpdate);
+    }
+  }
+  
+  // Выносим обработчики в отдельные функции для лучшей очистки
+  function handleFullscreenVideoEnded() {
+    // console.log('🎬 Fullscreen video ended, showing order form');
+    if (window.showOrderFormModal) {
+      window.showOrderFormModal();
+    }
+  }
+  
+  function handleFullscreenVideoTimeUpdate() {
+    if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
+      localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
+      // console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
+      
+      // Проверяем, не нужно ли показать попап
+      const chatVideo = document.getElementById('vslVideoInline');
+      if (chatVideo && chatVideo.currentTime > fullscreenVideo.currentTime) {
+        // console.log('💾 Chat video time is ahead, updating saved time');
+        localStorage.setItem('savedVideoTime', chatVideo.currentTime.toString());
+      }
     }
   }
   
@@ -1872,8 +1995,17 @@ const { messages, form } = COPY;
         // console.log('⚠️ Video time is 0, not saving');
       }
       
+      // Очищаем ресурсы перед закрытием
+      if (fullscreenPlayerCleanup) {
+        fullscreenPlayerCleanup();
+        fullscreenPlayerCleanup = null;
+      }
+      
       fullscreenPlayer.style.display = 'none';
       fullscreenVideo.pause();
+      
+      // Сбрасываем флаг iOS обработчиков
+      iosHandlersAdded = false;
     }
   }
 
