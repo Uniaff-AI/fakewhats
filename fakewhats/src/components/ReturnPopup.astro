@@ -399,30 +399,16 @@ const { popup } = COPY;
             video.pause();
           }
         } else {
-  // console.log('👁️ Page visible, resuming return video');
-          if (video.paused && !video.ended) {
-            setTimeout(() => {
-              video.play().catch(error => {
-  // console.log('❌ Return video: failed to resume after page visible:', error.name);
-              });
-            }, 500);
-          }
+  // console.log('👁️ Page visible, return video remains paused for user control');
+          // НЕ возобновляем видео автоматически - пользователь должен сам нажать play
         }
       });
     }
 
     // Обработка потери фокуса окна
     window.addEventListener('focus', function() {
-      if (document.hasFocus()) {
-  // console.log('🎯 Window focused, checking return video state');
-        if (video.paused && !video.ended && !isStalled) {
-          setTimeout(() => {
-            video.play().catch(error => {
-  // console.log('❌ Return video: failed to resume after focus:', error.name);
-            });
-          }, 300);
-        }
-      }
+  // console.log('🎯 Window focused, return video remains paused for user control');
+      // НЕ возобновляем видео автоматически - пользователь должен сам нажать play
     });
 
     // Специальная обработка для iOS Safari
@@ -434,16 +420,14 @@ const { popup } = COPY;
       document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
           wasPlayingBeforeLock = !video.paused;
-        } else {
-          if (wasPlayingBeforeLock) {
-  // console.log('🔓 iOS: Screen unlocked, resuming return video');
-            setTimeout(() => {
-              video.play().catch(error => {
-  // console.log('❌ iOS: Failed to resume return video after unlock:', error.name);
-              });
-            }, 1000);
-            wasPlayingBeforeLock = false;
+          // Принудительно приостанавливаем видео при блокировке
+          if (!video.paused) {
+            video.pause();
           }
+        } else {
+  // console.log('🔓 iOS: Screen unlocked, return video remains paused for user control');
+          // НЕ возобновляем видео автоматически - пользователь должен сам нажать play
+          wasPlayingBeforeLock = false;
         }
       });
 
@@ -452,15 +436,9 @@ const { popup } = COPY;
       });
 
       window.addEventListener('focus', function() {
-        if (wasPlayingBeforeLock) {
-  // console.log('📱 iOS: App focused, resuming return video');
-          setTimeout(() => {
-            video.play().catch(error => {
-  // console.log('❌ iOS: Failed to resume return video after app focus:', error.name);
-            });
-          }, 500);
-          wasPlayingBeforeLock = false;
-        }
+  // console.log('📱 iOS: App focused, return video remains paused for user control');
+        // НЕ возобновляем видео автоматически - пользователь должен сам нажать play
+        wasPlayingBeforeLock = false;
       });
     }
   }

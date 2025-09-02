@@ -958,28 +958,20 @@ const { messages, form } = COPY;
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
       // console.log('🍎 iOS device detected, applying special handling');
       
-      // Обработчик для восстановления видео после блокировки экрана
+      // Обработчик для принудительной паузы при блокировке экрана
       const iosVisibilityHandler = () => {
-        if (!document.hidden && cleanVslVideoInline.paused && cleanVslVideoInline.currentTime > 0) {
-          // console.log('📱 Device unlocked, attempting to resume video');
-          setTimeout(() => {
-            cleanVslVideoInline.play().catch(() => {
-              // console.log('⚠️ Could not auto-resume on iOS unlock');
-            });
-          }, 500);
+        if (document.hidden && !cleanVslVideoInline.paused) {
+          cleanVslVideoInline.pause();
         }
+        // НЕ возобновляем видео автоматически
       };
       
-      // Обработчик для восстановления после потери фокуса
+      // Обработчик для принудительной паузы при потере фокуса
       const iosFocusHandler = () => {
-        if (cleanVslVideoInline.paused && cleanVslVideoInline.currentTime > 0) {
-          // console.log('📱 Window focused, attempting to resume video');
-          setTimeout(() => {
-            cleanVslVideoInline.play().catch(() => {
-              // console.log('⚠️ Could not auto-resume on iOS focus');
-            });
-          }, 300);
+        if (!document.hasFocus() && !cleanVslVideoInline.paused) {
+          cleanVslVideoInline.pause();
         }
+        // НЕ возобновляем видео автоматически
       };
       
       document.addEventListener('visibilitychange', iosVisibilityHandler);
@@ -1922,28 +1914,20 @@ const { messages, form } = COPY;
         // console.log('🍎 iOS device detected for fullscreen video');
         iosHandlersAdded = true;
 
-        // Обработчик для восстановления видео после блокировки экрана
+        // Обработчик для принудительной паузы при блокировке экрана
         const iosVisibilityHandler = () => {
-          if (!document.hidden && fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
-            // console.log('📱 iOS device unlocked, attempting to resume fullscreen video');
-            setTimeout(() => {
-              fullscreenVideo.play().catch(() => {
-                // console.log('⚠️ Could not auto-resume fullscreen video on iOS unlock');
-              });
-            }, 500);
+          if (document.hidden && !fullscreenVideo.paused) {
+            fullscreenVideo.pause();
           }
+          // НЕ возобновляем видео автоматически
         };
 
-        // Обработчик для восстановления после потери фокуса
+        // Обработчик для принудительной паузы при потере фокуса
         const iosFocusHandler = () => {
-          if (fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
-            // console.log('📱 iOS window focused, attempting to resume fullscreen video');
-            setTimeout(() => {
-              fullscreenVideo.play().catch(() => {
-                // console.log('⚠️ Could not auto-resume fullscreen video on iOS focus');
-              });
-            }, 300);
+          if (!document.hasFocus() && !fullscreenVideo.paused) {
+            fullscreenVideo.pause();
           }
+          // НЕ возобновляем видео автоматически
         };
 
         document.addEventListener('visibilitychange', iosVisibilityHandler);
