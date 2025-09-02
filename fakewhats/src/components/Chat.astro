@@ -32,7 +32,7 @@ const { messages, form } = COPY;
     <div class="bubble vsl-bubble">
       <div class="vsl-card">
         <div class="vsl-thumb">
-                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
+                      <video id="vslVideoInline" src={siteConfig.images.videos.chatVsl} muted loop playsinline preload="metadata" loading="lazy" class="vsl-video" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" data-popup-start={siteConfig.settings.vslPopupStartTime} data-popup-end={siteConfig.settings.vslPopupEndTime} data-video-src={siteConfig.images.videos.chatVsl}></video>
           <div class="vsl-overlay">
             <!-- Зеленая мигающая кнопка включения звука -->
             <div class="vsl-sound-btn" id="vslPlayBtn" style="cursor: pointer; z-index: 5; pointer-events: auto;">
@@ -512,7 +512,7 @@ const { messages, form } = COPY;
 <div id="fullscreenPlayer" class="fullscreen-player" style="display: none;">
   <div class="fullscreen-player-content">
             <div class="video-wrapper">
-          <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} data-original-src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
+          <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} data-original-src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
         </div>
     <button id="fullscreenCloseBtn" class="fullscreen-close-btn" style="z-index: 1010;">✕</button>
     
@@ -1860,9 +1860,8 @@ const { messages, form } = COPY;
 
       fullscreenPlayer.style.display = 'flex';
 
-      // Принудительно включаем элементы управления
-      fullscreenVideo.controls = true;
-      fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+      // Элементы управления скрыты для предотвращения перемотки
+      fullscreenVideo.controls = false;
 
       // Устанавливаем сохраненное время видео
       const savedTime = localStorage.getItem('savedVideoTime');
@@ -2841,13 +2840,12 @@ const { messages, form } = COPY;
       });
     }
 
-    // Разрешаем перемотку в полноэкранном плеере
+    // Скрываем элементы управления для предотвращения перемотки
     if (fullscreenVideo) {
-      // Добавляем controls для всех устройств
-      fullscreenVideo.controls = true;
-      fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+      // Отключаем controls для всех устройств
+      fullscreenVideo.controls = false;
 
-      // console.log('✅ Video seeking enabled for fullscreenVideo');
+      // console.log('✅ Video seeking disabled for fullscreenVideo');
     }
   });
 
@@ -3228,6 +3226,21 @@ const { messages, form } = COPY;
     left: 0;
     /* Блокируем клики по видео в чате */
     pointer-events: none;
+  }
+
+  /* Скрываем кнопки перемотки для основного видео */
+  .vsl-video::-webkit-media-controls-seek-back-button,
+  .vsl-video::-webkit-media-controls-seek-forward-button,
+  .vsl-video::-webkit-media-controls-timeline,
+  .vsl-video::-moz-media-controls-seek-back-button,
+  .vsl-video::-moz-media-controls-seek-forward-button,
+  .vsl-video::-moz-media-controls-timeline {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 
   /* Исправление обрезания видео на мобильных устройствах */
@@ -4465,42 +4478,74 @@ const { messages, form } = COPY;
     background: #000;
   }
 
-  /* Показываем все элементы управления видео */
-  #fullscreenVideo::-webkit-media-controls-play-button,
-  #fullscreenVideo::-webkit-media-controls-pause-button,
-  #fullscreenVideo::-webkit-media-controls-timeline,
-  #fullscreenVideo::-webkit-media-controls-current-time-display,
-  #fullscreenVideo::-webkit-media-controls-time-remaining-display,
+  /* Скрываем кнопки перемотки для полноэкранного плеера */
+  .fullscreen-player video::-webkit-media-controls-seek-back-button,
+  .fullscreen-player video::-webkit-media-controls-seek-forward-button,
+  .fullscreen-player video::-webkit-media-controls-timeline,
+  .fullscreen-player video::-moz-media-controls-seek-back-button,
+  .fullscreen-player video::-moz-media-controls-seek-forward-button,
+  .fullscreen-player video::-moz-media-controls-timeline {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Скрываем кнопки перемотки для всех видеоплееров */
+  #vslVideoInline::-webkit-media-controls-seek-back-button,
+  #vslVideoInline::-webkit-media-controls-seek-forward-button,
+  #vslVideoInline::-webkit-media-controls-timeline,
   #fullscreenVideo::-webkit-media-controls-seek-back-button,
   #fullscreenVideo::-webkit-media-controls-seek-forward-button,
+  #fullscreenVideo::-webkit-media-controls-timeline {
+    display: none !important;
+  }
+
+  /* Показываем остальные элементы управления видео */
+  #fullscreenVideo::-webkit-media-controls-play-button,
+  #fullscreenVideo::-webkit-media-controls-pause-button,
+  #fullscreenVideo::-webkit-media-controls-current-time-display,
+  #fullscreenVideo::-webkit-media-controls-time-remaining-display,
   #fullscreenVideo::-webkit-media-controls-volume-slider,
   #fullscreenVideo::-webkit-media-controls-mute-button {
     display: block !important;
   }
 
-  /* Показываем элементы управления для Firefox */
-  #fullscreenVideo::-moz-media-controls-play-button,
-  #fullscreenVideo::-moz-media-controls-pause-button,
-  #fullscreenVideo::-moz-media-controls-timeline,
-  #fullscreenVideo::-moz-media-controls-current-time-display,
-  #fullscreenVideo::-moz-media-controls-time-remaining-display,
+  /* Скрываем кнопки перемотки для Firefox */
+  #vslVideoInline::-moz-media-controls-seek-back-button,
+  #vslVideoInline::-moz-media-controls-seek-forward-button,
+  #vslVideoInline::-moz-media-controls-timeline,
   #fullscreenVideo::-moz-media-controls-seek-back-button,
   #fullscreenVideo::-moz-media-controls-seek-forward-button,
+  #fullscreenVideo::-moz-media-controls-timeline {
+    display: none !important;
+  }
+
+  /* Показываем остальные элементы управления для Firefox */
+  #fullscreenVideo::-moz-media-controls-play-button,
+  #fullscreenVideo::-moz-media-controls-pause-button,
+  #fullscreenVideo::-moz-media-controls-current-time-display,
+  #fullscreenVideo::-moz-media-controls-time-remaining-display,
   #fullscreenVideo::-moz-media-controls-volume-slider,
   #fullscreenVideo::-moz-media-controls-mute-button {
     display: block !important;
   }
 
-  /* Показываем элементы управления для перемотки на мобильных браузерах */
+  /* Скрываем элементы управления для перемотки на мобильных браузерах */
+  #vslVideoInline::-webkit-media-controls-timeline,
+  #vslVideoInline::-webkit-media-controls-seek-back-button,
+  #vslVideoInline::-webkit-media-controls-seek-forward-button,
   #fullscreenVideo::-webkit-media-controls-timeline,
   #fullscreenVideo::-webkit-media-controls-seek-back-button,
   #fullscreenVideo::-webkit-media-controls-seek-forward-button {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    width: auto !important;
-    height: auto !important;
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 
   /* Дополнительные правила для iOS Safari */
@@ -4528,14 +4573,24 @@ const { messages, form } = COPY;
       pointer-events: auto !important;
     }
 
-    /* Показываем все элементы управления на мобильных */
+    /* Скрываем кнопки перемотки на мобильных */
+    #vslVideoInline::-webkit-media-controls-timeline,
+    #vslVideoInline::-webkit-media-controls-seek-back-button,
+    #vslVideoInline::-webkit-media-controls-seek-forward-button,
+    #fullscreenVideo::-webkit-media-controls-timeline,
+    #fullscreenVideo::-webkit-media-controls-seek-back-button,
+    #fullscreenVideo::-webkit-media-controls-seek-forward-button {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    /* Показываем остальные элементы управления на мобильных */
     #fullscreenVideo::-webkit-media-controls-play-button,
     #fullscreenVideo::-webkit-media-controls-pause-button,
-    #fullscreenVideo::-webkit-media-controls-timeline,
     #fullscreenVideo::-webkit-media-controls-current-time-display,
     #fullscreenVideo::-webkit-media-controls-time-remaining-display,
-    #fullscreenVideo::-webkit-media-controls-seek-back-button,
-    #fullscreenVideo::-webkit-media-controls-seek-forward-button,
     #fullscreenVideo::-webkit-media-controls-volume-slider,
     #fullscreenVideo::-webkit-media-controls-mute-button {
       display: block !important;

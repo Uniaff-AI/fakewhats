@@ -7,7 +7,7 @@ import { siteConfig } from '../config/site-config';
   <div class="vsl-container">
     <!-- VSL Video Section -->
     <div class="vsl-video-section">
-              <video id="vslExitVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" class="vsl-video" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5">
+              <video id="vslExitVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" class="vsl-video" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5">
           Your browser does not support the video tag.
         </video>
       
@@ -667,6 +667,33 @@ import { siteConfig } from '../config/site-config';
       width: 24px;
       height: 24px;
       font-size: 12px;
+    }
+  }
+
+  /* Скрываем кнопки перемотки для VSL Exit видео */
+  #vslExitVideo::-webkit-media-controls-seek-back-button,
+  #vslExitVideo::-webkit-media-controls-seek-forward-button,
+  #vslExitVideo::-webkit-media-controls-timeline,
+  #vslExitVideo::-moz-media-controls-seek-back-button,
+  #vslExitVideo::-moz-media-controls-seek-forward-button,
+  #vslExitVideo::-moz-media-controls-timeline {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Скрываем кнопки перемотки на мобильных устройствах */
+  @media (max-width: 768px) {
+    #vslExitVideo::-webkit-media-controls-seek-back-button,
+    #vslExitVideo::-webkit-media-controls-seek-forward-button,
+    #vslExitVideo::-webkit-media-controls-timeline {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
   }
 </style>

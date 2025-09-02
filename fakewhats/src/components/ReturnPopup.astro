@@ -10,7 +10,7 @@ const { popup } = COPY;
       <div class="vsl-overlay">
 
         <div class="video-wrapper">
-          <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="false" x5-video-orientation="portraint"></video>
+          <video id="returnVslVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="false" x5-video-orientation="portraint"></video>
         </div>
         
         <!-- Виньетка для затемнения -->
@@ -627,11 +627,10 @@ const { popup } = COPY;
     // Домонетка показывается только при попытке закрыть попап (клик на фон)
   });
 
-  // Настройки видео (перемотка разрешена)
+  // Настройки видео (перемотка запрещена)
   if (returnVideo) {
-    // Добавляем controls для всех устройств
-    returnVideo.controls = true;
-    returnVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+    // Отключаем controls для предотвращения перемотки
+    returnVideo.controls = false;
 
     returnVideo.addEventListener('contextmenu', (e) => {
       e.preventDefault();
@@ -912,11 +911,19 @@ const { popup } = COPY;
     z-index: 1;
   }
 
-  /* Показываем элементы управления видео для перемотки */
+  /* Скрываем кнопки перемотки */
   #returnVslVideo::-webkit-media-controls-timeline,
   #returnVslVideo::-webkit-media-controls-seek-back-button,
-  #returnVslVideo::-webkit-media-controls-seek-forward-button {
-    display: block !important;
+  #returnVslVideo::-webkit-media-controls-seek-forward-button,
+  #returnVslVideo::-moz-media-controls-timeline,
+  #returnVslVideo::-moz-media-controls-seek-back-button,
+  #returnVslVideo::-moz-media-controls-seek-forward-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 
   /* Показываем элементы управления для Firefox */
@@ -926,16 +933,16 @@ const { popup } = COPY;
     display: block !important;
   }
 
-  /* Показываем timeline и кнопки перемотки для мобильных браузеров */
+  /* Скрываем timeline и кнопки перемотки для мобильных браузеров */
   #returnVslVideo::-webkit-media-controls-timeline,
   #returnVslVideo::-webkit-media-controls-seek-back-button,
   #returnVslVideo::-webkit-media-controls-seek-forward-button {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    width: auto !important;
-    height: auto !important;
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 
   /* Разрешаем взаимодействие с видео */
@@ -953,14 +960,14 @@ const { popup } = COPY;
       pointer-events: auto !important;
     }
 
-    /* Показываем timeline и кнопки перемотки на мобильных */
+    /* Скрываем timeline и кнопки перемотки на мобильных */
     #returnVslVideo::-webkit-media-controls-timeline,
     #returnVslVideo::-webkit-media-controls-seek-back-button,
     #returnVslVideo::-webkit-media-controls-seek-forward-button {
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
 
     .video-wrapper {
