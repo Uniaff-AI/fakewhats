@@ -1,6 +1,6 @@
 /**
  * КОНФИГУРАЦИЯ САЙТА UROXEL
- * 
+ *
  * Этот файл содержит все настраиваемые элементы сайта:
  * - Тексты, заголовки, кнопки
  * - Цены и скидки
@@ -9,20 +9,20 @@
  * - Контактная информация
  * - Юридические тексты
  * - Настройки функциональности
- * 
+ *
  * КАК ИЗМЕНИТЬ ЭЛЕМЕНТЫ САЙТА:
  * 1. Найдите нужный раздел в этом файле
  * 2. Измените значение справа от знака "="
  * 3. Сохраните файл (Ctrl+S или Cmd+S)
  * 4. Сервер разработки автоматически перезагрузит страницу
  * 5. Изменения появятся на сайте
- * 
+ *
  * ПРИМЕРЫ ИЗМЕНЕНИЙ:
  * - Цена: "5980 ₽" → "7980 ₽"
  * - Текст кнопки: "Заказать сейчас" → "Купить сейчас"
  * - Номер телефона: "+52 55 5173 4167" → "+7 900 000-00-00"
  * - Рейтинг отзыва: rating: 5 → rating: 4
- * 
+ *
  * ВАЖНО: Не изменяйте названия полей слева от "=", только значения справа!
  */
 
@@ -30,7 +30,7 @@ export interface SiteConfig {
   // ===== ОСНОВНАЯ ИНФОРМАЦИЯ =====
   siteName: string;        // Название сайта (используется в заголовках)
   productName: string;     // Название продукта (используется в текстах)
-  
+
   // ===== ИЗОБРАЖЕНИЯ И МЕДИА =====
   images: {
     // Изображения в чате (отображаются в сообщениях)
@@ -43,18 +43,18 @@ export interface SiteConfig {
       feedback5: string;       // Фото к отзыву Густаво
       feedback6: string;       // Фото к отзыву Игнасио
     };
-    
+
     // Изображения в формах заказа
     formImages: {
       uroxleOffForm: string;   // Изображение продукта в форме домонетки
     };
-    
+
     // Видео файлы
     videos: {
       chatVsl: string;         // VSL видео в чате (показывается при клике на кнопку play)
     };
   };
-  
+
   // ===== ЦЕНЫ И СКИДКИ =====
   pricing: {
     originalPrice: string;     // Оригинальная цена (перечеркнутая)
@@ -62,7 +62,7 @@ export interface SiteConfig {
     currency: string;          // Валюта (₽, $, € и т.д.)
     discountPercentage: string; // Процент скидки (для отображения)
   };
-  
+
   // ===== ТАЙМЕРЫ И СЧЕТЧИКИ =====
   timers: {
     countdownMinutes: number;  // Минуты в таймере обратного отсчета
@@ -70,7 +70,7 @@ export interface SiteConfig {
     bottlesDecreaseInterval: number; // Интервал уменьшения счетчика банок (в миллисекундах)
     initialBottles: number;    // Начальное количество банок в наличии
   };
-  
+
   // ===== ОТЗЫВЫ С ФОТОГРАФИЯМИ =====
   reviews: {
     feedback1: {
@@ -110,7 +110,7 @@ export interface SiteConfig {
       text: string;
     };
   };
-  
+
   // ===== ТЕКСТОВЫЕ ОТЗЫВЫ (БЕЗ ФОТО) =====
   textReviews: {
     review1: {
@@ -178,7 +178,7 @@ export interface SiteConfig {
       helpful?: string;
     };
   };
-  
+
   // ===== ВСЕ ТЕКСТЫ САЙТА =====
   texts: {
     // Заголовки страниц и форм
@@ -191,7 +191,7 @@ export interface SiteConfig {
       bookCallSubtitle: string; // Подзаголовок формы бронирования
       managedBy: string;       // Текст "Managed by" в футере
     };
-    
+
     // Сообщения в чате
     chatMessages: {
       welcomeMessage: string;  // Приветственное сообщение
@@ -203,7 +203,7 @@ export interface SiteConfig {
       vslTitle: string;        // Заголовок VSL видео
       successMessage: string;  // Сообщение об успешном заказе
     };
-    
+
     // Тексты кнопок
     buttons: {
       orderNow: string;        // "Заказать сейчас"
@@ -225,7 +225,7 @@ export interface SiteConfig {
       returnToChat: string;    // "Вернуться в чат"
       restartVideo: string;    // "Начать просмотр сначала"
     };
-    
+
     // Тексты попапов
     popups: {
       // Попап при клике на VSL в чате
@@ -275,7 +275,7 @@ export interface SiteConfig {
         returnToChatButton: string; // "Вернуться в чат"
       };
     };
-    
+
     // Тексты форм
     forms: {
       // Основная форма заказа
@@ -374,7 +374,7 @@ export interface SiteConfig {
         safetyItem3: string;   // "Проверка партии по QR-коду"
       };
     };
-    
+
     // Тексты баннеров и плашек
     banners: {
       specialOffer: string;    // "СПЕЦИАЛЬНОЕ ПРЕДЛОЖЕНИЕ"
@@ -386,7 +386,7 @@ export interface SiteConfig {
       reviewsBanner: string;   // Заголовок секции отзывов
     };
   };
-  
+
   // ===== КОНТАКТНАЯ ИНФОРМАЦИЯ =====
   contact: {
     phone: string;             // Номер телефона (+52 55 5173 4167)
@@ -394,7 +394,7 @@ export interface SiteConfig {
     flag: string;              // Путь к изображению флага (/mexico-flag.svg)
     status: string;            // Статус (✓ Online)
   };
-  
+
   // ===== ЮРИДИЧЕСКИЕ ТЕКСТЫ И ДИСКЛЕЙМЕРЫ =====
   legal: {
     specialPriceDisclaimer: string; // "Специальная цена действует ограниченное количество времени."
@@ -404,7 +404,7 @@ export interface SiteConfig {
     resultsDisclaimer: string;      // Дисклеймер о результатах
     limitedOffer: string;           // "Ограниченное предложение. Количество товара ограничено."
   };
-  
+
   // ===== НАСТРОЙКИ ФУНКЦИОНАЛЬНОСТИ =====
   settings: {
     autoPlayVsl: boolean;      // Автовоспроизведение VSL видео (false = выключено)
@@ -418,7 +418,7 @@ export interface SiteConfig {
     vslShowCloseButton: boolean; // Показывать крестик в плеере
     vslAutoOpenForm: boolean;  // Автоматически открывать форму при окончании видео
   };
-  
+
   // ===== НАСТРОЙКИ API =====
   api: {
     ktDomain: string;          // Домен для API (например, "uniaffshark.com")
@@ -432,7 +432,7 @@ export const siteConfig: SiteConfig = {
   // Основная информация о сайте
   siteName: "UROXEL",
   productName: "UROXEL",
-  
+
   // Пути к изображениям и видео
   images: {
     chatImages: {
@@ -447,11 +447,11 @@ export const siteConfig: SiteConfig = {
     formImages: {
       uroxleOffForm: "/Uroxel_off_form.png", // Изображение в форме домонетки
     },
-          videos: {
-        chatVsl: "/начало 1.mp4",            // VSL в чате
-      },
+    videos: {
+      chatVsl: "/начало 1.mp4",            // VSL в чате
+    },
   },
-  
+
   // Цены и скидки
   pricing: {
     originalPrice: "1390 MXN",               // Оригинальная цена
@@ -459,7 +459,7 @@ export const siteConfig: SiteConfig = {
     currency: "MXN",                         // Валюта
     discountPercentage: "50%",             // Процент скидки
   },
-  
+
   // Настройки таймеров
   timers: {
     countdownMinutes: 15,                  // Минуты в таймере
@@ -467,7 +467,7 @@ export const siteConfig: SiteConfig = {
     bottlesDecreaseInterval: 30000,        // Интервал уменьшения банок (30 сек)
     initialBottles: 47,                    // Начальное количество банок
   },
-  
+
   // Отзывы с фотографиями
   reviews: {
     feedback1: {
@@ -478,7 +478,7 @@ export const siteConfig: SiteConfig = {
     },
     feedback2: {
       name: "Carlos, 45",
-      image: "/feedback_2.png", 
+      image: "/feedback_2.png",
       rating: 5,                           // 5 звезд
       text: "Ahora siempre lo llevo conmigo y nadie se da cuenta de que tenía problemas de potencia",
     },
@@ -507,7 +507,7 @@ export const siteConfig: SiteConfig = {
       text: "Día 3 de toma - el pene se mantiene firme cada mañana - efecto agradable",
     },
   },
-  
+
   // Текстовые отзывы (без фото)
   textReviews: {
     review1: {
@@ -569,7 +569,7 @@ export const siteConfig: SiteConfig = {
       text: "Es un buen producto como se nos había anunciado.",
     },
   },
-  
+
   // Все тексты сайта
   texts: {
     // Заголовки страниц и форм
@@ -582,7 +582,7 @@ export const siteConfig: SiteConfig = {
       bookCallSubtitle: "Selecciona la hora para la llamada de vuelta", // Подзаголовок
       managedBy: "Gestionado por LaLueur. Saber más", // Футер
     },
-    
+
     // Сообщения в чате
     chatMessages: {
       welcomeMessage: "¡Hola! 👋 Te ayudo con tu pedido de UROXEL. Es un producto revolucionario para mejorar la salud masculina.",
@@ -594,7 +594,7 @@ export const siteConfig: SiteConfig = {
       vslTitle: "Salvación de tu erección",
       successMessage: "¡solicitud aceptada! Espera la llamada del especialista en",
     },
-    
+
     // Тексты кнопок
     buttons: {
       orderNow: "Pedir ahora",
@@ -616,7 +616,7 @@ export const siteConfig: SiteConfig = {
       returnToChat: "Volver al chat",
       restartVideo: "Comenzar a ver desde el principio",
     },
-    
+
     // Тексты попапов
     popups: {
       // Попап при клике на VSL в чате
@@ -667,7 +667,7 @@ export const siteConfig: SiteConfig = {
         returnToChatButton: "Volver al Chat",
       },
     },
-    
+
     // Тексты форм
     forms: {
       // Основная форма заказа
@@ -766,7 +766,7 @@ export const siteConfig: SiteConfig = {
         safetyItem3: "Verificación del lote por código QR",
       },
     },
-    
+
     // Тексты баннеров и плашек
     banners: {
       specialOffer: "OFERTA ESPECIAL",
@@ -778,7 +778,7 @@ export const siteConfig: SiteConfig = {
       reviewsBanner: "Testimonios de hombres que ya recuperaron una erección firme y salvaron su próstata",
     },
   },
-  
+
   // Контактная информация
   contact: {
     phone: "+52 55 5173 4167",            // Номер телефона
@@ -786,7 +786,7 @@ export const siteConfig: SiteConfig = {
     flag: "/mexico-flag.svg",             // Путь к изображению флага
     status: "✓ Online",                   // Статус онлайн
   },
-  
+
   // Юридические тексты и дисклеймеры
   legal: {
     specialPriceDisclaimer: "El precio especial es válido por tiempo limitado.",
@@ -796,21 +796,21 @@ export const siteConfig: SiteConfig = {
     resultsDisclaimer: "Testimonios de hombres que ya probaron UROXEL y obtuvieron resultados. Los resultados pueden variar según las características individuales del organismo.",
     limitedOffer: "Oferta limitada. Cantidad de producto limitada.",
   },
-  
+
   // ===== НАСТРОЙКИ ФУНКЦИОНАЛЬНОСТИ =====
   settings: {
     autoPlayVsl: false,                   // Автовоспроизведение VSL видео (false = выключено)
     enableExitIntent: false,              // Показ попапа при попытке выйти со страницы (false = отключено)
     enableFormPostback: true,             // Автоматическая отправка данных форм при закрытии (true = включено)
-    vslPopupStartTime: 773,               // Начало диапазона времени для попапа (773 секунды = 12:53)
-    vslPopupEndTime: 1100,                // Конец диапазона времени для попапа (1100 секунд = 18:20)
-    vslMessageTime: 593,                  // Время показа сообщения с предложением (за 3 минуты до попапа = 9:53)
+    vslPopupStartTime: 671,               // Начало диапазона времени для попапа (671 секунда = 11:11)
+    vslPopupEndTime: 999999,              // Конец диапазона времени для попапа (до конца видео)
+    vslMessageTime: 491,                  // Время показа сообщения с предложением (за 3 минуты до попапа = 8:11)
     // Настройки VSL
     vslButtonBlink: true,                 // Мигание кнопки включения звука
     vslShowCloseButton: true,             // Показывать крестик в плеере
     vslAutoOpenForm: true,                // Автоматически открывать форму при окончании видео
   },
-  
+
   // ===== НАСТРОЙКИ API =====
   api: {
     ktDomain: "uniaffshark.com",          // Домен для API

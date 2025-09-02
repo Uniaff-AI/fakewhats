@@ -1042,15 +1042,21 @@ const { messages, form } = COPY;
     const minutes = Math.floor(globalTimeLeft / 60);
     const seconds = globalTimeLeft % 60;
     const timerElements = document.querySelectorAll('#timer, #domonetkaTimer, #orderTimer');
-    timerElements.forEach(element => {
-      element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    });
-    
-    if (globalTimeLeft > 0) {
+
+    if (timerElements.length > 0) {
+      timerElements.forEach(element => {
+        element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      });
+      console.log('⏰ Timer updated:', `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`, 'Elements found:', timerElements.length);
+    } else {
+      console.log('⚠️ No timer elements found with IDs: timer, domonetkaTimer, orderTimer');
+    }
+
+    if (globalTimeLeft > 60) {
       globalTimeLeft--;
     }
   }
-  
+
   function updateGlobalBottles() {
     const bottlesElements = document.querySelectorAll('#bottles, #domonetkaBottles');
     bottlesElements.forEach(element => {
@@ -1060,40 +1066,69 @@ const { messages, form } = COPY;
       }
     });
   }
-  
-  // Глобальные таймеры (запускаются только один раз)
+
+  // Глобальные таймеры
   let globalTimerInterval;
   let globalBottlesInterval;
-  let globalTimersStarted = false;
-  
+
   function startGlobalTimers() {
-    if (!globalTimersStarted) {
-      if (!globalTimerInterval) {
-        globalTimerInterval = setInterval(updateGlobalTimer, 1000);
-      }
-      if (!globalBottlesInterval) {
-        globalBottlesInterval = setInterval(updateGlobalBottles, 4000 + Math.random() * 1000);
-      }
-      globalTimersStarted = true;
+    // Проверяем наличие элементов таймера
+    const timerElements = document.querySelectorAll('#timer, #domonetkaTimer, #orderTimer');
+    if (timerElements.length === 0) {
+      console.error('❌ No timer elements found! Cannot start timers.');
+      return;
     }
+
+    console.log('🎯 Starting global timers, found elements:', timerElements.length);
+
+    // Очищаем предыдущие интервалы если они существуют
+    if (globalTimerInterval) {
+      clearInterval(globalTimerInterval);
+      globalTimerInterval = null;
+    }
+    if (globalBottlesInterval) {
+      clearInterval(globalBottlesInterval);
+      globalBottlesInterval = null;
+    }
+
+    // Сбрасываем время и счетчик банок
+    globalTimeLeft = 4 * 60 + 19; // 4 минуты 19 секунд
+    globalBottlesLeft = 39;
+
+    // Запускаем новые таймеры
+    globalTimerInterval = setInterval(updateGlobalTimer, 1000);
+    globalBottlesInterval = setInterval(updateGlobalBottles, 4000 + Math.random() * 1000);
+
+    // Обновляем отображение сразу
+    updateGlobalTimer();
+    updateGlobalBottles();
+
+    console.log('✅ Global timers started - Timer:', globalTimeLeft, 'seconds, Bottles:', globalBottlesLeft);
   }
-  
+
   // Таймеры будут запускаться только при показе форм
   // startGlobalTimers(); // Убрано - таймеры запускаются при показе форм
 
   // Обработчик кнопки "Получить скидку"
   const getDiscountBtn = document.getElementById('getDiscountBtn');
   getDiscountBtn?.addEventListener('click', () => {
-    // console.log('getDiscountBtn clicked');
+    console.log('🎯 getDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        console.log('📋 Order form modal shown, starting timers...');
         // Запускаем таймеры при показе формы
-        startGlobalTimers();
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        } else {
+          console.error('❌ window.startGlobalTimers is not defined!');
+        }
       }, 10);
+    } else {
+      console.error('❌ Order form modal not found!');
     }
   });
 
@@ -1108,9 +1143,9 @@ const { messages, form } = COPY;
   // Обработчик отправки формы заказа
   orderLeadForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     // console.log('Order form submitted');
-    
+
     const formData = new FormData(orderLeadForm);
     const leadData = {
       ktDomain: "uniaffshark.com",
@@ -1123,21 +1158,21 @@ const { messages, form } = COPY;
       videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0,
       userAgent: navigator.userAgent
     };
-    
+
     // Сохраняем данные для второй формы
     savedFormData = {
       name: formData.get('name'),
       phone: formData.get('phone'),
       videoWatchTime: videoStartTime ? Math.floor((Date.now() - videoStartTime) / 1000) : 0
     };
-    
+
     // Отправляем данные на API
     const apiResult = await sendLeadToAPI(leadData, 'order_form_submit');
-    
+
     // Логируем данные заявки
     logLeadData(leadData, 'order_form_submit');
     // console.log('Order form submitted successfully');
-    
+
     // Показываем форму бронирования звонка
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
@@ -1146,7 +1181,7 @@ const { messages, form } = COPY;
         orderFormModal.style.display = 'none';
       }, 300);
     }
-    
+
     const callBookingModal = document.getElementById('callBookingModal');
     if (callBookingModal) {
       callBookingModal.style.display = 'flex';
@@ -1160,10 +1195,10 @@ const { messages, form } = COPY;
   callSubmitBtn?.addEventListener('click', async () => {
     const callTimeElement = document.getElementById('callTime');
     const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
-    
+
     // console.log('Selected call time:', callTime);
     // console.log('Call time element:', callTimeElement);
-    
+
     const leadData = {
       ktDomain: "uniaffshark.com",
       ktCampaignId: 10314,
@@ -1175,15 +1210,15 @@ const { messages, form } = COPY;
       videoWatchTime: savedFormData.videoWatchTime || 0,
       userAgent: navigator.userAgent
     };
-    
+
     // console.log('Call booking form submitted with data:', leadData);
-    
+
     // Отправляем данные на API
     const apiResult = await sendLeadToAPI(leadData, 'call_booking_submit');
-    
+
     // Логируем данные заявки
     logLeadData(leadData, 'call_booking_submit');
-    
+
     // Скрываем форму бронирования
     const callBookingModal = document.getElementById('callBookingModal');
     if (callBookingModal) {
@@ -1192,10 +1227,10 @@ const { messages, form } = COPY;
         callBookingModal.style.display = 'none';
       }, 300);
     }
-    
+
           // Показываем сообщение об успешном заказе в чате
       showSuccessMessageInChat(savedFormData.name || '');
-    
+
     // Очищаем сохраненные данные
     savedFormData = {};
     // console.log('Call booking form submitted successfully');
@@ -1207,7 +1242,7 @@ const { messages, form } = COPY;
     if (savedFormData.name && savedFormData.phone) {
       const callTimeElement = document.getElementById('callTime');
       const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
-      
+
       const leadData = {
         name: savedFormData.name,
         phone: savedFormData.phone,
@@ -1217,7 +1252,7 @@ const { messages, form } = COPY;
         videoWatchTime: savedFormData.videoWatchTime || 0,
         userAgent: navigator.userAgent
       };
-      
+
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
@@ -1226,7 +1261,7 @@ const { messages, form } = COPY;
         // console.error('Error sending call booking back button data:', error);
       }
     }
-    
+
     // Показываем попап выбора времени (четвертая стадия)
     if (window.showTimeSelectionPopup) {
       window.showTimeSelectionPopup();
@@ -1262,10 +1297,10 @@ const { messages, form } = COPY;
       videoWatchTime: savedFormData.videoWatchTime || 0,
       userAgent: navigator.userAgent
     };
-    
+
     // Отправляем данные на API
     const apiResult = await sendLeadToAPI(leadData, 'call_booking_submit');
-    
+
     // Логируем данные заявки
     logLeadData(leadData, 'call_booking_submit');
     // console.log('Auto call request sent successfully');
@@ -1285,11 +1320,11 @@ const { messages, form } = COPY;
         videoWatchTime: savedFormData.videoWatchTime || 0,
         userAgent: navigator.userAgent
       };
-      
+
       try {
         // Отправляем данные на API
         const apiResult = await sendLeadToAPI(leadData, 'form_interaction');
-        
+
         // Логируем данные заявки
         logLeadData(leadData, 'form_interaction');
         // console.log('Order form closed - data sent');
@@ -1297,7 +1332,7 @@ const { messages, form } = COPY;
         // console.error('Error sending order form close data:', error);
       }
     }
-    
+
     // Показываем попап возврата с формы (третья стадия)
     if (window.showFormReturnPopup) {
       window.showFormReturnPopup();
@@ -1309,7 +1344,7 @@ const { messages, form } = COPY;
     if (savedFormData.name && savedFormData.phone) {
       const callTimeElement = document.getElementById('callTime');
       const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
-      
+
       const leadData = {
         name: savedFormData.name,
         phone: savedFormData.phone,
@@ -1319,7 +1354,7 @@ const { messages, form } = COPY;
         videoWatchTime: savedFormData.videoWatchTime || 0,
         userAgent: navigator.userAgent
       };
-      
+
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
@@ -1328,7 +1363,7 @@ const { messages, form } = COPY;
         // console.error('Error sending call booking close data:', error);
       }
     }
-    
+
     // Показываем попап выбора времени (четвертая стадия)
     if (window.showTimeSelectionPopup) {
       window.showTimeSelectionPopup();
@@ -1347,7 +1382,7 @@ const { messages, form } = COPY;
         videoWatchTime: savedFormData.videoWatchTime || 0,
         userAgent: navigator.userAgent
       };
-      
+
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
@@ -1356,7 +1391,7 @@ const { messages, form } = COPY;
         // console.error('Error sending order form backdrop data:', error);
       }
     }
-    
+
     // Показываем попап возврата с формы (третья стадия)
     if (window.showFormReturnPopup) {
       window.showFormReturnPopup();
@@ -1368,7 +1403,7 @@ const { messages, form } = COPY;
     if (savedFormData.name && savedFormData.phone) {
       const callTimeElement = document.getElementById('callTime');
       const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
-      
+
       const leadData = {
         name: savedFormData.name,
         phone: savedFormData.phone,
@@ -1378,7 +1413,7 @@ const { messages, form } = COPY;
         videoWatchTime: savedFormData.videoWatchTime || 0,
         userAgent: navigator.userAgent
       };
-      
+
       try {
         // Логируем данные заявки (замена API)
         logLeadData(leadData, 'form_interaction');
@@ -1387,7 +1422,7 @@ const { messages, form } = COPY;
         // console.error('Error sending call booking backdrop data:', error);
       }
     }
-    
+
     // Показываем попап выбора времени (четвертая стадия)
     if (window.showTimeSelectionPopup) {
       window.showTimeSelectionPopup();
@@ -1411,7 +1446,7 @@ const { messages, form } = COPY;
       autoMessage.style.display = 'block';
       autoDiscountContainer.style.display = 'block';
       hasShownAutoMessage = true;
-      
+
       // Прокручиваем к сообщению
       setTimeout(() => {
         const chatContainer = document.querySelector('.chat');
@@ -1434,16 +1469,23 @@ const { messages, form } = COPY;
 
   // Обработчик кнопки "Получить скидку" в автосообщении
   autoDiscountBtn?.addEventListener('click', () => {
-    // console.log('🎯 autoDiscountBtn clicked');
+    console.log('🎯 autoDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        console.log('📋 Order form modal shown (auto), starting timers...');
         // Запускаем таймеры при показе формы
-        startGlobalTimers();
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        } else {
+          console.error('❌ window.startGlobalTimers is not defined!');
+        }
       }, 10);
+    } else {
+      console.error('❌ Order form modal not found!');
     }
   });
 
@@ -1457,25 +1499,25 @@ const { messages, form } = COPY;
   // Функция для обхода блокировки автовоспроизведения
   function startAutoplayWithBypass(video) {
     if (!video) return;
-    
+
     // Очищаем предыдущие обработчики ошибок
     video.removeEventListener('error', handleVideoError);
     video.removeEventListener('stalled', handleVideoStalled);
     video.removeEventListener('waiting', handleVideoWaiting);
-    
+
     // Добавляем обработчики для исправления зависания
     video.addEventListener('error', handleVideoError);
     video.addEventListener('stalled', handleVideoStalled);
     video.addEventListener('waiting', handleVideoWaiting);
-    
+
     // Проверяем, мобильное ли устройство
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     if (isMobile) {
       // На мобильных устройствах используем более мягкий подход
       video.muted = true;
       video.playsInline = true;
-      
+
       // Небольшая задержка для стабилизации
       setTimeout(() => {
         video.play().then(() => {
@@ -1501,7 +1543,7 @@ const { messages, form } = COPY;
         // console.log('🔊 Sound enabled immediately');
       }).catch((error) => {
         // console.log('❌ Desktop autoplay failed:', error.name);
-        
+
         // Стратегия 2: Пробуем с задержкой
         setTimeout(() => {
           video.muted = true;
@@ -1512,7 +1554,7 @@ const { messages, form } = COPY;
             // console.log('🔊 Sound enabled immediately (delayed)');
           }).catch((error2) => {
             // console.log('❌ Delayed autoplay failed:', error2.name);
-            
+
             // Стратегия 3: Ждем взаимодействия пользователя
             setupUserInteractionAutoplay(video);
           });
@@ -1525,7 +1567,7 @@ const { messages, form } = COPY;
   function handleVideoError(e) {
     const video = e.target;
     // console.log('🚨 Video error detected:', e);
-    
+
     // Пробуем перезагрузить видео
     setTimeout(() => {
       if (video && video.readyState === 0) {
@@ -1539,7 +1581,7 @@ const { messages, form } = COPY;
   function handleVideoStalled(e) {
     const video = e.target;
     // console.log('⏸️ Video stalled, attempting recovery...');
-    
+
     // Пробуем восстановить воспроизведение
     setTimeout(() => {
       if (video && video.paused && video.readyState >= 2) {
@@ -1556,7 +1598,7 @@ const { messages, form } = COPY;
   function handleVideoWaiting(e) {
     const video = e.target;
     // console.log('⏳ Video waiting for data...');
-    
+
     // Даем время на загрузку, затем проверяем
     setTimeout(() => {
       if (video && video.readyState < 2) {
@@ -1569,7 +1611,7 @@ const { messages, form } = COPY;
   // Функция для запуска видео после взаимодействия пользователя
   function setupUserInteractionAutoplay(video) {
     let hasUserInteracted = false;
-    
+
     // Создаем невидимую кнопку воспроизведения
     const playButton = document.createElement('div');
     playButton.style.cssText = `
@@ -1599,7 +1641,7 @@ const { messages, form } = COPY;
         ▶️ Нажмите для воспроизведения
       </div>
     `;
-    
+
     playButton.onclick = () => {
       if (!hasUserInteracted) {
         hasUserInteracted = true;
@@ -1612,7 +1654,7 @@ const { messages, form } = COPY;
         });
       }
     };
-    
+
     // Добавляем обработчики для различных типов взаимодействия
     const interactionEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
     interactionEvents.forEach(event => {
@@ -1629,7 +1671,7 @@ const { messages, form } = COPY;
         }
       });
     });
-    
+
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     if (fullscreenPlayer) {
       fullscreenPlayer.appendChild(playButton);
@@ -1639,23 +1681,23 @@ const { messages, form } = COPY;
   // Функция для принудительного восстановления видео
   function forceVideoRecovery(video) {
     if (!video) return;
-    
+
     // console.log('🔄 Force video recovery initiated');
-    
+
     // Сохраняем текущее время
     const currentTime = video.currentTime;
     const wasPaused = video.paused;
-    
+
     // Перезагружаем видео
     video.load();
-    
+
     // Восстанавливаем время и состояние
     video.addEventListener('loadedmetadata', () => {
       if (currentTime > 0) {
         video.currentTime = currentTime;
         // console.log('⏰ Restored video time to:', currentTime);
       }
-      
+
       // Восстанавливаем воспроизведение если было
       if (!wasPaused) {
         setTimeout(() => {
@@ -1670,30 +1712,30 @@ const { messages, form } = COPY;
   // Функция для мониторинга состояния видео
   function setupVideoHealthMonitoring(video) {
     if (!video) return;
-    
+
     let lastProgressTime = 0;
     let stuckCounter = 0;
     let healthCheckInterval;
     let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     // На мобильных устройствах проверяем реже, чтобы не нагружать устройство
     const checkInterval = isMobile ? 15000 : 10000;
-    
+
     // Проверяем здоровье видео
     healthCheckInterval = setInterval(() => {
       if (!video || video.ended) {
         clearInterval(healthCheckInterval);
         return;
       }
-      
+
       const currentTime = video.currentTime;
       const isPlaying = !video.paused;
-      
+
       // Проверяем, не зависло ли видео
       if (isPlaying && currentTime === lastProgressTime) {
         stuckCounter++;
         // console.log(`⚠️ Video might be stuck (${stuckCounter}/3 checks)`);
-        
+
         if (stuckCounter >= 3) {
           // console.log('🚨 Video confirmed stuck, attempting recovery...');
           // На мобильных устройствах используем более мягкое восстановление
@@ -1709,10 +1751,10 @@ const { messages, form } = COPY;
       } else {
         stuckCounter = 0;
       }
-      
+
       lastProgressTime = currentTime;
     }, checkInterval);
-    
+
     // Возвращаем функцию для очистки
     return () => clearInterval(healthCheckInterval);
   }
@@ -1720,14 +1762,14 @@ const { messages, form } = COPY;
   // Глобальная функция для восстановления всех видео
   window.recoverAllVideos = function() {
     // console.log('🔄 Global video recovery initiated');
-    
+
     const videos = [
       document.getElementById('vslVideoInline'),
       document.getElementById('fullscreenVideo'),
       document.getElementById('returnVslVideo'),
       document.getElementById('returnVisitVideo')
     ].filter(Boolean);
-    
+
     videos.forEach(video => {
       if (video && video.readyState < 2) {
         // console.log('🔄 Recovering video:', video.id);
@@ -1749,7 +1791,7 @@ const { messages, form } = COPY;
       window.recoverAllVideos();
     }
   }, 120000); // 2 минуты
-  
+
   // Очистка ресурсов при загрузке страницы для предотвращения накопления
   window.addEventListener('load', () => {
     // Сбрасываем все флаги и очищаем ресурсы
@@ -1758,7 +1800,7 @@ const { messages, form } = COPY;
       fullscreenPlayerCleanup = null;
     }
     iosHandlersAdded = false;
-    
+
     // Очищаем localStorage от старых данных если они слишком старые
     const savedTime = localStorage.getItem('savedVideoTime');
     if (savedTime) {
@@ -1779,7 +1821,7 @@ const { messages, form } = COPY;
     for (let i = 0; i < highestTimeoutId; i++) {
       clearTimeout(i);
     }
-    
+
     const highestIntervalId = setInterval(";");
     for (let i = 0; i < highestIntervalId; i++) {
       clearInterval(i);
@@ -1806,30 +1848,30 @@ const { messages, form } = COPY;
   // Функции для управления полноэкранным плеером
   let fullscreenPlayerCleanup = null; // Глобальная переменная для очистки
   let iosHandlersAdded = false; // Флаг для предотвращения дублирования iOS обработчиков
-  
+
   function showFullscreenPlayer() {
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     const fullscreenVideo = document.getElementById('fullscreenVideo');
-    
+
     if (fullscreenPlayer && fullscreenVideo) {
       // Очищаем предыдущие ресурсы перед открытием
       if (fullscreenPlayerCleanup) {
         fullscreenPlayerCleanup();
         fullscreenPlayerCleanup = null;
       }
-      
+
       fullscreenPlayer.style.display = 'flex';
-      
+
       // Принудительно включаем элементы управления
       fullscreenVideo.controls = true;
       fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-      
+
       // Устанавливаем сохраненное время видео
       const savedTime = localStorage.getItem('savedVideoTime');
       if (savedTime) {
         const savedVideoTime = parseFloat(savedTime);
         // console.log('🎬 Setting fullscreen video time to:', savedVideoTime, 'seconds');
-        
+
         // Ждем, пока видео будет готово к воспроизведению
         if (fullscreenVideo.readyState >= 2) {
           // Видео готово, устанавливаем время сразу
@@ -1856,15 +1898,15 @@ const { messages, form } = COPY;
           }, { once: true });
         }
       }
-      
+
       // Запускаем видео с обходом блокировки автоплея
       startAutoplayWithBypass(fullscreenVideo);
-      
+
       // Запускаем мониторинг здоровья видео
       const cleanupHealthMonitoring = setupVideoHealthMonitoring(fullscreenVideo);
-      
+
       // Попап и сообщение показываются через обычную систему setupVslTimePopup
-      
+
       // Создаем функцию очистки для этого экземпляра
       fullscreenPlayerCleanup = () => {
         if (cleanupHealthMonitoring) {
@@ -1874,12 +1916,12 @@ const { messages, form } = COPY;
         fullscreenVideo.removeEventListener('ended', handleFullscreenVideoEnded);
         fullscreenVideo.removeEventListener('timeupdate', handleFullscreenVideoTimeUpdate);
       };
-      
+
       // Специальная обработка для iOS Safari (только один раз)
       if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !iosHandlersAdded) {
         // console.log('🍎 iOS device detected for fullscreen video');
         iosHandlersAdded = true;
-        
+
         // Обработчик для восстановления видео после блокировки экрана
         const iosVisibilityHandler = () => {
           if (!document.hidden && fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
@@ -1891,7 +1933,7 @@ const { messages, form } = COPY;
             }, 500);
           }
         };
-        
+
         // Обработчик для восстановления после потери фокуса
         const iosFocusHandler = () => {
           if (fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
@@ -1903,10 +1945,10 @@ const { messages, form } = COPY;
             }, 300);
           }
         };
-        
+
         document.addEventListener('visibilitychange', iosVisibilityHandler);
         window.addEventListener('focus', iosFocusHandler);
-        
+
         // Добавляем очистку iOS обработчиков в общую функцию очистки
         const originalCleanup = fullscreenPlayerCleanup;
         fullscreenPlayerCleanup = () => {
@@ -1916,7 +1958,7 @@ const { messages, form } = COPY;
           iosHandlersAdded = false;
         };
       }
-      
+
       // Настраиваем попап на определенной минуте для полноэкранного плеера
       if (window.setupVslTimePopup) {
         window.setupVslTimePopup(fullscreenVideo);
@@ -1929,22 +1971,26 @@ const { messages, form } = COPY;
       fullscreenVideo.addEventListener('timeupdate', handleFullscreenVideoTimeUpdate);
     }
   }
-  
+
   // Выносим обработчики в отдельные функции для лучшей очистки
   function handleFullscreenVideoEnded() {
     // console.log('🎬 Fullscreen video ended, showing order form');
     if (window.showOrderFormModal) {
       window.showOrderFormModal();
     }
+    // Запускаем таймеры при показе формы
+    if (window.startGlobalTimers) {
+      window.startGlobalTimers();
+    }
   }
-  
+
   function handleFullscreenVideoTimeUpdate() {
     if (fullscreenVideo && !fullscreenVideo.paused && fullscreenVideo.currentTime > 0) {
       localStorage.setItem('savedVideoTime', fullscreenVideo.currentTime.toString());
       // console.log('💾 Auto-saved fullscreen video time:', fullscreenVideo.currentTime, 'seconds');
-      
+
       // Сообщение и попап теперь показываются через обычную систему setupVslTimePopup
-      
+
       // Проверяем, не нужно ли показать попап
       const chatVideo = document.getElementById('vslVideoInline');
       if (chatVideo && chatVideo.currentTime > fullscreenVideo.currentTime) {
@@ -1953,67 +1999,67 @@ const { messages, form } = COPY;
       }
     }
   }
-  
+
   function hideFullscreenPlayer() {
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     const fullscreenVideo = document.getElementById('fullscreenVideo');
-    
+
     // console.log('🔍 hideFullscreenPlayer called');
     // console.log('🔍 fullscreenPlayer found:', !!fullscreenPlayer);
     // console.log('🔍 fullscreenVideo found:', !!fullscreenVideo);
-    
+
     if (fullscreenPlayer && fullscreenVideo) {
       // console.log('🔍 fullscreenVideo.currentTime:', fullscreenVideo.currentTime);
       // console.log('🔍 fullscreenVideo.paused:', fullscreenVideo.paused);
-      
+
       // Сохраняем время просмотра перед закрытием
       if (fullscreenVideo.currentTime > 0) {
         // Проверяем время всех плееров и сохраняем самое позднее
         const chatVideo = document.getElementById('vslVideoInline');
         const returnVideo = document.getElementById('returnVslVideo');
         const returnVisitVideo = document.getElementById('returnVisitVideo');
-        
+
         let maxTime = fullscreenVideo.currentTime;
         let maxSource = 'fullscreen';
-        
+
         if (chatVideo && chatVideo.currentTime > maxTime) {
           maxTime = chatVideo.currentTime;
           maxSource = 'chat';
         }
-        
+
         if (returnVideo && returnVideo.currentTime > maxTime) {
           maxTime = returnVideo.currentTime;
           maxSource = 'return';
         }
-        
+
         if (returnVisitVideo && returnVisitVideo.currentTime > maxTime) {
           maxTime = returnVisitVideo.currentTime;
           maxSource = 'returnVisit';
         }
-        
+
         localStorage.setItem('savedVideoTime', maxTime.toString());
         // console.log('💾 Saved MAX video time from', maxSource, ':', maxTime, 'seconds');
-        
+
         // Проверяем, что действительно сохранилось
         const savedTime = localStorage.getItem('savedVideoTime');
         // console.log('🔍 Verified saved time in localStorage:', savedTime);
       } else {
         // console.log('⚠️ Video time is 0, not saving');
       }
-      
+
       // Очищаем ресурсы перед закрытием
       if (fullscreenPlayerCleanup) {
         fullscreenPlayerCleanup();
         fullscreenPlayerCleanup = null;
       }
-      
+
       fullscreenPlayer.style.display = 'none';
       fullscreenVideo.pause();
-      
+
       // Попап скрывается автоматически через обычную систему
-      
+
       // Флаг сообщения больше не нужен
-      
+
       // Сбрасываем флаг iOS обработчиков
       iosHandlersAdded = false;
     }
@@ -2028,18 +2074,18 @@ const { messages, form } = COPY;
       // console.log('✅ Fullscreen popup element found, showing...');
       // console.log('🎯 Popup current display:', popup.style.display);
       // console.log('🎯 Popup current z-index:', popup.style.zIndex);
-      
+
       // Принудительно показываем попап
       popup.classList.add('show');
       popup.style.display = 'block';
       popup.style.opacity = '1';
       popup.style.visibility = 'visible';
       popup.style.zIndex = '1000';
-      
+
       // console.log('🎯 Popup display after change:', popup.style.display);
       // console.log('🎯 Popup z-index after change:', popup.style.zIndex);
       // console.log('✅ Fullscreen popup should now be visible');
-      
+
       // Проверяем, что баннер тоже виден
       const banner = popup.querySelector('.fullscreen-vsl-mid-banner');
       if (banner) {
@@ -2051,7 +2097,7 @@ const { messages, form } = COPY;
       }
     } else {
       // console.error('❌ Fullscreen popup element not found! fullscreenVslMidPopup does not exist in DOM');
-      
+
       // Проверим все элементы с похожими ID
       const allElements = document.querySelectorAll('[id*="popup"]');
       // console.log('🎯 All elements with "popup" in ID:', Array.from(allElements).map(el => el.id));
@@ -2063,11 +2109,11 @@ const { messages, form } = COPY;
     if (e.target && (e.target.closest('.vsl-sound-btn') || e.target.id === 'vslPlayBtnSimple')) {
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Открываем полноэкранный плеер
       showFullscreenPlayer();
     }
-    
+
     // Кнопка выключения звука работает как раньше
     if (e.target && e.target.id === 'vslMuteBtn') {
       e.preventDefault();
@@ -2079,14 +2125,14 @@ const { messages, form } = COPY;
   // Обработчик клика на VSL в чате для открытия полноэкранного просмотра
   document.addEventListener('click', function(e) {
     // Проверяем, что клик был на VSL видео или его контейнере, но не на кнопках звука
-    if (e.target && e.target.closest('.vsl-bubble') && 
-        !e.target.closest('.vsl-sound-btn') && 
-        e.target.id !== 'vslMuteBtn' && 
+    if (e.target && e.target.closest('.vsl-bubble') &&
+        !e.target.closest('.vsl-sound-btn') &&
+        e.target.id !== 'vslMuteBtn' &&
         e.target.id !== 'vslPlayBtnSimple') {
       // console.log('🎬 VSL bubble clicked!');
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Открываем ReturnPopup с VSL
       // console.log('🎬 Trying to show return popup');
       // console.log('🎬 window.showReturnPopup exists:', !!window.showReturnPopup);
@@ -2096,16 +2142,16 @@ const { messages, form } = COPY;
         // console.error('❌ window.showReturnPopup is not defined!');
       }
     }
-    
+
     // Блокируем показ домонетки при клике вне видео, когда видео играет и нет попапов
     // Проверяем, что клик НЕ на видео и НЕ на попапах
-    if (!e.target.closest('.vsl-bubble') && 
-        !e.target.closest('.return-popup-backdrop') && 
-        !e.target.closest('.return-visit-popup-backdrop') && 
-        !e.target.closest('.vsl-exit-popup') && 
-        !e.target.closest('.pwa-modal') && 
+    if (!e.target.closest('.vsl-bubble') &&
+        !e.target.closest('.return-popup-backdrop') &&
+        !e.target.closest('.return-visit-popup-backdrop') &&
+        !e.target.closest('.vsl-exit-popup') &&
+        !e.target.closest('.pwa-modal') &&
         !e.target.closest('.domonetka-form')) {
-      
+
       // Если есть активное видео в чате и нет открытых попапов, блокируем показ домонетки
       const chatVideo = document.getElementById('vslVideoInline');
       const returnPopup = document.getElementById('returnPopup');
@@ -2114,15 +2160,15 @@ const { messages, form } = COPY;
       const orderFormModal = document.getElementById('orderFormModal');
       const callBookingModal = document.getElementById('callBookingModal');
       const domonetkaForm = document.getElementById('domonetkaForm');
-      
-      if (chatVideo && !chatVideo.paused && 
+
+      if (chatVideo && !chatVideo.paused &&
           (!returnPopup || returnPopup.style.display === 'none') &&
           (!returnVisitPopup || returnVisitPopup.style.display === 'none') &&
           (!vslExitPopup || vslExitPopup.style.display === 'none') &&
           (!orderFormModal || orderFormModal.style.display === 'none') &&
           (!callBookingModal || callBookingModal.style.display === 'none') &&
           (!domonetkaForm || domonetkaForm.style.display === 'none')) {
-        
+
         // Блокируем показ домонетки при клике вне видео
         e.stopPropagation();
         e.preventDefault();
@@ -2137,11 +2183,11 @@ const { messages, form } = COPY;
     if (e.target && (e.target.closest('.vsl-sound-btn') || e.target.id === 'vslPlayBtnSimple')) {
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Открываем полноэкранный плеер
       showFullscreenPlayer();
     }
-    
+
     // Кнопка выключения звука работает как раньше
     if (e.target && e.target.id === 'vslMuteBtn') {
       e.preventDefault();
@@ -2153,13 +2199,13 @@ const { messages, form } = COPY;
   // Обработчик touchstart для VSL в чате для открытия полноэкранного просмотра
   document.addEventListener('touchstart', function(e) {
     // Проверяем, что клик был на VSL видео или его контейнере, но не на кнопках звука
-    if (e.target && e.target.closest('.vsl-bubble') && 
-        !e.target.closest('.vsl-sound-btn') && 
-        e.target.id !== 'vslMuteBtn' && 
+    if (e.target && e.target.closest('.vsl-bubble') &&
+        !e.target.closest('.vsl-sound-btn') &&
+        e.target.id !== 'vslMuteBtn' &&
         e.target.id !== 'vslPlayBtnSimple') {
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Открываем ReturnPopup с VSL
       if (window.showReturnPopup) {
         window.showReturnPopup();
@@ -2170,14 +2216,14 @@ const { messages, form } = COPY;
   // Добавляем обработчик для кнопки звука VSL
   document.addEventListener('DOMContentLoaded', function() {
     const muteBtn = document.getElementById('vslMuteBtn');
-    
+
     if (muteBtn) {
       muteBtn.addEventListener('mousedown', function(e) {
         e.preventDefault();
         e.stopPropagation();
         toggleVslSound();
       });
-      
+
       muteBtn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2194,7 +2240,7 @@ const { messages, form } = COPY;
       if (video.readyState === 0) {
         video.load();
       }
-      
+
       // Запускаем видео с обходом блокировки
       startChatVslWithBypass(video);
     } else {
@@ -2204,15 +2250,23 @@ const { messages, form } = COPY;
 
   // Инициализация попапа при загрузке страницы
   document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем наличие элементов таймера
+    const orderTimerElement = document.getElementById('orderTimer');
+    if (orderTimerElement) {
+      console.log('✅ Order timer element found:', orderTimerElement);
+    } else {
+      console.error('❌ Order timer element not found!');
+    }
+
     // Проверяем, повторное ли это посещение
     const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     const savedVideoTime = localStorage.getItem('savedVideoTime');
-    
+
     if (hasVisitedBefore && savedVideoTime !== null) {
       // console.log('✅ Return visit detected, hasVisitedBefore:', hasVisitedBefore, 'savedVideoTime:', savedVideoTime);
       // console.log('🔍 All localStorage keys:', Object.keys(localStorage));
       // console.log('🔍 savedVideoTime value:', localStorage.getItem('savedVideoTime'));
-      
+
       // Сначала открываем полноэкранный VSL с сохраненного времени
       setTimeout(function() {
         // console.log('🎬 Opening fullscreen VSL with saved time:', savedVideoTime);
@@ -2220,14 +2274,14 @@ const { messages, form } = COPY;
           window.showFullscreenPlayer();
         }
       }, 1000); // Задержка 1 секунда для VSL
-      
+
       // Затем показываем попап с предложением продолжить просмотр
       setTimeout(function() {
         // console.log('🎬 Attempting to show return visit popup after 2 seconds');
         // Ждем, пока все компоненты загрузятся
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         function tryShowPopup() {
           attempts++;
           // console.log('🎬 Attempt', attempts, 'to show return visit popup');
@@ -2241,14 +2295,14 @@ const { messages, form } = COPY;
             // console.log('❌ Failed to find showReturnVisitPopup after', maxAttempts, 'attempts');
           }
         }
-        
+
         tryShowPopup();
       }, 2000); // Задержка 2 секунды для попапа
     } else {
       // Первый визит - запоминаем
       localStorage.setItem('hasVisitedBefore', 'true');
     }
-    
+
     // Ждем, пока ReturnPopup загрузится и создаст видео
     setTimeout(function() {
       const popupVideo = document.getElementById('returnVslVideo');
@@ -2265,7 +2319,7 @@ const { messages, form } = COPY;
         // console.log('⚠️ returnVslVideo not found yet, will try again when popup opens');
       }
     }, 1000);
-    
+
     // Проверяем все видео элементы на странице
     const allVideos = document.querySelectorAll('video');
     // console.log('📹 Found video elements:', allVideos.length);
@@ -2282,7 +2336,7 @@ const { messages, form } = COPY;
       //   duration: v.duration
       // });
     });
-    
+
     // Дополнительная проверка через 3 секунды
     setTimeout(function() {
       // console.log('🔄 3 seconds later - checking vslVideoInline again:');
@@ -2308,7 +2362,7 @@ const { messages, form } = COPY;
     // console.log('🎬 Video readyState:', video.readyState);
     // console.log('🎬 Video duration:', video.duration);
     // console.log('🎬 Video paused:', video.paused);
-    
+
     // Проверяем, готово ли видео
     if (video.readyState < 1 || isNaN(video.duration)) {
       // console.log('🎬 Video not ready, waiting for metadata...');
@@ -2318,31 +2372,31 @@ const { messages, form } = COPY;
       });
       return;
     }
-    
+
     setupVslTimePopupInternal(video);
   }
-  
+
   function setupVslTimePopupInternal(video) {
     let popupShown = false;
     let messageShown = false;
-    
+
     // Читаем значения из data-атрибутов или используем значения из конфигурации
-    const startTime = parseInt(video.dataset.popupStart) || 773; // Изменили с 893 на 773
-    const endTime = parseInt(video.dataset.popupEnd) || 1100;
-    const messageTime = 593; // За 3 минуты до попапа (773 - 180 = 593)
-    
+    const startTime = parseInt(video.dataset.popupStart) || 671; // Начало попапа на 671 секунде
+    const endTime = parseInt(video.dataset.popupEnd) || 999999; // До конца видео
+    const messageTime = 491; // За 3 минуты до попапа (671 - 180 = 491)
+
     // Проверяем, что время сообщения действительно за 3 минуты до попапа
-    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд (773 - 180 = 593)
+    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд (671 - 180 = 491)
     if (messageTime !== expectedMessageTime) {
       // console.warn('⚠️ Message time mismatch! Expected:', expectedMessageTime, 'Got:', messageTime);
     }
-    
 
-    
+
+
     // Функция проверки времени и показа попапа/сообщения
     function checkTimeAndShowPopup() {
       const currentTime = video.currentTime;
-      
+
       // Показываем сообщение с предложением за 3 минуты до попапа
       if (!messageShown && currentTime >= messageTime) {
         // console.log('💬 Showing auto message at time:', Math.floor(currentTime));
@@ -2351,7 +2405,7 @@ const { messages, form } = COPY;
         }
         messageShown = true;
       }
-      
+
       // Показываем попап если время в диапазоне и попап еще не показывался
       if (!popupShown && currentTime >= startTime && currentTime <= endTime) {
         // console.log('🎯 Showing VSL popup at time:', Math.floor(currentTime));
@@ -2359,27 +2413,27 @@ const { messages, form } = COPY;
         popupShown = true;
       }
     }
-    
+
     // Обработчик для воспроизведения видео
     video.addEventListener('timeupdate', function() {
       checkTimeAndShowPopup();
     });
-    
+
     // Обработчик для перемотки видео (когда пользователь перематывает)
     video.addEventListener('seeked', function() {
       checkTimeAndShowPopup();
     });
-    
+
     // Обработчик для изменения времени (когда пользователь кликает на прогресс-бар)
     video.addEventListener('seeking', function() {
       // Пустой обработчик
     });
-    
+
     // Обработчик для загрузки метаданных
     video.addEventListener('loadedmetadata', function() {
       checkTimeAndShowPopup();
     });
-    
+
     // Обработчик для готовности воспроизведения
                   video.addEventListener('canplay', function() {
                 checkTimeAndShowPopup();
@@ -2391,17 +2445,21 @@ const { messages, form } = COPY;
                 if (window.showOrderFormModal) {
                   window.showOrderFormModal();
                 }
+                // Запускаем таймеры при показе формы
+                if (window.startGlobalTimers) {
+                  window.startGlobalTimers();
+                }
               });
-    
+
     // Проверяем сразу при настройке, если видео уже в нужном диапазоне
     if (video.readyState >= 1) { // HAVE_METADATA или больше
       checkTimeAndShowPopup();
     }
-    
+
     // Дополнительная проверка каждые 1 секунду
     setInterval(function() {
       const currentTime = video.currentTime;
-      
+
       if (video.readyState >= 1) {
         if (currentTime >= startTime && currentTime <= endTime && !popupShown) {
           showVslMidPopup();
@@ -2414,23 +2472,23 @@ const { messages, form } = COPY;
   // Функция показа попапа на определенной минуте
   function showVslMidPopup() {
     // console.log('🎯 showVslMidPopup called');
-    
+
     // Проверяем, какое видео воспроизводится
     const returnVideo = document.getElementById('returnVslVideo');
     const returnVisitVideo = document.getElementById('returnVisitVideo');
     const chatVideo = document.getElementById('vslVideoInline');
     const fullscreenVideo = document.getElementById('fullscreenVideo');
-    
+
     // Проверяем, какой попап открыт
     const returnPopup = document.getElementById('returnPopup');
     const returnVisitPopup = document.getElementById('returnVisitPopup');
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
-    
+
     // console.log('🎯 returnPopup display:', returnPopup ? returnPopup.style.display : 'not found');
     // console.log('🎯 returnVisitPopup display:', returnVisitPopup ? returnVisitPopup.style.display : 'not found');
     // console.log('🎯 returnVideo paused:', returnVideo ? returnVideo.paused : 'not found');
     // console.log('🎯 returnVisitVideo paused:', returnVisitVideo ? returnVisitVideo.paused : 'not found');
-    
+
     if (returnPopup && returnPopup.style.display === 'flex' && returnVideo) {
       // Если открыт ReturnPopup
       // console.log('🎯 Showing popup in ReturnPopup');
@@ -2464,7 +2522,7 @@ const { messages, form } = COPY;
         popup.style.opacity = '1';
         popup.style.visibility = 'visible';
         popup.style.zIndex = '1000';
-        
+
         const banner = popup.querySelector('.vsl-mid-banner');
         if (banner) {
           banner.style.zIndex = '1001';
@@ -2479,21 +2537,21 @@ const { messages, form } = COPY;
   function setupVslButtonHandlers() {
     const vslPlayBtn = document.querySelector('.vsl-play-btn');
     const muteBtn = document.getElementById('vslMuteBtn');
-    
+
     if (vslPlayBtn) {
       // Удаляем старые обработчики
       vslPlayBtn.replaceWith(vslPlayBtn.cloneNode(true));
-      
+
       // Получаем новую ссылку на кнопку
       const newVslPlayBtn = document.querySelector('.vsl-play-btn');
-      
+
       if (newVslPlayBtn) {
         newVslPlayBtn.addEventListener('mousedown', function(e) {
           e.preventDefault();
           e.stopPropagation();
           toggleVslSound();
         });
-        
+
         newVslPlayBtn.addEventListener('touchstart', function(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -2501,14 +2559,14 @@ const { messages, form } = COPY;
         });
       }
     }
-    
+
     if (muteBtn) {
       muteBtn.addEventListener('mousedown', function(e) {
         e.preventDefault();
         e.stopPropagation();
         toggleVslSound();
       });
-      
+
       muteBtn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2525,7 +2583,7 @@ const { messages, form } = COPY;
       // Проверяем, какая форма открыта
       const orderFormModal = document.getElementById('orderFormModal');
       const callBookingModal = document.getElementById('callBookingModal');
-      
+
       if (orderFormModal && orderFormModal.style.display === 'flex') {
         // Отправляем данные при закрытии формы заказа через Escape
         if (savedFormData.name && savedFormData.phone) {
@@ -2538,7 +2596,7 @@ const { messages, form } = COPY;
             videoWatchTime: savedFormData.videoWatchTime || 0,
             userAgent: navigator.userAgent
           };
-          
+
           try {
             // Логируем данные заявки (замена API)
             logLeadData(leadData, 'form_interaction');
@@ -2547,7 +2605,7 @@ const { messages, form } = COPY;
             // console.error('Error sending order form escape data:', error);
           }
         }
-        
+
         // Показываем попап возврата с формы
         if (window.showFormReturnPopup) {
           window.showFormReturnPopup();
@@ -2557,7 +2615,7 @@ const { messages, form } = COPY;
         if (savedFormData.name && savedFormData.phone) {
           const callTimeElement = document.getElementById('callTime');
           const callTime = callTimeElement ? callTimeElement.value : 'Не выбрано';
-          
+
           const leadData = {
             name: savedFormData.name,
             phone: savedFormData.phone,
@@ -2567,7 +2625,7 @@ const { messages, form } = COPY;
             videoWatchTime: savedFormData.videoWatchTime || 0,
             userAgent: navigator.userAgent
           };
-          
+
           try {
             // Логируем данные заявки (замена API)
             logLeadData(leadData, 'form_interaction');
@@ -2576,7 +2634,7 @@ const { messages, form } = COPY;
             // console.error('Error sending call booking escape data:', error);
           }
         }
-        
+
         // Показываем попап выбора времени
         if (window.showTimeSelectionPopup) {
           window.showTimeSelectionPopup();
@@ -2590,7 +2648,7 @@ const { messages, form } = COPY;
   // Функция для обхода блокировки автовоспроизведения в чате
   function startChatVslWithBypass(video) {
     if (!video) return;
-    
+
     // Стратегия 1: Пробуем с отключенным звуком (работает в большинстве браузеров)
     video.muted = true;
     video.play().then(() => {
@@ -2598,24 +2656,24 @@ const { messages, form } = COPY;
       // Включаем звук сразу
       video.muted = false;
       // console.log('🔊 Chat VSL sound enabled immediately');
-      
+
       // Настраиваем обработчики кнопки после запуска видео
       setTimeout(() => {
         if (window.setupVslButtonHandlers) {
           window.setupVslButtonHandlers();
         }
       }, 100);
-      
+
       // Также настраиваем обработчики сразу
       if (window.setupVslButtonHandlers) {
         window.setupVslButtonHandlers();
       }
-      
+
       // Добавляем обработчик времени для показа попапа на определенной минуте
       setupVslTimePopup(video);
     }).catch((error) => {
       // console.log('❌ Chat VSL muted autoplay failed:', error.name);
-      
+
       // Стратегия 2: Пробуем с задержкой
       setTimeout(() => {
         video.muted = true;
@@ -2624,7 +2682,7 @@ const { messages, form } = COPY;
           // Включаем звук сразу
           video.muted = false;
           // console.log('🔊 Chat VSL sound enabled immediately (delayed)');
-          
+
           // Настраиваем обработчики
           if (window.setupVslButtonHandlers) {
             window.setupVslButtonHandlers();
@@ -2632,7 +2690,7 @@ const { messages, form } = COPY;
           setupVslTimePopup(video);
         }).catch((error2) => {
           // console.log('❌ Chat VSL delayed autoplay failed:', error2.name);
-          
+
           // Стратегия 3: Ждем взаимодействия пользователя
           setupChatVslUserInteraction(video);
         });
@@ -2643,7 +2701,7 @@ const { messages, form } = COPY;
   // Функция для запуска чат VSL после взаимодействия пользователя
   function setupChatVslUserInteraction(video) {
     let hasUserInteracted = false;
-    
+
     // Создаем невидимую кнопку воспроизведения
     const playButton = document.createElement('div');
     playButton.style.cssText = `
@@ -2673,12 +2731,12 @@ const { messages, form } = COPY;
         ▶️ Нажмите для воспроизведения
       </div>
     `;
-    
+
     const videoContainer = document.querySelector('.vsl-thumb');
     if (videoContainer) {
       videoContainer.appendChild(playButton);
     }
-    
+
     playButton.onclick = () => {
       if (!hasUserInteracted) {
         hasUserInteracted = true;
@@ -2686,7 +2744,7 @@ const { messages, form } = COPY;
         video.muted = false;
         video.play().then(() => {
           // console.log('✅ Chat VSL started after user interaction');
-          
+
           // Настраиваем обработчики
           if (window.setupVslButtonHandlers) {
             window.setupVslButtonHandlers();
@@ -2697,7 +2755,7 @@ const { messages, form } = COPY;
         });
       }
     };
-    
+
     // Добавляем обработчики для различных типов взаимодействия
     const interactionEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
     interactionEvents.forEach(event => {
@@ -2708,7 +2766,7 @@ const { messages, form } = COPY;
           video.muted = false;
           video.play().then(() => {
             // console.log('✅ Chat VSL started after user interaction');
-            
+
             // Настраиваем обработчики
             if (window.setupVslButtonHandlers) {
               window.setupVslButtonHandlers();
@@ -2724,12 +2782,12 @@ const { messages, form } = COPY;
 
   // Глобальная детекция взаимодействия пользователя для обхода автовоспроизведения
   let hasUserInteracted = false;
-  
+
   function markUserInteraction() {
     if (!hasUserInteracted) {
       hasUserInteracted = true;
       // console.log('👆 User interaction detected - autoplay should work now');
-      
+
       // Удаляем все обработчики после первого взаимодействия
       document.removeEventListener('click', markUserInteraction);
       document.removeEventListener('touchstart', markUserInteraction);
@@ -2737,7 +2795,7 @@ const { messages, form } = COPY;
       document.removeEventListener('mousedown', markUserInteraction);
     }
   }
-  
+
   // Добавляем глобальные обработчики для детекции взаимодействия
   document.addEventListener('click', markUserInteraction, { once: true });
   document.addEventListener('touchstart', markUserInteraction, { once: true });
@@ -2749,14 +2807,14 @@ const { messages, form } = COPY;
     const fullscreenCloseBtn = document.getElementById('fullscreenCloseBtn');
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     const fullscreenVideo = document.getElementById('fullscreenVideo');
-    
+
     if (fullscreenCloseBtn) {
       fullscreenCloseBtn.addEventListener('click', function() {
         // Показываем попап с выбором действий вместо прямого закрытия
         showVslCloseChoicePopup();
       });
     }
-    
+
     // Закрытие по клику на фон
     if (fullscreenPlayer) {
       fullscreenPlayer.addEventListener('click', function(e) {
@@ -2765,13 +2823,13 @@ const { messages, form } = COPY;
         }
       });
     }
-    
+
     // Разрешаем перемотку в полноэкранном плеере
     if (fullscreenVideo) {
       // Добавляем controls для всех устройств
       fullscreenVideo.controls = true;
       fullscreenVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-      
+
       // console.log('✅ Video seeking enabled for fullscreenVideo');
     }
   });
@@ -2780,7 +2838,7 @@ const { messages, form } = COPY;
   if (!window.imageLoadingBlocked) {
     window.imageLoadingBlocked = true;
     window.loadedImageUrls = new Set();
-    
+
     // Перехватываем все запросы на изображения
     const originalFetch = window.fetch;
     window.fetch = function(...args) {
@@ -2793,13 +2851,13 @@ const { messages, form } = COPY;
       }
       return originalFetch.apply(this, args);
     };
-    
+
     // Блокируем создание новых Image объектов с уже загруженными URL
     const originalImage = window.Image;
     window.Image = function() {
       const img = new originalImage();
       const originalSetSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src').set;
-      
+
       Object.defineProperty(img, 'src', {
         set: function(value) {
           if (window.loadedImageUrls.has(value)) {
@@ -2812,21 +2870,21 @@ const { messages, form } = COPY;
           return this.getAttribute('src');
         }
       });
-      
+
       return img;
     };
-    
+
     // Записываем все существующие изображения в кеш
     const images = document.querySelectorAll('img');
     images.forEach(img => {
       if (img.src) {
         window.loadedImageUrls.add(img.src);
       }
-      
+
       img.addEventListener('load', function() {
         this.style.opacity = '1';
       });
-      
+
       img.addEventListener('error', function() {
         // Silent error handling
       });
@@ -2863,13 +2921,13 @@ const { messages, form } = COPY;
     if (video) {
       // Сбрасываем время видео на начало
       video.currentTime = 0;
-      
+
       // Очищаем сохраненное время
       localStorage.removeItem('savedChatVideoTime');
-      
+
       // Перезапускаем видео с обходом блокировки
       startChatVslWithBypass(video);
-      
+
       // console.log('🔄 Chat video restarted from beginning');
     }
   });
@@ -2884,36 +2942,36 @@ const { messages, form } = COPY;
     if (vslCloseChoicePopup) {
       vslCloseChoicePopup.style.display = 'none';
     }
-    
+
     // Закрываем полноэкранный плеер если он открыт
     const fullscreenPlayer = document.getElementById('fullscreenPlayer');
     if (fullscreenPlayer && fullscreenPlayer.style.display !== 'none') {
       hideFullscreenPlayer();
     }
-    
+
     // Останавливаем видео и закрываем попапы
     const returnPopup = document.getElementById('returnPopup');
     const returnVisitPopup = document.getElementById('returnVisitPopup');
     const returnVideo = document.getElementById('returnVslVideo');
     const returnVisitVideo = document.getElementById('returnVisitVideo');
-    
+
     // Останавливаем видео в ReturnPopup
     if (returnVideo) {
       returnVideo.pause();
       // console.log('🛑 Stopped return video when returning to chat');
     }
-    
+
     // Останавливаем видео в ReturnVisitPopup
     if (returnVisitVideo) {
       returnVisitVideo.pause();
       // console.log('🛑 Stopped return visit video when returning to chat');
     }
-    
+
     // Закрываем попапы
     if (returnPopup) {
       returnPopup.style.display = 'none';
     }
-    
+
     if (returnVisitPopup) {
       returnVisitPopup.style.display = 'none';
     }
@@ -2931,21 +2989,21 @@ const { messages, form } = COPY;
   // Функция для показа сообщения об успешном заказе в чате
   function showSuccessMessageInChat(customerName = '') {
     // console.log('🎉 Showing success message in chat for:', customerName);
-    
+
     const chatContainer = document.querySelector('.chat');
     if (!chatContainer) {
       // console.error('❌ Chat container not found');
       return;
     }
-    
+
     // Получаем выбранное время звонка
     const callTimeElement = document.getElementById('callTime');
     let callTimeText = '1-2 минуты'; // по умолчанию
-    
+
     if (callTimeElement && callTimeElement.value) {
       const selectedTime = callTimeElement.value;
       // console.log('🎯 Selected call time:', selectedTime);
-      
+
       if (selectedTime === 'Ahora mismo') {
         callTimeText = '1-2 minutos';
       } else if (selectedTime === '5 minutos') {
@@ -2956,9 +3014,9 @@ const { messages, form } = COPY;
         callTimeText = '30 minutos';
       }
     }
-    
+
     // console.log('🎯 Final call time text:', callTimeText);
-    
+
     // Создаем сообщение об успешном заказе
     const successMessage = document.createElement('div');
     successMessage.className = 'bubble success-message';
@@ -2970,10 +3028,10 @@ const { messages, form } = COPY;
         <span class="success-text">${customerName ? customerName + ' ' : ''}¡solicitud aceptada! Espera la llamada del especialista en ${callTimeText}</span>
       </div>
     `;
-    
+
     // Добавляем сообщение в чат
     chatContainer.appendChild(successMessage);
-    
+
     // Прокручиваем к новому сообщению
     setTimeout(() => {
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -3161,13 +3219,13 @@ const { messages, form } = COPY;
       object-fit: contain; /* Показываем видео полностью без обрезания */
       background: #000; /* Черный фон для пустых областей */
     }
-    
+
     .vsl-thumb {
       height: 300px !important; /* Уменьшаем высоту на мобильных */
       min-height: 300px !important;
       max-height: 300px !important; /* Фиксируем максимальную высоту */
     }
-    
+
     .vsl-card {
       height: 300px !important; /* Фиксируем высоту карточки */
       min-height: 300px !important;
@@ -3181,7 +3239,7 @@ const { messages, form } = COPY;
       min-height: 250px !important;
       max-height: 250px !important; /* Фиксируем максимальную высоту */
     }
-    
+
     .vsl-card {
       height: 250px !important; /* Фиксируем высоту карточки */
       min-height: 250px !important;
@@ -3799,23 +3857,23 @@ const { messages, form } = COPY;
       transform: none !important;
       width: 100% !important;
     }
-    
+
     .pwa-modal-content {
       width: 100% !important;
     }
-    
+
     .pwa-modal-body {
       padding: 16px;
     }
-    
+
     .form-title {
       font-size: 18px;
     }
-    
+
     .call-title {
       font-size: 18px;
     }
-    
+
     .time-dropdown {
       width: 100% !important;
       max-width: 100% !important;
@@ -3827,7 +3885,7 @@ const { messages, form } = COPY;
       padding: 14px !important;
       box-sizing: border-box !important;
     }
-    
+
     .time-dropdown option {
       position: relative !important;
       left: 0 !important;
@@ -3836,7 +3894,7 @@ const { messages, form } = COPY;
       width: 100% !important;
       text-align: left !important;
     }
-    
+
     /* Принудительное исправление для выпадающего списка */
     .pwa-modal-body select {
       width: 100% !important;
@@ -3846,7 +3904,7 @@ const { messages, form } = COPY;
       transform: none !important;
       position: relative !important;
     }
-    
+
     /* Исправление для опций выпадающего списка */
     .pwa-modal-body select option {
       position: relative !important;
@@ -3856,7 +3914,7 @@ const { messages, form } = COPY;
       width: 100% !important;
       text-align: left !important;
     }
-    
+
     /* Исправление для контейнера времени */
     .time-selection {
       width: 100% !important;
@@ -4389,7 +4447,7 @@ const { messages, form } = COPY;
     object-fit: contain;
     background: #000;
   }
-  
+
   /* Показываем все элементы управления видео */
   #fullscreenVideo::-webkit-media-controls-play-button,
   #fullscreenVideo::-webkit-media-controls-pause-button,
@@ -4402,7 +4460,7 @@ const { messages, form } = COPY;
   #fullscreenVideo::-webkit-media-controls-mute-button {
     display: block !important;
   }
-  
+
   /* Показываем элементы управления для Firefox */
   #fullscreenVideo::-moz-media-controls-play-button,
   #fullscreenVideo::-moz-media-controls-pause-button,
@@ -4415,7 +4473,7 @@ const { messages, form } = COPY;
   #fullscreenVideo::-moz-media-controls-mute-button {
     display: block !important;
   }
-  
+
   /* Показываем элементы управления для перемотки на мобильных браузерах */
   #fullscreenVideo::-webkit-media-controls-timeline,
   #fullscreenVideo::-webkit-media-controls-seek-back-button,
@@ -4427,17 +4485,17 @@ const { messages, form } = COPY;
     width: auto !important;
     height: auto !important;
   }
-  
+
   /* Дополнительные правила для iOS Safari */
   #fullscreenVideo::-webkit-media-controls-overlay-play-button {
     display: none !important;
   }
-  
+
   /* Показываем элементы управления видео */
   #fullscreenVideo::-webkit-media-controls-enclosure {
     display: block !important;
   }
-  
+
   /* Разрешаем взаимодействие с видео */
   .video-wrapper {
     pointer-events: auto !important;
@@ -4445,14 +4503,14 @@ const { messages, form } = COPY;
     width: 100% !important;
     height: 100% !important;
   }
-  
+
   /* Дополнительные правила для мобильных устройств */
   @media (max-width: 768px) {
     #fullscreenVideo {
       /* Разрешаем взаимодействие с видео на мобильных */
       pointer-events: auto !important;
     }
-    
+
     /* Показываем все элементы управления на мобильных */
     #fullscreenVideo::-webkit-media-controls-play-button,
     #fullscreenVideo::-webkit-media-controls-pause-button,
@@ -4468,14 +4526,14 @@ const { messages, form } = COPY;
       visibility: visible !important;
       pointer-events: auto !important;
     }
-    
+
     .video-wrapper {
       /* Разрешаем взаимодействие с видео */
       overflow: visible !important;
       position: relative !important;
     }
   }
-  
+
   /* Агрессивное кеширование изображений */
   img {
     image-rendering: optimizeSpeed;
@@ -4490,13 +4548,13 @@ const { messages, form } = COPY;
     /* Блокируем обновление */
     pointer-events: none;
   }
-  
+
   /* Восстанавливаем события для интерактивных изображений */
   .review-image img,
   .product-image {
     pointer-events: auto;
   }
-  
+
   /* Оптимизация изображений без отключения анимаций */
   img, img:hover, img:focus, img:active {
     transform: translateZ(0) !important;
@@ -4550,7 +4608,7 @@ const { messages, form } = COPY;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
   }
-  
+
   .fullscreen-vsl-mid-popup.show {
     display: block !important;
     opacity: 1 !important;
@@ -4585,5 +4643,4 @@ const { messages, form } = COPY;
   }
 
 </style>
-
 
