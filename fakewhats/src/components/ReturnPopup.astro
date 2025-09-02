@@ -161,6 +161,10 @@ const { popup } = COPY;
         if (window.showOrderFormModal) {
           window.showOrderFormModal();
         }
+        // Запускаем таймеры при показе формы
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        }
       });
     }
   }
@@ -245,6 +249,10 @@ const { popup } = COPY;
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        // Запускаем таймеры при показе формы
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        }
       }, 10);
     }
   }

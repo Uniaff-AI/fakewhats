@@ -86,6 +86,10 @@ const { popup } = COPY;
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        // Запускаем таймеры при показе формы
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        }
       }, 10);
     }
   }

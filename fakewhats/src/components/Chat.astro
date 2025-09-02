@@ -1042,11 +1042,17 @@ const { messages, form } = COPY;
     const minutes = Math.floor(globalTimeLeft / 60);
     const seconds = globalTimeLeft % 60;
     const timerElements = document.querySelectorAll('#timer, #domonetkaTimer, #orderTimer');
-    timerElements.forEach(element => {
-      element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    });
     
-    if (globalTimeLeft > 0) {
+    if (timerElements.length > 0) {
+      timerElements.forEach(element => {
+        element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      });
+      console.log('⏰ Timer updated:', `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`, 'Elements found:', timerElements.length);
+    } else {
+      console.log('⚠️ No timer elements found with IDs: timer, domonetkaTimer, orderTimer');
+    }
+    
+    if (globalTimeLeft > 60) {
       globalTimeLeft--;
     }
   }
@@ -1061,21 +1067,43 @@ const { messages, form } = COPY;
     });
   }
   
-  // Глобальные таймеры (запускаются только один раз)
+  // Глобальные таймеры
   let globalTimerInterval;
   let globalBottlesInterval;
-  let globalTimersStarted = false;
   
   function startGlobalTimers() {
-    if (!globalTimersStarted) {
-      if (!globalTimerInterval) {
-        globalTimerInterval = setInterval(updateGlobalTimer, 1000);
-      }
-      if (!globalBottlesInterval) {
-        globalBottlesInterval = setInterval(updateGlobalBottles, 4000 + Math.random() * 1000);
-      }
-      globalTimersStarted = true;
+    // Проверяем наличие элементов таймера
+    const timerElements = document.querySelectorAll('#timer, #domonetkaTimer, #orderTimer');
+    if (timerElements.length === 0) {
+      console.error('❌ No timer elements found! Cannot start timers.');
+      return;
     }
+    
+    console.log('🎯 Starting global timers, found elements:', timerElements.length);
+    
+    // Очищаем предыдущие интервалы если они существуют
+    if (globalTimerInterval) {
+      clearInterval(globalTimerInterval);
+      globalTimerInterval = null;
+    }
+    if (globalBottlesInterval) {
+      clearInterval(globalBottlesInterval);
+      globalBottlesInterval = null;
+    }
+    
+    // Сбрасываем время и счетчик банок
+    globalTimeLeft = 4 * 60 + 19; // 4 минуты 19 секунд
+    globalBottlesLeft = 39;
+    
+    // Запускаем новые таймеры
+    globalTimerInterval = setInterval(updateGlobalTimer, 1000);
+    globalBottlesInterval = setInterval(updateGlobalBottles, 4000 + Math.random() * 1000);
+    
+    // Обновляем отображение сразу
+    updateGlobalTimer();
+    updateGlobalBottles();
+    
+    console.log('✅ Global timers started - Timer:', globalTimeLeft, 'seconds, Bottles:', globalBottlesLeft);
   }
   
   // Таймеры будут запускаться только при показе форм
@@ -1084,16 +1112,23 @@ const { messages, form } = COPY;
   // Обработчик кнопки "Получить скидку"
   const getDiscountBtn = document.getElementById('getDiscountBtn');
   getDiscountBtn?.addEventListener('click', () => {
-    // console.log('getDiscountBtn clicked');
+    console.log('🎯 getDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        console.log('📋 Order form modal shown, starting timers...');
         // Запускаем таймеры при показе формы
-        startGlobalTimers();
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        } else {
+          console.error('❌ window.startGlobalTimers is not defined!');
+        }
       }, 10);
+    } else {
+      console.error('❌ Order form modal not found!');
     }
   });
 
@@ -1434,16 +1469,23 @@ const { messages, form } = COPY;
 
   // Обработчик кнопки "Получить скидку" в автосообщении
   autoDiscountBtn?.addEventListener('click', () => {
-    // console.log('🎯 autoDiscountBtn clicked');
+    console.log('🎯 autoDiscountBtn clicked');
     // Показываем форму заказа как PWA модал
     const orderFormModal = document.getElementById('orderFormModal');
     if (orderFormModal) {
       orderFormModal.style.display = 'flex';
       setTimeout(() => {
         orderFormModal.classList.add('show');
+        console.log('📋 Order form modal shown (auto), starting timers...');
         // Запускаем таймеры при показе формы
-        startGlobalTimers();
+        if (window.startGlobalTimers) {
+          window.startGlobalTimers();
+        } else {
+          console.error('❌ window.startGlobalTimers is not defined!');
+        }
       }, 10);
+    } else {
+      console.error('❌ Order form modal not found!');
     }
   });
 
@@ -1936,6 +1978,10 @@ const { messages, form } = COPY;
     if (window.showOrderFormModal) {
       window.showOrderFormModal();
     }
+    // Запускаем таймеры при показе формы
+    if (window.startGlobalTimers) {
+      window.startGlobalTimers();
+    }
   }
   
   function handleFullscreenVideoTimeUpdate() {
@@ -2204,6 +2250,14 @@ const { messages, form } = COPY;
 
   // Инициализация попапа при загрузке страницы
   document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем наличие элементов таймера
+    const orderTimerElement = document.getElementById('orderTimer');
+    if (orderTimerElement) {
+      console.log('✅ Order timer element found:', orderTimerElement);
+    } else {
+      console.error('❌ Order timer element not found!');
+    }
+    
     // Проверяем, повторное ли это посещение
     const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     const savedVideoTime = localStorage.getItem('savedVideoTime');
@@ -2327,12 +2381,12 @@ const { messages, form } = COPY;
     let messageShown = false;
     
     // Читаем значения из data-атрибутов или используем значения из конфигурации
-    const startTime = parseInt(video.dataset.popupStart) || 773; // Изменили с 893 на 773
-    const endTime = parseInt(video.dataset.popupEnd) || 1100;
-    const messageTime = 593; // За 3 минуты до попапа (773 - 180 = 593)
+    const startTime = parseInt(video.dataset.popupStart) || 671; // Начало попапа на 671 секунде
+    const endTime = parseInt(video.dataset.popupEnd) || 999999; // До конца видео
+    const messageTime = 491; // За 3 минуты до попапа (671 - 180 = 491)
     
     // Проверяем, что время сообщения действительно за 3 минуты до попапа
-    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд (773 - 180 = 593)
+    const expectedMessageTime = startTime - 180; // 3 минуты = 180 секунд (671 - 180 = 491)
     if (messageTime !== expectedMessageTime) {
       // console.warn('⚠️ Message time mismatch! Expected:', expectedMessageTime, 'Got:', messageTime);
     }
@@ -2390,6 +2444,10 @@ const { messages, form } = COPY;
                 // console.log('🎬 Video ended, showing order form');
                 if (window.showOrderFormModal) {
                   window.showOrderFormModal();
+                }
+                // Запускаем таймеры при показе формы
+                if (window.startGlobalTimers) {
+                  window.startGlobalTimers();
                 }
               });
     
