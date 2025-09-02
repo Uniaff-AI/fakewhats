@@ -512,7 +512,7 @@ const { messages, form } = COPY;
 <div id="fullscreenPlayer" class="fullscreen-player" style="display: none;">
   <div class="fullscreen-player-content">
             <div class="video-wrapper">
-          <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
+          <video id="fullscreenVideo" src={siteConfig.images.videos.chatVsl} data-original-src={siteConfig.images.videos.chatVsl} playsinline preload="metadata" controls webkit-playsinline x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="landscape"></video>
         </div>
     <button id="fullscreenCloseBtn" class="fullscreen-close-btn" style="z-index: 1010;">✕</button>
     
@@ -1852,6 +1852,12 @@ const { messages, form } = COPY;
         fullscreenPlayerCleanup = null;
       }
 
+      // ВОССТАНАВЛИВАЕМ ИСТОЧНИК ВИДЕО ЕСЛИ ОН БЫЛ УДАЛЕН
+      if (!fullscreenVideo.src) {
+        fullscreenVideo.src = fullscreenVideo.dataset.originalSrc;
+        fullscreenVideo.load();
+      }
+
       fullscreenPlayer.style.display = 'flex';
 
       // Принудительно включаем элементы управления
@@ -2031,6 +2037,28 @@ const { messages, form } = COPY;
         // console.log('⚠️ Video time is 0, not saving');
       }
 
+      // ЖЕСТКАЯ ОСТАНОВКА ВИДЕО ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
+      fullscreenVideo.pause();
+      fullscreenVideo.currentTime = 0;
+      
+      // Дополнительная очистка для мобильных устройств
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        // Принудительно останавливаем все процессы видео
+        fullscreenVideo.removeAttribute('src');
+        fullscreenVideo.load();
+        
+        // Очищаем буфер
+        if (fullscreenVideo.buffered && fullscreenVideo.buffered.length > 0) {
+          try {
+            fullscreenVideo.removeAttribute('src');
+            fullscreenVideo.load();
+          } catch (e) {
+            // Игнорируем ошибки при очистке
+          }
+        }
+      }
+
       // Очищаем ресурсы перед закрытием
       if (fullscreenPlayerCleanup) {
         fullscreenPlayerCleanup();
@@ -2038,7 +2066,6 @@ const { messages, form } = COPY;
       }
 
       fullscreenPlayer.style.display = 'none';
-      fullscreenVideo.pause();
 
       // Попап скрывается автоматически через обычную систему
 
@@ -2234,6 +2261,12 @@ const { messages, form } = COPY;
 
   // Инициализация попапа при загрузке страницы
   document.addEventListener('DOMContentLoaded', function() {
+    // Инициализируем data-атрибут для полноэкранного видео
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    if (fullscreenVideo && !fullscreenVideo.dataset.originalSrc) {
+      fullscreenVideo.dataset.originalSrc = fullscreenVideo.src;
+    }
+
     // Проверяем наличие элементов таймера
     const orderTimerElement = document.getElementById('orderTimer');
     if (orderTimerElement) {
